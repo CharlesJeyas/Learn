@@ -6,12 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --vh: 1vh; /* fallback */
+    }
+
     body {
       margin: 0;
       font-family: sans-serif;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: calc(var(--vh, 1vh) * 100);
       background-color: #ffffff;
     }
 
@@ -48,6 +52,7 @@
       justify-content: center;
       align-items: center;
       text-align: center;
+      overflow: hidden;
     }
 
     #displayArea {
@@ -56,9 +61,9 @@
       color: #000;
       height: 200px;
       width: 100%;
-      max-width: 600px;
+      max-width: 400px;
       margin: auto;
-      padding-top: 120px; /* Align text baseline with red line */
+      padding-top: 120px;
       text-align: center;
       line-height: 0;
 
@@ -71,11 +76,11 @@
       background-repeat: no-repeat;
 
       background-position:
-        0 95px,     /* Top line */
-        0 120px,    /* Second line */
-        0 145px,   /* Third line - red baseline */
-        0 170px;   /* Fourth line */
-        
+        0 95px,
+        0 120px,
+        0 145px,
+        0 170px;
+
       background-size:
         100% 1px,
         100% 1px,
@@ -189,6 +194,16 @@
       displayArea.textContent = '';
       speakWord();
     }
+
+    // Set --vh to actual viewport height on load and resize
+    function setVh() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+    setVh();
   </script>
 </body>
 </html>
