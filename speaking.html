@@ -217,7 +217,7 @@
   // Wait for voices to load
   function loadVoices() {
     const voices = speechSynthesis.getVoices();
-    selectedVoice = voices.find(v => v.name.includes("Reed"));
+    selectedVoice = voices.find(v => v.name.includes("Samantha") && v.lang === "en-US");
   }
 
   speechSynthesis.onvoiceschanged = loadVoices;
@@ -321,6 +321,7 @@
 </script>
 </body>
 </html>
+
 
 
 
