@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Speaking Practice</title>
+<title>Hebrew Practice</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=GveretLevinAlefAlefAlef-Regular&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Playpen+Sans+Hebrew:wght@500&display=swap" rel="stylesheet">
 <style>
 :root {
   --vh: 1vh; 
@@ -15,178 +14,318 @@
   --brown-shadow: rgba(166,123,91,0.4);
   --brown-shadow-light: rgba(193,154,107,0.3);
 }
-html, body {margin:0; padding:0; width:100%; height:calc(var(--vh,1vh)*100); box-sizing:border-box; overflow:hidden;}
-* {box-sizing:inherit;}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: calc(var(--vh, 1vh) * 100);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+* { box-sizing: inherit; }
+
 body {
-  font-family:'Comic Neue', cursive, Arial, sans-serif;
-  display:flex; flex-direction:column;
+  font-family: 'Comic Neue', cursive, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(135deg, #F5F1EB 0%, #EDE6DC 100%);
-  user-select:none; color:var(--brown-dark);
+  user-select: none;
+  color: var(--brown-dark);
 }
+
 header {
-  padding:1rem; background-color:var(--brown-light); color:white;
-  font-size:1.5rem; display:flex; justify-content:space-between;
-  align-items:center; box-shadow:0 4px 8px var(--brown-shadow); font-weight:700;
+  padding: 1rem;
+  background-color: var(--brown-light);
+  color: white;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  box-shadow: 0 4px 8px var(--brown-shadow);
+  font-weight: 700;
+  gap: 1rem;
 }
-#headerLeft { display:flex; align-items:center; gap:1rem;}
-#fileLabel {
-  font-size:1.4rem; cursor:pointer; display:flex; align-items:center; gap:0.3rem;
-  user-select:none; color:white;
-}
-input[type="file"]{display:none;}
-#statusMsg {
-  font-size:1rem; font-weight:700; display:flex; align-items:center; gap:0.3rem; user-select:none; color:white;
-}
+
 #langToggle {
-  padding:0.3rem 0.6rem; border-radius:20px; border:none; cursor:pointer;
-  font-weight:700; background-color:white; color:var(--brown-light);
+  font-size: 1rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  background-color: white;
+  color: var(--brown-light);
+  font-weight: 700;
 }
+
+#statusMsg {
+  font-size: 1rem;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: white;
+}
+
+#fileLabel {
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  user-select: none;
+  color: white;
+}
+
+input[type="file"] { display: none; }
+
 main {
-  flex:1; display:flex; justify-content:center; align-items:center; text-align:center;
-  overflow:hidden; width:100%; padding:1rem;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  width: 100%;
+  padding: 1rem;
 }
+
 #displayArea {
-  font-family:'Comic Neue', cursive, sans-serif;
-  font-size:40px; color:var(--brown-dark);
-  width:100%; max-width:400px; min-height:200px; white-space:normal;
-  overflow-wrap:break-word; transition:none;
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  font-family: 'Comic Neue', cursive, 'Playpen Sans Hebrew', sans-serif;
+  color: var(--brown-dark);
+  width: 100%;
+  max-width: 500px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
+
+#displayArea .hebrew { font-family: 'Playpen Sans Hebrew', sans-serif; }
+
+/* Reverted text size to original */
+#displayArea div { 
+  font-size: 40px; 
+  color: var(--brown-dark);
+}
+
 #displayArea.number {
-  font-weight:700; font-size:6rem; width:150px; height:150px;
-  border-radius:50%; background-color:var(--brown-light); color:white;
-  user-select:none; margin:auto; display:flex; justify-content:center; align-items:center;
-  line-height:normal;
+  font-weight: 700;
+  font-size: 6rem;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: var(--brown-light);
+  color: white;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: normal;
 }
+
 footer {
-  padding:1rem 0.5rem; background-color:var(--brown-light);
-  display:flex; justify-content:space-between; box-shadow:0 -4px 8px var(--brown-shadow);
-  flex-shrink:0; gap:0.3rem;
+  padding: 1rem 0.5rem;
+  background-color: var(--brown-light);
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 -4px 8px var(--brown-shadow);
+  flex-shrink: 0;
+  gap: 0.3rem;
 }
+
 button {
-  padding:0.7rem 0.5rem; font-size:1.1rem; border:none; border-radius:30px;
-  background-color:white; color:var(--brown-light); cursor:pointer;
-  flex:1 1 22%; font-weight:700; box-shadow:0 4px 8px var(--brown-shadow-light);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  display:flex; align-items:center; justify-content:center; gap:0.3rem; user-select:none; min-width:0;
+  padding: 0.7rem 0.5rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 30px;
+  background-color: white;
+  color: var(--brown-light);
+  cursor: pointer;
+  flex: 1 1 22%;
+  font-weight: 700;
+  box-shadow: 0 4px 8px var(--brown-shadow-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-width: 0;
 }
-button:hover { background-color:var(--brown-lighter); color:white;}
-.icon { display:inline-block; vertical-align:middle; width:1.2em; height:1.2em; fill:var(--brown-light); user-select:none;}
-.hebrew { font-family:'GveretLevinAlefAlefAlef-Regular', cursive; font-size:32px; margin-top:0.2em; color:var(--brown-dark);}
+
+button:hover {
+  background-color: var(--brown-lighter);
+  color: white;
+}
+
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1.2em;
+  height: 1.2em;
+  fill: currentColor;
+}
 </style>
 </head>
 <body>
 <header>
-  <div id="headerLeft">
-    <span>Speaking Practice</span>
+  <span>Hebrew Practice</span>
+  <button id="langToggle">English</button>
+   <span id="statusMsg">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
+      No file loaded
+    </span>
     <label id="fileLabel" title="Load sentences file">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/></svg>
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
+        <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/>
+      </svg>
       <input type="file" accept=".txt" id="sentenceFileInput" />
-      Load
     </label>
-  </div>
-  <span id="statusMsg">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
-    No file loaded
-  </span>
-  <button id="langToggle" onclick="toggleLanguage()">English</button>
-</header>
+  </header>
 
 <main>
   <div id="displayArea"></div>
 </main>
 
 <footer>
-  <button id="prevBtn" title="Previous Sentence">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M16 19l-7-7 7-7v14z"/></svg>
-    Prev
-  </button>
-  <button id="toggleBtn" onclick="toggleVisibility()" title="Toggle Sentence Visibility">Show</button>
-  <button id="checkBtn" onclick="playOtherLanguage()" title="Check">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
-    Check
-  </button>
-  <button id="nextBtn" title="Next Sentence">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    Next
-  </button>
+  <button id="prevBtn">Prev</button>
+  <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
+  <button id="checkBtn" onclick="speakOther()">Check</button>
+  <button id="nextBtn">Next</button>
 </footer>
 
 <script>
-let sentences=[], sentenceIndex=0, isVisible=false, currentLang='en';
-const displayArea=document.getElementById('displayArea');
-const fileInput=document.getElementById('sentenceFileInput');
-const toggleBtn=document.getElementById('toggleBtn');
-const langToggle=document.getElementById('langToggle');
+let sentences = [];
+let sentenceIndex = 0;
+let isVisible = false;
+let lang = 'en';
+const displayArea = document.getElementById('displayArea');
+const fileInput = document.getElementById('sentenceFileInput');
+const statusMsg = document.getElementById('statusMsg');
+const toggleBtn = document.getElementById('toggleBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const langToggle = document.getElementById('langToggle');
 
-let voices=[], voiceEn=null, voiceHe=null;
+let voices = [];
 
-function loadVoices(){
-  voices=speechSynthesis.getVoices();
-  voiceEn=voices.find(v=>v.name==="Samantha");
-  voiceHe=voices.find(v=>v.name==="Carmit");
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
 }
-speechSynthesis.onvoiceschanged=loadVoices;
+speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 
-fileInput.addEventListener('change', function(){
-  const file=this.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const text=e.target.result;
-    sentences=text.split('\n').map(s=>s.trim()).filter(Boolean).map(line=>{
-      const parts=line.split(' '); 
-      return {en: parts[0], he: parts[1]||''};
+fileInput.addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    sentences = text.split('\n').map(s => s.trim()).filter(Boolean).map(s=>{
+      const parts = s.split('|');
+      return {en: parts[0]?.trim()||'', he: parts[1]?.trim()||''};
     });
-    sentenceIndex=0; isVisible=false;
-    updateToggleButton(); updateDisplay();
-    speakCurrentLanguage();
-    document.getElementById('statusMsg').innerHTML=`
-      <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
-      ✅ ${sentences.length} sentences loaded
-    `;
-  }
+    sentenceIndex = 0;
+    isVisible = false;
+    updateToggleButton();
+
+if (sentences.length > 0) {
+        statusMsg.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+          </svg>
+          ✅ ${sentences.length} sentences loaded
+        `;
+        startSentence();
+      } else {
+        statusMsg.textContent = '⚠️ File is empty';
+        displayArea.textContent = '';
+      }
+  };
   reader.readAsText(file);
 });
 
-function toggleVisibility(){ isVisible=!isVisible; updateDisplay(); updateToggleButton(); }
-function updateToggleButton(){ toggleBtn.textContent=isVisible?'Hide':'Show'; }
-function toggleLanguage(){ currentLang=currentLang==='en'?'he':'en'; langToggle.textContent=currentLang==='en'?'English':'Hebrew'; if(isVisible) updateDisplay(); speakCurrentLanguage(); }
+function speakText(text, voiceName) {
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate=0.9;
+  if(voiceName){
+    const voice = voices.find(v=>v.name===voiceName);
+    if(voice) utterance.voice=voice;
+  }
+  speechSynthesis.speak(utterance);
+}
 
-function nextSentence(){ if(sentences.length===0) return; sentenceIndex=(sentenceIndex+1)%sentences.length; isVisible=false; updateToggleButton(); updateDisplay(); speakCurrentLanguage(); }
-function prevSentence(){ if(sentences.length===0) return; sentenceIndex=(sentenceIndex-1+sentences.length)%sentences.length; isVisible=false; updateToggleButton(); updateDisplay(); speakCurrentLanguage(); }
+function startSentence(){
+  updateDisplay();
+  if(lang==='en') speakText(sentences[sentenceIndex].en,'Samantha');
+  else speakText(sentences[sentenceIndex].he,'Carmit');
+}
+
+function toggleVisibility(){
+  isVisible = !isVisible;
+  updateDisplay();
+  updateToggleButton();
+}
+
+function updateToggleButton(){
+  toggleBtn.textContent = isVisible ? 'Hide':'Show';
+}
+
+function nextSentence(){
+  if(sentences.length===0) return;
+  sentenceIndex = (sentenceIndex+1)%sentences.length;
+  isVisible=false;
+  updateToggleButton();
+  startSentence();
+}
+
+function prevSentence(){
+  if(sentences.length===0) return;
+  sentenceIndex = (sentenceIndex-1+sentences.length)%sentences.length;
+  isVisible=false;
+  updateToggleButton();
+  startSentence();
+}
 
 function updateDisplay(){
-  if(!sentences[sentenceIndex]) return;
   if(isVisible){
-    displayArea.classList.remove('number');
-    displayArea.innerHTML=`<span style="font-family:${currentLang==='en'?'Comic Neue':'GveretLevinAlefAlefAlef-Regular'}">${sentences[sentenceIndex].en}</span>
-                           <span class="hebrew">${sentences[sentenceIndex].he}</span>`;
-  } else { displayArea.classList.add('number'); displayArea.textContent=(sentenceIndex+1).toString(); }
+    displayArea.className=''; // remove number class
+    displayArea.innerHTML = '';
+    const enDiv = document.createElement('div');
+    enDiv.textContent = sentences[sentenceIndex].en;
+    const heDiv = document.createElement('div');
+    heDiv.textContent = sentences[sentenceIndex].he;
+    heDiv.className='hebrew';
+    displayArea.appendChild(enDiv);
+    displayArea.appendChild(heDiv);
+  }else{
+    displayArea.className='number';
+    displayArea.textContent = (sentenceIndex+1).toString();
+  }
 }
 
-function speakCurrentLanguage(){
-  if(!sentences[sentenceIndex]) return;
-  speechSynthesis.cancel();
-  const utter=new SpeechSynthesisUtterance(sentences[sentenceIndex][currentLang]);
-  utter.rate=0.9; utter.voice=currentLang==='en'?voiceEn:voiceHe;
-  speechSynthesis.speak(utter);
+function speakOther(){
+  if(sentences.length===0) return;
+  if(lang==='en') speakText(sentences[sentenceIndex].he,'Carmit');
+  else speakText(sentences[sentenceIndex].en,'Samantha');
 }
 
-function playOtherLanguage(){
-  if(!sentences[sentenceIndex]) return;
-  speechSynthesis.cancel();
-  const otherLang=currentLang==='en'?'he':'en';
-  const utter=new SpeechSynthesisUtterance(sentences[sentenceIndex][otherLang]);
-  utter.rate=0.9; utter.voice=otherLang==='en'?voiceEn:voiceHe;
-  speechSynthesis.speak(utter);
-}
+langToggle.addEventListener('click',()=>{
+  lang = (lang==='en')?'he':'en';
+  langToggle.textContent = (lang==='en')?'English':'Hebrew';
+  startSentence();
+});
 
-document.getElementById('prevBtn').addEventListener('click', prevSentence);
-document.getElementById('nextBtn').addEventListener('click', nextSentence);
+prevBtn.addEventListener('click',prevSentence);
+nextBtn.addEventListener('click',nextSentence);
 
-function setVh(){ setTimeout(()=>{const vh=window.innerHeight*0.01; document.documentElement.style.setProperty('--vh',`${vh}px`);},50);}
-window.addEventListener('resize', setVh); window.addEventListener('orientationchange', setVh); setVh();
+// viewport fix
+function setVh(){setTimeout(()=>{document.documentElement.style.setProperty('--vh',`${window.innerHeight*0.01}px`);},50);}
+window.addEventListener('resize',setVh);
+window.addEventListener('orientationchange',setVh);
+setVh();
 </script>
 </body>
 </html>
