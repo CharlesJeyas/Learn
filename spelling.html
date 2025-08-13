@@ -58,6 +58,10 @@
       margin-left: auto;
       margin-right: 1rem;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      user-select: none;
     }
 
     main {
@@ -124,15 +128,15 @@
       box-shadow: 0 4px 8px var(--brown-shadow-light);
       transition: background-color 0.3s ease, color 0.3s ease;
       user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
     }
 
     button:hover {
       background-color: var(--brown-lighter);
       color: white;
-    }
-
-    .hidden {
-      display: none;
     }
 
     /* Icon styling */
@@ -150,16 +154,15 @@
   <header>
     <span>Spelling Practice</span>
     <span id="statusMsg">
-      <!-- Document icon -->
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
       No file loaded
     </span>
-<label id="fileLabel" title="Load words file">
-  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
-    <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/>
-  </svg>
-  <input type="file" accept=".txt" id="wordFileInput" />
-</label>
+    <label id="fileLabel" title="Load words file">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
+        <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/>
+      </svg>
+      <input type="file" accept=".txt" id="wordFileInput" />
+    </label>
   </header>
 
   <main>
@@ -167,19 +170,23 @@
   </main>
 
   <footer>
-    <button id="replayBtn" onclick="speakWord()" title="Replay">
-      <!-- Replay icon -->
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+    <button id="prevBtn" onclick="prevWord()" title="Previous Word">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M16 19l-7-7 7-7v14z"/>
+      </svg>
+      Prev
+    </button>
+    <button id="toggleBtn" onclick="toggleVisibility()" title="Show/Hide Word">Show</button>
+    <button id="playBtn" onclick="speakWord()" title="Play">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/>
+      </svg>
       Play
     </button>
-    <button id="checkBtn" onclick="checkSpelling()" title="Check Spelling">
-      <!-- Check icon -->
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 16.2l-3.5-3.5L4 14l5 5 12-12-1.5-1.5L9 16.2z"/></svg>
-      Check
-    </button>
-    <button id="nextBtn" class="hidden" onclick="nextWord()" title="Next Word">
-      <!-- Next icon -->
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 17l5-5-5-5v10z"/></svg>
+    <button id="nextBtn" onclick="nextWord()" title="Next Word">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
       Next
     </button>
   </footer>
@@ -189,20 +196,19 @@
   let currentWord = '';
   let wordIndex = 0;
   let selectedVoice = null;
+  let isVisible = false;
 
   const displayArea = document.getElementById('displayArea');
   const fileInput = document.getElementById('wordFileInput');
-  const checkBtn = document.getElementById('checkBtn');
-  const nextBtn = document.getElementById('nextBtn');
+  const toggleBtn = document.getElementById('toggleBtn');
   const statusMsg = document.getElementById('statusMsg');
 
-  // Load available voices and select Evan (Enhanced) if possible
+  // Load voices
   function loadVoices() {
     const voices = speechSynthesis.getVoices();
     selectedVoice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
   }
 
-  // iOS Safari may need this event to load voices
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
 
@@ -215,6 +221,8 @@
       const text = e.target.result;
       words = text.split('\n').map(w => w.trim()).filter(Boolean);
       wordIndex = 0;
+      isVisible = false;
+      updateToggleButton();
 
       if (words.length > 0) {
         statusMsg.innerHTML = `
@@ -226,6 +234,7 @@
         startWord();
       } else {
         statusMsg.textContent = '⚠️ File is empty';
+        displayArea.textContent = '';
       }
     };
     reader.readAsText(file);
@@ -233,40 +242,50 @@
 
   function speakWord() {
     if (!currentWord) return;
-
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentWord+".");
-    utterance.rate = 0.8; // slower speed
-
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-
+    const utterance = new SpeechSynthesisUtterance(currentWord+" ");
+    utterance.rate = 0.8;
+    if (selectedVoice) utterance.voice = selectedVoice;
     speechSynthesis.speak(utterance);
-    displayArea.textContent = '';
   }
 
-  function checkSpelling() {
-    displayArea.textContent = currentWord;
-    checkBtn.classList.add('hidden');
-    nextBtn.classList.remove('hidden');
+  function toggleVisibility() {
+    isVisible = !isVisible;
+    updateDisplay();
+    updateToggleButton();
+  }
+
+  function updateToggleButton() {
+    toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
+  }
+
+  function prevWord() {
+    if (words.length === 0) return;
+    wordIndex = (wordIndex - 1 + words.length) % words.length;
+    isVisible = false;
+    updateToggleButton();
+    startWord();
   }
 
   function nextWord() {
     if (words.length === 0) return;
     wordIndex = (wordIndex + 1) % words.length;
+    isVisible = false;
+    updateToggleButton();
     startWord();
-    checkBtn.classList.remove('hidden');
-    nextBtn.classList.add('hidden');
   }
 
   function startWord() {
     currentWord = words[wordIndex];
-    displayArea.textContent = '';
+    updateDisplay();
     speakWord();
   }
 
-  // Set --vh to actual viewport height on load and resize
+  function updateDisplay() {
+    displayArea.textContent = isVisible ? currentWord : (wordIndex + 1).toString();
+  }
+
+  // Set --vh to actual viewport height
   function setVh() {
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -278,9 +297,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
