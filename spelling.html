@@ -213,7 +213,7 @@
 
   function loadVoices() {
     const voices = speechSynthesis.getVoices();
-    selectedVoice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
+    selectedVoice = voices.find(v => v.name === "Eddy" && v.lang === "en-US");
   }
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
@@ -248,7 +248,7 @@
   function speakWord() {
     if (!currentWord) return;
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentWord + " ");
+    const utterance = new SpeechSynthesisUtterance(currentWord + ".");
     utterance.rate = 0.8;
     if (selectedVoice) utterance.voice = selectedVoice;
     speechSynthesis.speak(utterance);
@@ -301,3 +301,4 @@
 </script>
 </body>
 </html>
+
