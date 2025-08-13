@@ -279,7 +279,7 @@ fileInput.addEventListener('change', function() {
 function speakText(text, voiceName, onEnd) {
   speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.8;
+  utterance.rate = 0.7;
   if (voiceName){
     const voice = voices.find(v => v.name === voiceName);
     if (voice) utterance.voice = voice;
@@ -378,9 +378,9 @@ function runAutoPlay() {
             autoPlayBtn.classList.remove('active');
             autoPlayBtn.textContent='▶';
           }
-        }, 2000);
+        }, 5000);
       });
-    }, 2000);
+    }, 5000);
   });
 }
 
@@ -397,4 +397,5 @@ setVh();
 </script>
 </body>
 </html>
+
 
