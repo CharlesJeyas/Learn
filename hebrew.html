@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <title>Speaking Practice</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Gveret+Levin+AlefAlefAlef&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Gveret+Levin&display=swap" rel="stylesheet">
   <style>
     :root {
       --vh: 1vh; /* fallback */
@@ -45,6 +46,22 @@
       align-items: center;
       box-shadow: 0 4px 8px var(--brown-shadow);
       font-weight: 700;
+      position: relative;
+    }
+
+    #langToggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: white;
+      border-radius: 20px;
+      padding: 0.3rem 0.6rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--brown-light);
+      box-shadow: 0 2px 6px var(--brown-shadow-light);
     }
 
     #fileLabel {
@@ -84,7 +101,7 @@
     }
 
     #displayArea {
-      font-family: 'Comic Neue', cursive, sans-serif;
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
       font-size: 40px;
       color: var(--brown-dark);
       width: 100%;
@@ -115,19 +132,11 @@
       line-height: normal;
     }
 
-    .hebrew-text {
-      font-family: 'Gveret Levin AlefAlefAlef', cursive;
-      font-size: 32px;
+    .hebrew {
+      font-family: 'Gveret Levin', cursive;
+      margin-top: 0.3em;
+      font-size: 36px;
       direction: rtl;
-    }
-
-    #languageToggle {
-      margin-left: 1rem;
-      font-size: 1rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
     }
 
     footer {
@@ -179,21 +188,14 @@
   <header>
     <span>Speaking Practice</span>
     <span id="statusMsg">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
+      <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
       No file loaded
     </span>
-    <div style="display:flex;align-items:center;">
-      <select id="languageToggle">
-        <option value="english" selected>English</option>
-        <option value="hebrew">Hebrew</option>
-      </select>
-      <label id="fileLabel" title="Load sentences file">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
-          <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/>
-        </svg>
-        <input type="file" accept=".txt" id="sentenceFileInput" />
-      </label>
-    </div>
+    <label id="fileLabel" title="Load sentences file">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/></svg>
+      <input type="file" accept=".txt" id="sentenceFileInput" />
+    </label>
+    <button id="langToggle" onclick="toggleLanguage()">English</button>
   </header>
 
   <main>
@@ -201,171 +203,143 @@
   </main>
 
   <footer>
-    <button id="prevBtn" title="Previous Sentence">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 19l-7-7 7-7v14z"/></svg>
-      Prev
-    </button>
+    <button id="prevBtn" title="Previous Sentence">Prev</button>
     <button id="toggleBtn" onclick="toggleVisibility()" title="Toggle Sentence Visibility">Show</button>
-    <button id="checkBtn" onclick="checkSentence()" title="Check">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
-      Check
-    </button>
-    <button id="nextBtn" onclick="nextSentence()" title="Next Sentence">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"/></svg>
-      Next
-    </button>
+    <button id="playBtn" onclick="speakOther()" title="Check">Check</button>
+    <button id="nextBtn" onclick="nextSentence()" title="Next Sentence">Next</button>
   </footer>
 
 <script>
 let sentences = [];
 let sentenceIndex = 0;
-let currentSentence = {english:'',hebrew:''};
 let isVisible = false;
-let studyLanguage = 'english';
-let enVoice = null;
-let heVoice = null;
+let lang = 'english'; // default language
 
 const displayArea = document.getElementById('displayArea');
 const fileInput = document.getElementById('sentenceFileInput');
-const toggleBtn = document.getElementById('toggleBtn');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const checkBtn = document.getElementById('checkBtn');
-const languageToggle = document.getElementById('languageToggle');
 const statusMsg = document.getElementById('statusMsg');
+const toggleBtn = document.getElementById('toggleBtn');
+const langToggle = document.getElementById('langToggle');
+
+let englishVoice = null;
+let hebrewVoice = null;
 
 // Load voices
 function loadVoices() {
   const voices = speechSynthesis.getVoices();
-  enVoice = voices.find(v=>v.name==="Samantha"&&v.lang==="en-US")||null;
-  heVoice = voices.find(v=>v.name==="Carmit"&&v.lang==="he-IL")||null;
+  englishVoice = voices.find(v => v.name === "Samantha" && v.lang.startsWith("en"));
+  hebrewVoice = voices.find(v => v.name === "Carmit" && v.lang.startsWith("he"));
 }
 speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 
-// File loader
+// File load
 fileInput.addEventListener('change', function() {
   const file = this.files[0];
   if(!file) return;
+
   const reader = new FileReader();
   reader.onload = function(e){
-    const lines = e.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
-    sentences=[];
+    let text = e.target.result;
+    text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').replace(/\u2028/g,'\n');
+    const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+
+    sentences = [];
     for(let i=0;i<lines.length;i+=2){
-      sentences.push({english:lines[i],hebrew:lines[i+1]||''});
+      sentences.push({english: lines[i], hebrew: lines[i+1] || ''});
     }
-    sentenceIndex=0;
-    isVisible=false;
+
+    sentenceIndex = 0;
+    isVisible = false;
     updateToggleButton();
+
     if(sentences.length>0){
-      currentSentence=sentences[sentenceIndex];
-      statusMsg.innerHTML=`
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-        </svg>
-        ✅ ${sentences.length} sentences loaded
-      `;
-      updateDisplay();
-      speakSentence();
+      statusMsg.innerHTML = `✅ ${sentences.length} sentences loaded`;
+      startSentence();
     } else {
-      statusMsg.textContent='⚠️ File is empty';
-      displayArea.textContent='';
+      statusMsg.textContent = '⚠️ File is empty';
+      displayArea.textContent = '';
     }
-  };
+  }
   reader.readAsText(file);
 });
 
-// Language toggle
-languageToggle.addEventListener('change', e=>{
-  studyLanguage=e.target.value;
-});
+// Show/hide
+function toggleVisibility(){
+  isVisible = !isVisible;
+  updateDisplay();
+  updateToggleButton();
+}
+function updateToggleButton(){
+  toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
+}
 
-// Display update
-function updateDisplay(){
+// Language toggle
+function toggleLanguage(){
+  lang = (lang==='english') ? 'hebrew' : 'english';
+  langToggle.textContent = lang==='english' ? 'English' : 'Hebrew';
+  startSentence();
+}
+
+// Navigation
+function nextSentence(){ sentenceIndex = (sentenceIndex+1)%sentences.length; isVisible=false; updateToggleButton(); startSentence(); }
+function prevSentence(){ sentenceIndex = (sentenceIndex-1+sentences.length)%sentences.length; isVisible=false; updateToggleButton(); startSentence(); }
+
+// Display
+function startSentence(){
+  const s = sentences[sentenceIndex];
+  displayArea.classList.remove('number');
   if(isVisible){
-    displayArea.classList.remove('number');
-    displayArea.innerHTML=`
-      <div>${currentSentence.english}</div>
-      <div class="hebrew-text">${currentSentence.hebrew}</div>
-    `;
+    displayArea.innerHTML = '';
+    if(lang==='english'){
+      displayArea.innerHTML = `<div>${s.english}</div><div class="hebrew">${s.hebrew}</div>`;
+      speakText(s.english, englishVoice);
+    } else {
+      displayArea.innerHTML = `<div>${s.english}</div><div class="hebrew">${s.hebrew}</div>`;
+      speakText(s.hebrew, hebrewVoice);
+    }
   } else {
     displayArea.classList.add('number');
-    displayArea.textContent=(sentenceIndex+1).toString();
+    displayArea.textContent = (sentenceIndex+1).toString();
   }
 }
 
-function updateToggleButton(){ toggleBtn.textContent = isVisible?'Hide':'Show'; }
-
-// Speak helper
-function speak(text,lang){
+// Speak chosen language
+function speakText(text, voice){
   if(!text) return;
   speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.rate=0.9;
-  if(lang.startsWith('en') && enVoice) u.voice=enVoice;
-  if(lang.startsWith('he') && heVoice) u.voice=heVoice;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.9;
+  if(voice) u.voice = voice;
   speechSynthesis.speak(u);
 }
 
-// Show/hide
-function toggleVisibility(){
-  isVisible=!isVisible;
-  updateDisplay();
-  updateToggleButton();
-  if(isVisible){
-    if(studyLanguage==='english') speak(currentSentence.english,'en');
-    else speak(currentSentence.hebrew,'he');
-  }
+// Play other language
+function speakOther(){
+  if(!isVisible) return;
+  const s = sentences[sentenceIndex];
+  if(lang==='english') speakText(s.hebrew, hebrewVoice);
+  else speakText(s.english, englishVoice);
 }
 
-// Check (play other language)
-function checkSentence(){
-  if(studyLanguage==='english') speak(currentSentence.hebrew,'he');
-  else speak(currentSentence.english,'en');
+// Display update
+function updateDisplay(){
+  startSentence();
 }
 
-// Next/Prev
-function nextSentence(){
-  if(sentences.length===0) return;
-  sentenceIndex=(sentenceIndex+1)%sentences.length;
-  currentSentence=sentences[sentenceIndex];
-  isVisible=false;
-  updateToggleButton();
-  updateDisplay();
-  if(studyLanguage==='english') speak(currentSentence.english,'en');
-  else speak(currentSentence.hebrew,'he');
-}
-
-function prevSentence(){
-  if(sentences.length===0) return;
-  sentenceIndex=(sentenceIndex-1+sentences.length)%sentences.length;
-  currentSentence=sentences[sentenceIndex];
-  isVisible=false;
-  updateToggleButton();
-  updateDisplay();
-  if(studyLanguage==='english') speak(currentSentence.english,'en');
-  else speak(currentSentence.hebrew,'he');
-}
-
-prevBtn.addEventListener('click',prevSentence);
-nextBtn.addEventListener('click',nextSentence);
-
-function speakSentence(){
-  if(studyLanguage==='english') speak(currentSentence.english,'en');
-  else speak(currentSentence.hebrew,'he');
-}
-
-// Set vh
+// Adjust vh
 function setVh(){
   setTimeout(()=>{
-    const vh=window.innerHeight*0.01;
+    const vh = window.innerHeight*0.01;
     document.documentElement.style.setProperty('--vh',`${vh}px`);
   },50);
 }
-window.addEventListener('resize',setVh);
-window.addEventListener('orientationchange',setVh);
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
 setVh();
 
+document.getElementById('prevBtn').addEventListener('click', prevSentence);
+document.getElementById('nextBtn').addEventListener('click', nextSentence);
 </script>
 </body>
 </html>
