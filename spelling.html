@@ -167,6 +167,11 @@
   </main>
 
   <footer>
+    <button id="replayBtn" onclick="speakWord()" title="Replay">
+      <!-- Replay icon -->
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+      Play
+    </button>
     <button id="checkBtn" onclick="checkSpelling()" title="Check Spelling">
       <!-- Check icon -->
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 16.2l-3.5-3.5L4 14l5 5 12-12-1.5-1.5L9 16.2z"/></svg>
@@ -176,11 +181,6 @@
       <!-- Next icon -->
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 17l5-5-5-5v10z"/></svg>
       Next
-    </button>
-    <button id="replayBtn" onclick="speakWord()" title="Replay">
-      <!-- Replay icon -->
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
-      Play
     </button>
   </footer>
 
@@ -235,7 +235,7 @@
     if (!currentWord) return;
 
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentWord);
+    const utterance = new SpeechSynthesisUtterance(currentWord+".");
     utterance.rate = 0.8; // slower speed
 
     if (selectedVoice) {
@@ -278,6 +278,7 @@
 </script>
 </body>
 </html>
+
 
 
 
