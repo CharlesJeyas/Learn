@@ -59,6 +59,17 @@ header {
   font-weight: 700;
 }
 
+#autoPlayBtn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  border-radius: 0;
+  box-shadow: none;   
+}
+
 #statusMsg {
   font-size: 1rem;
   margin-left: auto;
@@ -172,6 +183,7 @@ button:hover {
 <header>
   <span>Hebrew Practice</span>
   <button id="langToggle">English</button>
+  <button id="autoPlayBtn" title="Play/Pause">▶</button>
    <span id="statusMsg">
       No file loaded
     </span>
@@ -181,7 +193,7 @@ button:hover {
       </svg>
       <input type="file" accept=".txt" id="sentenceFileInput" />
     </label>
-  </header>
+</header>
 
 <main>
   <div id="displayArea"></div>
@@ -199,6 +211,9 @@ let sentences = [];
 let sentenceIndex = 0;
 let isVisible = false;
 let lang = 'en';
+let autoPlay = false;
+let autoPlayTimer = null;
+
 const displayArea = document.getElementById('displayArea');
 const fileInput = document.getElementById('sentenceFileInput');
 const statusMsg = document.getElementById('statusMsg');
@@ -206,12 +221,10 @@ const toggleBtn = document.getElementById('toggleBtn');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const langToggle = document.getElementById('langToggle');
+const autoPlayBtn = document.getElementById('autoPlayBtn');
 
 let voices = [];
-
-function loadVoices() {
-  voices = speechSynthesis.getVoices();
-}
+function loadVoices() { voices = speechSynthesis.getVoices(); }
 speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 
@@ -228,19 +241,18 @@ fileInput.addEventListener('change', function() {
     sentenceIndex = 0;
     isVisible = false;
     updateToggleButton();
-
-if (sentences.length > 0) {
-        statusMsg.innerHTML = `✅ ${sentences.length} sentences loaded`;
-        startSentence();
-      } else {
-        statusMsg.textContent = '⚠️ File is empty';
-        displayArea.textContent = '';
-      }
+    if (sentences.length > 0) {
+      statusMsg.innerHTML = `✅ ${sentences.length} sentences loaded`;
+      displaySentence();
+    } else {
+      statusMsg.textContent = '⚠️ File is empty';
+      displayArea.textContent = '';
+    }
   };
   reader.readAsText(file);
 });
 
-function speakText(text, voiceName) {
+function speakText(text, voiceName, onEnd) {
   speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate=0.9;
@@ -248,18 +260,35 @@ function speakText(text, voiceName) {
     const voice = voices.find(v=>v.name===voiceName);
     if(voice) utterance.voice=voice;
   }
+  if(onEnd) utterance.onend = onEnd;
   speechSynthesis.speak(utterance);
 }
 
+function displaySentence() {
+  if(sentences.length===0) return;
+  const sentence = sentences[sentenceIndex];
+  displayArea.className = isVisible ? '' : 'number';
+  displayArea.textContent = isVisible ? '' : (sentenceIndex+1);
+  if(isVisible){
+    const enDiv = document.createElement('div');
+    enDiv.textContent = sentence.en;
+    const heDiv = document.createElement('div');
+    heDiv.textContent = sentence.he;
+    heDiv.className='hebrew';
+    displayArea.appendChild(enDiv);
+    displayArea.appendChild(heDiv);
+  }
+}
+
 function startSentence(){
-  updateDisplay();
+  displaySentence();
   if(lang==='en') speakText(sentences[sentenceIndex].en,'Samantha');
   else speakText(sentences[sentenceIndex].he,'Carmit');
 }
 
 function toggleVisibility(){
   isVisible = !isVisible;
-  updateDisplay();
+  displaySentence();
   updateToggleButton();
 }
 
@@ -272,7 +301,7 @@ function nextSentence(){
   sentenceIndex = (sentenceIndex+1)%sentences.length;
   isVisible=false;
   updateToggleButton();
-  startSentence();
+  displaySentence();
 }
 
 function prevSentence(){
@@ -280,24 +309,7 @@ function prevSentence(){
   sentenceIndex = (sentenceIndex-1+sentences.length)%sentences.length;
   isVisible=false;
   updateToggleButton();
-  startSentence();
-}
-
-function updateDisplay(){
-  if(isVisible){
-    displayArea.className=''; // remove number class
-    displayArea.innerHTML = '';
-    const enDiv = document.createElement('div');
-    enDiv.textContent = sentences[sentenceIndex].en;
-    const heDiv = document.createElement('div');
-    heDiv.textContent = sentences[sentenceIndex].he;
-    heDiv.className='hebrew';
-    displayArea.appendChild(enDiv);
-    displayArea.appendChild(heDiv);
-  }else{
-    displayArea.className='number';
-    displayArea.textContent = (sentenceIndex+1).toString();
-  }
+  displaySentence();
 }
 
 function speakOther(){
@@ -314,6 +326,38 @@ langToggle.addEventListener('click',()=>{
 
 prevBtn.addEventListener('click',prevSentence);
 nextBtn.addEventListener('click',nextSentence);
+
+// AUTOPLAY PLAY/PAUSE BUTTON
+autoPlayBtn.addEventListener('click',()=>{
+  autoPlay = !autoPlay;
+  autoPlayBtn.textContent = autoPlay ? '⏸' : '▶';
+  if(autoPlay) runAutoPlay();
+  else speechSynthesis.cancel();
+});
+
+function runAutoPlay(){
+  if(!autoPlay || sentences.length===0) return;
+  const sentence = sentences[sentenceIndex];
+  // English → pause → Hebrew → pause → next
+  speakText(sentence.en,'Samantha',()=>{
+    setTimeout(()=>{
+      speakText(sentence.he,'Carmit',()=>{
+        setTimeout(()=>{
+          if(sentenceIndex < sentences.length-1){
+            sentenceIndex++;
+            isVisible=false;
+            updateToggleButton();
+            displaySentence();
+            runAutoPlay();
+          } else {
+            autoPlay = false;
+            autoPlayBtn.textContent='▶';
+          }
+        },700);
+      });
+    },900);
+  });
+}
 
 // viewport fix
 function setVh(){setTimeout(()=>{document.documentElement.style.setProperty('--vh',`${window.innerHeight*0.01}px`);},50);}
