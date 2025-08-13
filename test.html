@@ -1,31 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>List Available Voices</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text-to-Speech Tester</title>
+<style>
+  body { 
+    font-family: 'Comic Neue', cursive, Arial; 
+    padding: 2rem; 
+    background: #f5f1eb; 
+    color: #5a3e2b; 
+  }
+  label, select, input, button {
+    display: block;
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 400px;
+  }
+  button {
+    cursor: pointer;
+    background-color: #A67B5B;
+    color: white;
+    border: none;
+    border-radius: 8px;
+  }
+  button:hover {
+    background-color: #C19A6B;
+  }
+</style>
 </head>
 <body>
-  <h1>Available Voices</h1>
-  <ul id="voiceList"></ul>
 
-  <script>
-    function listVoices() {
-      const voices = speechSynthesis.getVoices();
-      const list = document.getElementById("voiceList");
-      list.innerHTML = "";
+<h2>Text-to-Speech Tester</h2>
 
-      voices.forEach(voice => {
-        const li = document.createElement("li");
-        li.textContent = `${voice.name} (${voice.lang}) - ${voice.default ? "Default" : ""}`;
-        list.appendChild(li);
-      });
-    }
+<label for="voiceSelect">Select Voice:</label>
+<select id="voiceSelect"></select>
 
-    // Voices may not be loaded immediately, so we wait
-    speechSynthesis.onvoiceschanged = listVoices;
+<label for="textInput">Enter Text:</label>
+<input type="text" id="textInput" value="Hello, how are you?">
 
-    // Also try to call once in case voices are already available
-    listVoices();
-  </script>
+<button id="speakBtn">Speak</button>
+
+<script>
+let voices = [];
+const voiceSelect = document.getElementById('voiceSelect');
+const textInput = document.getElementById('textInput');
+const speakBtn = document.getElementById('speakBtn');
+
+// Load available voices
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+  voiceSelect.innerHTML = '';
+  voices.forEach((v, i) => {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `${v.name} (${v.lang})`;
+    voiceSelect.appendChild(option);
+  });
+}
+
+// Handle iOS / Chrome voice loading
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+speakBtn.addEventListener('click', () => {
+  const utter = new SpeechSynthesisUtterance(textInput.value);
+  const selected = voices[voiceSelect.value];
+  if (selected) utter.voice = selected;
+  utter.rate = 0.8; // slower speed for clarity
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+});
+</script>
+
 </body>
 </html>
