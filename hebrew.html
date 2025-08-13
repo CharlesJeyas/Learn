@@ -5,10 +5,10 @@
   <title>Speaking Practice</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Gveret+Levin&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gveret+Levin&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --vh: 1vh; /* fallback */
+      --vh: 1vh; 
       --brown-light: #A67B5B;
       --brown-lighter: #C19A6B;
       --brown-dark: #5a3e2b;
@@ -46,28 +46,12 @@
       align-items: center;
       box-shadow: 0 4px 8px var(--brown-shadow);
       font-weight: 700;
-      position: relative;
     }
 
-    #langToggle {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: white;
-      border-radius: 20px;
-      padding: 0.3rem 0.6rem;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: var(--brown-light);
-      box-shadow: 0 2px 6px var(--brown-shadow-light);
-    }
-
+    #leftHeader { display: flex; align-items: center; gap:1rem; }
     #fileLabel {
       font-size: 1.4rem;
       cursor: pointer;
-      margin-left: 1rem;
       display: flex;
       align-items: center;
       gap: 0.3rem;
@@ -79,14 +63,22 @@
 
     #statusMsg {
       font-size: 1rem;
-      margin-left: auto;
-      margin-right: 1rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       gap: 0.3rem;
       user-select: none;
       color: white;
+    }
+
+    #langToggle {
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      background-color: white;
+      color: var(--brown-light);
     }
 
     main {
@@ -101,7 +93,7 @@
     }
 
     #displayArea {
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      font-family: 'Comic Neue', cursive, sans-serif;
       font-size: 40px;
       color: var(--brown-dark);
       width: 100%;
@@ -130,13 +122,6 @@
       justify-content: center;
       align-items: center;
       line-height: normal;
-    }
-
-    .hebrew {
-      font-family: 'Gveret Levin', cursive;
-      margin-top: 0.3em;
-      font-size: 36px;
-      direction: rtl;
     }
 
     footer {
@@ -182,19 +167,24 @@
       fill: var(--brown-light);
       user-select: none;
     }
+
+    .hebrew { font-family: 'Gveret Levin', cursive; }
   </style>
 </head>
 <body>
   <header>
-    <span>Speaking Practice</span>
+    <div id="leftHeader">
+      <span>Speaking Practice</span>
+      <label id="fileLabel" title="Load sentences file">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/></svg>
+        <input type="file" accept=".txt" id="sentenceFileInput" />
+        Load
+      </label>
+    </div>
     <span id="statusMsg">
       <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
       No file loaded
     </span>
-    <label id="fileLabel" title="Load sentences file">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/></svg>
-      <input type="file" accept=".txt" id="sentenceFileInput" />
-    </label>
     <button id="langToggle" onclick="toggleLanguage()">English</button>
   </header>
 
@@ -203,143 +193,140 @@
   </main>
 
   <footer>
-    <button id="prevBtn" title="Previous Sentence">Prev</button>
+    <button id="prevBtn" title="Previous Sentence">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M16 19l-7-7 7-7v14z"/></svg>
+      Prev
+    </button>
     <button id="toggleBtn" onclick="toggleVisibility()" title="Toggle Sentence Visibility">Show</button>
-    <button id="playBtn" onclick="speakOther()" title="Check">Check</button>
-    <button id="nextBtn" onclick="nextSentence()" title="Next Sentence">Next</button>
+    <button id="checkBtn" onclick="playOtherLanguage()" title="Check">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+      Check
+    </button>
+    <button id="nextBtn" onclick="nextSentence()" title="Next Sentence">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      Next
+    </button>
   </footer>
 
 <script>
-let sentences = [];
-let sentenceIndex = 0;
-let isVisible = false;
-let lang = 'english'; // default language
+  let sentences = [];
+  let sentenceIndex = 0;
+  let isVisible = false;
+  let currentLang = 'en'; // 'en' or 'he'
+  const displayArea = document.getElementById('displayArea');
+  const fileInput = document.getElementById('sentenceFileInput');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const langToggle = document.getElementById('langToggle');
 
-const displayArea = document.getElementById('displayArea');
-const fileInput = document.getElementById('sentenceFileInput');
-const statusMsg = document.getElementById('statusMsg');
-const toggleBtn = document.getElementById('toggleBtn');
-const langToggle = document.getElementById('langToggle');
+  let voices = [];
+  let voiceEn = null, voiceHe = null;
 
-let englishVoice = null;
-let hebrewVoice = null;
+  function loadVoices() {
+    voices = speechSynthesis.getVoices();
+    voiceEn = voices.find(v => v.name === "Samantha");
+    voiceHe = voices.find(v => v.name === "Carmit");
+  }
 
-// Load voices
-function loadVoices() {
-  const voices = speechSynthesis.getVoices();
-  englishVoice = voices.find(v => v.name === "Samantha" && v.lang.startsWith("en"));
-  hebrewVoice = voices.find(v => v.name === "Carmit" && v.lang.startsWith("he"));
-}
-speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
 
-// File load
-fileInput.addEventListener('change', function() {
-  const file = this.files[0];
-  if(!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e){
-    let text = e.target.result;
-    text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').replace(/\u2028/g,'\n');
-    const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
-
-    sentences = [];
-    for(let i=0;i<lines.length;i+=2){
-      sentences.push({english: lines[i], hebrew: lines[i+1] || ''});
+  fileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const text = e.target.result;
+      sentences = text.split('\n').map(s => s.trim()).filter(Boolean).map(line=>{
+        const parts = line.split(' '); // split English vs Hebrew
+        return {en: parts[0], he: parts[1]||''};
+      });
+      sentenceIndex = 0;
+      isVisible = false;
+      updateToggleButton();
+      updateDisplay();
     }
+    reader.readAsText(file);
+  });
 
-    sentenceIndex = 0;
+  function toggleVisibility() {
+    isVisible = !isVisible;
+    updateDisplay();
+    updateToggleButton();
+  }
+
+  function updateToggleButton() {
+    toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
+  }
+
+  function toggleLanguage() {
+    currentLang = currentLang==='en' ? 'he' : 'en';
+    langToggle.textContent = currentLang==='en' ? 'English' : 'Hebrew';
+    if(isVisible) updateDisplay();
+    speakCurrentLanguage();
+  }
+
+  function nextSentence() {
+    if(sentences.length===0) return;
+    sentenceIndex = (sentenceIndex + 1) % sentences.length;
     isVisible = false;
     updateToggleButton();
+    updateDisplay();
+    speakCurrentLanguage();
+  }
 
-    if(sentences.length>0){
-      statusMsg.innerHTML = `✅ ${sentences.length} sentences loaded`;
-      startSentence();
+  function prevSentence() {
+    if(sentences.length===0) return;
+    sentenceIndex = (sentenceIndex - 1 + sentences.length) % sentences.length;
+    isVisible = false;
+    updateToggleButton();
+    updateDisplay();
+    speakCurrentLanguage();
+  }
+
+  function updateDisplay() {
+    if(!sentences[sentenceIndex]) return;
+    if(isVisible) {
+      displayArea.classList.remove('number');
+      displayArea.innerHTML = `<span style="font-family:${currentLang==='en'?'Comic Neue':'Gveret Levin'}">${sentences[sentenceIndex].en}</span>
+                               <span class="hebrew" style="font-family:Gveret Levin">${sentences[sentenceIndex].he}</span>`;
     } else {
-      statusMsg.textContent = '⚠️ File is empty';
-      displayArea.textContent = '';
+      displayArea.classList.add('number');
+      displayArea.textContent = (sentenceIndex + 1).toString();
     }
   }
-  reader.readAsText(file);
-});
 
-// Show/hide
-function toggleVisibility(){
-  isVisible = !isVisible;
-  updateDisplay();
-  updateToggleButton();
-}
-function updateToggleButton(){
-  toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
-}
-
-// Language toggle
-function toggleLanguage(){
-  lang = (lang==='english') ? 'hebrew' : 'english';
-  langToggle.textContent = lang==='english' ? 'English' : 'Hebrew';
-  startSentence();
-}
-
-// Navigation
-function nextSentence(){ sentenceIndex = (sentenceIndex+1)%sentences.length; isVisible=false; updateToggleButton(); startSentence(); }
-function prevSentence(){ sentenceIndex = (sentenceIndex-1+sentences.length)%sentences.length; isVisible=false; updateToggleButton(); startSentence(); }
-
-// Display
-function startSentence(){
-  const s = sentences[sentenceIndex];
-  displayArea.classList.remove('number');
-  if(isVisible){
-    displayArea.innerHTML = '';
-    if(lang==='english'){
-      displayArea.innerHTML = `<div>${s.english}</div><div class="hebrew">${s.hebrew}</div>`;
-      speakText(s.english, englishVoice);
-    } else {
-      displayArea.innerHTML = `<div>${s.english}</div><div class="hebrew">${s.hebrew}</div>`;
-      speakText(s.hebrew, hebrewVoice);
-    }
-  } else {
-    displayArea.classList.add('number');
-    displayArea.textContent = (sentenceIndex+1).toString();
+  function speakCurrentLanguage() {
+    if(!sentences[sentenceIndex]) return;
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(sentences[sentenceIndex][currentLang]);
+    utter.rate = 0.9;
+    utter.voice = currentLang==='en'?voiceEn:voiceHe;
+    speechSynthesis.speak(utter);
   }
-}
 
-// Speak chosen language
-function speakText(text, voice){
-  if(!text) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.9;
-  if(voice) u.voice = voice;
-  speechSynthesis.speak(u);
-}
+  function playOtherLanguage() {
+    if(!sentences[sentenceIndex]) return;
+    speechSynthesis.cancel();
+    const otherLang = currentLang==='en'?'he':'en';
+    const utter = new SpeechSynthesisUtterance(sentences[sentenceIndex][otherLang]);
+    utter.rate = 0.9;
+    utter.voice = otherLang==='en'?voiceEn:voiceHe;
+    speechSynthesis.speak(utter);
+  }
 
-// Play other language
-function speakOther(){
-  if(!isVisible) return;
-  const s = sentences[sentenceIndex];
-  if(lang==='english') speakText(s.hebrew, hebrewVoice);
-  else speakText(s.english, englishVoice);
-}
+  document.getElementById('prevBtn').addEventListener('click', prevSentence);
+  document.getElementById('nextBtn').addEventListener('click', nextSentence);
 
-// Display update
-function updateDisplay(){
-  startSentence();
-}
+  function setVh() {
+    setTimeout(() => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }, 50);
+  }
 
-// Adjust vh
-function setVh(){
-  setTimeout(()=>{
-    const vh = window.innerHeight*0.01;
-    document.documentElement.style.setProperty('--vh',`${vh}px`);
-  },50);
-}
-window.addEventListener('resize', setVh);
-window.addEventListener('orientationchange', setVh);
-setVh();
-
-document.getElementById('prevBtn').addEventListener('click', prevSentence);
-document.getElementById('nextBtn').addEventListener('click', nextSentence);
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+  setVh();
 </script>
 </body>
 </html>
