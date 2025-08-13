@@ -279,7 +279,7 @@ fileInput.addEventListener('change', function() {
 function speakText(text, voiceName, onEnd) {
   speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.9;
+  utterance.rate = 0.8;
   if (voiceName){
     const voice = voices.find(v => v.name === voiceName);
     if (voice) utterance.voice = voice;
@@ -372,15 +372,15 @@ function runAutoPlay() {
             isVisible=false;
             updateToggleButton();
             updateDisplay();
-            autoPlayTimer = setTimeout(runAutoPlay, 500);
+            autoPlayTimer = setTimeout(runAutoPlay, 2000);
           } else {
             autoPlay=false;
             autoPlayBtn.classList.remove('active');
             autoPlayBtn.textContent='▶';
           }
-        }, 700);
+        }, 2000);
       });
-    }, 900);
+    }, 2000);
   });
 }
 
@@ -397,3 +397,4 @@ setVh();
 </script>
 </body>
 </html>
+
