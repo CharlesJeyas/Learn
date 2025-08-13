@@ -217,7 +217,7 @@
   // Wait for voices to load
   function loadVoices() {
     const voices = speechSynthesis.getVoices();
-    selectedVoice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
+    selectedVoice = voices.find(v => v.name === "Eddy" && v.lang === "en-US");
   }
 
   speechSynthesis.onvoiceschanged = loadVoices;
@@ -254,7 +254,7 @@
   function speakSentence() {
     if (!currentSentence) return;
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentSentence+".");
+    const utterance = new SpeechSynthesisUtterance(currentSentence + ".");
     utterance.rate = 0.8; // slower speed
 
     if (selectedVoice) {
@@ -321,6 +321,7 @@
 </script>
 </body>
 </html>
+
 
 
 
