@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Spelling Practice</title>
+  <title>Speaking Practice</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
   <style>
     :root {
       --vh: 1vh; /* fallback */
@@ -16,12 +15,23 @@
       --brown-shadow-light: rgba(193,154,107,0.3);
     }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      width: 100%;
+      height: calc(var(--vh, 1vh) * 100);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    * {
+      box-sizing: inherit;
+    }
+
+    body {
       font-family: 'Comic Neue', cursive, Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      height: calc(var(--vh, 1vh) * 100);
       background: linear-gradient(135deg, #F5F1EB 0%, #EDE6DC 100%);
       user-select: none;
       color: var(--brown-dark);
@@ -47,6 +57,7 @@
       align-items: center;
       gap: 0.3rem;
       user-select: none;
+      color: white;
     }
 
     input[type="file"] {
@@ -58,6 +69,11 @@
       margin-left: auto;
       margin-right: 1rem;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      user-select: none;
+      color: white;
     }
 
     main {
@@ -67,65 +83,69 @@
       align-items: center;
       text-align: center;
       overflow: hidden;
+      width: 100%;
+      padding: 1rem;
     }
 
     #displayArea {
-      font-family: 'Dancing Script', cursive;
-      font-size: 5rem;
+      font-family: 'Comic Neue', cursive, sans-serif;
+      font-size: 40px;
       color: var(--brown-dark);
-      height: 200px;
       width: 100%;
       max-width: 400px;
+      height: 200px;
+      white-space: normal;
+      overflow-wrap: break-word;
+      transition: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #displayArea.number {
+      font-weight: 700;
+      font-size: 6rem;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background-color: var(--brown-light);
+      color: white;
+      user-select: none;
       margin: auto;
-      padding-top: 120px;
-      text-align: center;
-      line-height: 0;
-      background-image:
-        linear-gradient(to bottom, blue 1px, transparent 0),
-        linear-gradient(to bottom, blue 1px, transparent 0),
-        linear-gradient(to bottom, red 1px, transparent 0),
-        linear-gradient(to bottom, blue 1px, transparent 0);
-      background-repeat: no-repeat;
-      background-position:
-        0 95px,
-        0 120px,
-        0 145px,
-        0 170px;
-      background-size:
-        100% 1px,
-        100% 1px,
-        100% 1px,
-        100% 1px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: normal;
     }
 
     footer {
-      padding: 0.5rem;
+      padding: 1rem 0.5rem;
       background-color: var(--brown-light);
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       box-shadow: 0 -4px 8px var(--brown-shadow);
+      flex-shrink: 0;
+      gap: 0.3rem;
     }
 
     button {
-      flex: 1;
-      min-width: 0;
-      padding: 0.5rem 0.3rem;
-      font-size: 0.9rem;
+      padding: 0.7rem 0.5rem;
+      font-size: 1.1rem;
       border: none;
       border-radius: 30px;
       background-color: white;
       color: var(--brown-light);
       cursor: pointer;
-      margin: 0 0.2rem;
+      flex: 1 1 22%;
       font-weight: 700;
       box-shadow: 0 4px 8px var(--brown-shadow-light);
       transition: background-color 0.3s ease, color 0.3s ease;
-      user-select: none;
-      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.3rem;
+      user-select: none;
+      min-width: 0; /* prevent overflow */
     }
 
     button:hover {
@@ -133,43 +153,29 @@
       color: white;
     }
 
-    button svg {
-      width: 1em;
-      height: 1em;
-    }
-
-    button span {
-      white-space: nowrap;
-    }
-
-    @media (max-width: 380px) {
-      button {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.2rem;
-      }
-    }
-
-    @media (max-width: 330px) {
-      button span {
-        display: none;
-      }
+    /* Icon styling */
+    .icon {
+      display: inline-block;
+      vertical-align: middle;
+      width: 1.2em;
+      height: 1.2em;
+      fill: var(--brown-light);
+      user-select: none;
     }
   </style>
 </head>
 <body>
   <header>
-    <span>Spelling Practice</span>
+    <span>Speaking Practice</span>
     <span id="statusMsg">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-      </svg>
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
       No file loaded
     </span>
-    <label id="fileLabel" title="Load words file">
+    <label id="fileLabel" title="Load sentences file">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
         <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/>
       </svg>
-      <input type="file" accept=".txt" id="wordFileInput" />
+      <input type="file" accept=".txt" id="sentenceFileInput" />
     </label>
   </header>
 
@@ -178,45 +184,34 @@
   </main>
 
   <footer>
-    <button id="prevBtn">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M15 6l-6 6 6 6V6z"/>
-      </svg>
-      <span>Prev</span>
+    <button id="prevBtn" title="Previous Sentence">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 19l-7-7 7-7v14z"/></svg>
+      Prev
     </button>
-    <button id="playBtn">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M8 5v14l11-7z"/>
-      </svg>
-      <span>Play</span>
+    <button id="playBtn" onclick="speakSentence()" title="Play">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+      Play
     </button>
-    <button id="toggleBtn">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M4 6h16v2H4zM4 12h16v2H4zM4 18h16v2H4z"/>
-      </svg>
-      <span>Show/Hide</span>
-    </button>
-    <button id="nextBtn">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M9 6l6 6-6 6V6z"/>
-      </svg>
-      <span>Next</span>
+    <button id="toggleBtn" onclick="toggleVisibility()" title="Toggle Sentence Visibility">Show</button>
+    <button id="nextBtn" onclick="nextSentence()" title="Next Sentence">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"/></svg>
+      Next
     </button>
   </footer>
 
   <script>
-    let words = [];
-    let currentWord = '';
-    let wordIndex = 0;
+    let sentences = [];
+    let currentSentence = '';
+    let sentenceIndex = 0;
+    let isVisible = false;
 
     const displayArea = document.getElementById('displayArea');
-    const fileInput = document.getElementById('wordFileInput');
-    const checkBtn = document.getElementById('checkBtn');
-    const nextBtn = document.getElementById('nextBtn');
+    const fileInput = document.getElementById('sentenceFileInput');
+    const statusMsg = document.getElementById('statusMsg');
+    const toggleBtn = document.getElementById('toggleBtn');
     const prevBtn = document.getElementById('prevBtn');
     const playBtn = document.getElementById('playBtn');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const statusMsg = document.getElementById('statusMsg');
+    const nextBtn = document.getElementById('nextBtn');
 
     fileInput.addEventListener('change', function () {
       const file = this.files[0];
@@ -225,75 +220,88 @@
       const reader = new FileReader();
       reader.onload = function (e) {
         const text = e.target.result;
-        words = text.split('\n').map(w => w.trim()).filter(Boolean);
-        wordIndex = 0;
+        sentences = text.split('\n').map(s => s.trim()).filter(Boolean);
+        sentenceIndex = 0;
+        isVisible = false;
+        updateToggleButton();
 
-        if (words.length > 0) {
+        if (sentences.length > 0) {
           statusMsg.innerHTML = `
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
             </svg>
-            ✅ ${words.length} words loaded
+            ✅ ${sentences.length} sentences loaded
           `;
-          startWord();
+          startSentence();
         } else {
           statusMsg.textContent = '⚠️ File is empty';
+          displayArea.textContent = '';
         }
       };
       reader.readAsText(file);
     });
 
-    function speakWord() {
-      if (!currentWord) return;
-
+    function speakSentence() {
+      if (!currentSentence) return;
       speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(currentWord);
+      const utterance = new SpeechSynthesisUtterance(currentSentence);
       speechSynthesis.speak(utterance);
-      displayArea.textContent = '';
     }
 
-    function checkSpelling() {
-      displayArea.textContent = currentWord;
-      checkBtn.classList.add('hidden');
-      nextBtn.classList.remove('hidden');
+    function toggleVisibility() {
+      isVisible = !isVisible;
+      updateDisplay();
+      updateToggleButton();
     }
 
-    function nextWord() {
-      if (words.length === 0) return;
-      wordIndex = (wordIndex + 1) % words.length;
-      startWord();
-      checkBtn.classList.remove('hidden');
-      nextBtn.classList.add('hidden');
+    function updateToggleButton() {
+      toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
     }
 
-    function prevWord() {
-      if (words.length === 0) return;
-      wordIndex = (wordIndex - 1 + words.length) % words.length;
-      startWord();
-      checkBtn.classList.remove('hidden');
-      nextBtn.classList.add('hidden');
+    function nextSentence() {
+      if (sentences.length === 0) return;
+      sentenceIndex = (sentenceIndex + 1) % sentences.length;
+      isVisible = false;
+      updateToggleButton();
+      startSentence();
     }
 
-    function startWord() {
-      currentWord = words[wordIndex];
-      displayArea.textContent = '';
-      speakWord();
+    function prevSentence() {
+      if (sentences.length === 0) return;
+      sentenceIndex = (sentenceIndex - 1 + sentences.length) % sentences.length;
+      isVisible = false;
+      updateToggleButton();
+      startSentence();
     }
 
-    // Set --vh to actual viewport height on load and resize
+    function startSentence() {
+      currentSentence = sentences[sentenceIndex];
+      updateDisplay();
+      speakSentence();
+    }
+
+    function updateDisplay() {
+      if (isVisible) {
+        displayArea.classList.remove('number');
+        displayArea.textContent = currentSentence;
+      } else {
+        displayArea.classList.add('number');
+        displayArea.textContent = (sentenceIndex + 1).toString();
+      }
+    }
+
     function setVh() {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      setTimeout(() => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }, 50);
     }
 
     window.addEventListener('resize', setVh);
     window.addEventListener('orientationchange', setVh);
     setVh();
 
-    // Event listeners for new buttons
-    prevBtn.addEventListener('click', prevWord);
-    playBtn.addEventListener('click', speakWord);
-    nextBtn.addEventListener('click', nextWord);
+    prevBtn.addEventListener('click', prevSentence);
   </script>
 </body>
 </html>
