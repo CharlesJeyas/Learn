@@ -184,83 +184,100 @@
     </button>
   </footer>
 
-  <script>
-    let words = [];
-    let currentWord = '';
-    let wordIndex = 0;
+<script>
+  let words = [];
+  let currentWord = '';
+  let wordIndex = 0;
+  let selectedVoice = null;
 
-    const displayArea = document.getElementById('displayArea');
-    const fileInput = document.getElementById('wordFileInput');
-    const checkBtn = document.getElementById('checkBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const statusMsg = document.getElementById('statusMsg');
+  const displayArea = document.getElementById('displayArea');
+  const fileInput = document.getElementById('wordFileInput');
+  const checkBtn = document.getElementById('checkBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const statusMsg = document.getElementById('statusMsg');
 
-    fileInput.addEventListener('change', function () {
-      const file = this.files[0];
-      if (!file) return;
+  // Load available voices and select Evan (Enhanced) if possible
+  function loadVoices() {
+    const voices = speechSynthesis.getVoices();
+    selectedVoice = voices.find(v => v.name === "Evan (Enhanced)") || voices[0] || null;
+  }
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const text = e.target.result;
-        words = text.split('\n').map(w => w.trim()).filter(Boolean);
-        wordIndex = 0;
+  // iOS Safari may need this event to load voices
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
 
-        if (words.length > 0) {
-          statusMsg.innerHTML = `
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-            </svg>
-            ✅ ${words.length} words loaded
-          `;
-          startWord();
-        } else {
-          statusMsg.textContent = '⚠️ File is empty';
-        }
-      };
-      reader.readAsText(file);
-    });
+  fileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
 
-    function speakWord() {
-      if (!currentWord) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const text = e.target.result;
+      words = text.split('\n').map(w => w.trim()).filter(Boolean);
+      wordIndex = 0;
 
-      speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(currentWord);
-      utterance.rate = 0.7;  // slower speed
-      speechSynthesis.speak(utterance);
-      displayArea.textContent = '';
+      if (words.length > 0) {
+        statusMsg.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+          </svg>
+          ✅ ${words.length} words loaded
+        `;
+        startWord();
+      } else {
+        statusMsg.textContent = '⚠️ File is empty';
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  function speakWord() {
+    if (!currentWord) return;
+
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentWord);
+    utterance.rate = 0.6; // slower speed
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
     }
 
-    function checkSpelling() {
-      displayArea.textContent = currentWord;
-      checkBtn.classList.add('hidden');
-      nextBtn.classList.remove('hidden');
-    }
+    speechSynthesis.speak(utterance);
+    displayArea.textContent = '';
+  }
 
-    function nextWord() {
-      if (words.length === 0) return;
-      wordIndex = (wordIndex + 1) % words.length;
-      startWord();
-      checkBtn.classList.remove('hidden');
-      nextBtn.classList.add('hidden');
-    }
+  function checkSpelling() {
+    displayArea.textContent = currentWord;
+    checkBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+  }
 
-    function startWord() {
-      currentWord = words[wordIndex];
-      displayArea.textContent = '';
-      speakWord();
-    }
+  function nextWord() {
+    if (words.length === 0) return;
+    wordIndex = (wordIndex + 1) % words.length;
+    startWord();
+    checkBtn.classList.remove('hidden');
+    nextBtn.classList.add('hidden');
+  }
 
-    // Set --vh to actual viewport height on load and resize
-    function setVh() {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    }
+  function startWord() {
+    currentWord = words[wordIndex];
+    displayArea.textContent = '';
+    speakWord();
+  }
 
-    window.addEventListener('resize', setVh);
-    window.addEventListener('orientationchange', setVh);
-    setVh();
-  </script>
+  // Set --vh to actual viewport height on load and resize
+  function setVh() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+  setVh();
+</script>
 </body>
 </html>
+
 
 
