@@ -199,7 +199,7 @@
   // Load available voices and select Evan (Enhanced) if possible
   function loadVoices() {
     const voices = speechSynthesis.getVoices();
-    selectedVoice = voices.find(v => v.name === "Evan (Enhanced)") || voices[0] || null;
+    selectedVoice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
   }
 
   // iOS Safari may need this event to load voices
@@ -278,6 +278,7 @@
 </script>
 </body>
 </html>
+
 
 
 
