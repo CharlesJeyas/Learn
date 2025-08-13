@@ -167,10 +167,10 @@
   </main>
 
   <footer>
-    <button id="replayBtn" onclick="speakWord()" title="Play">
+    <button id="replayBtn" onclick="speakWord()" title="Replay">
       <!-- Replay icon -->
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
-      Replay
+      Play
     </button>
     <button id="checkBtn" onclick="checkSpelling()" title="Check Spelling">
       <!-- Check icon -->
@@ -225,6 +225,7 @@
 
       speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(currentWord);
+      utterance.rate = 0.7;  // slower speed
       speechSynthesis.speak(utterance);
       displayArea.textContent = '';
     }
@@ -261,4 +262,5 @@
   </script>
 </body>
 </html>
+
 
