@@ -254,7 +254,7 @@
   function speakSentence() {
     if (!currentSentence) return;
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentSentence);
+    const utterance = new SpeechSynthesisUtterance(currentSentence+".");
     utterance.rate = 0.8; // slower speed
 
     if (selectedVoice) {
@@ -321,6 +321,7 @@
 </script>
 </body>
 </html>
+
 
 
 
