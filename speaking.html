@@ -199,111 +199,127 @@
     </button>
   </footer>
 
-  <script>
-    let sentences = [];
-    let currentSentence = '';
-    let sentenceIndex = 0;
-    let isVisible = false;
+<script>
+  let sentences = [];
+  let currentSentence = '';
+  let sentenceIndex = 0;
+  let isVisible = false;
+  let selectedVoice = null; // store chosen voice here
 
-    const displayArea = document.getElementById('displayArea');
-    const fileInput = document.getElementById('sentenceFileInput');
-    const statusMsg = document.getElementById('statusMsg');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const playBtn = document.getElementById('playBtn');
-    const nextBtn = document.getElementById('nextBtn');
+  const displayArea = document.getElementById('displayArea');
+  const fileInput = document.getElementById('sentenceFileInput');
+  const statusMsg = document.getElementById('statusMsg');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const playBtn = document.getElementById('playBtn');
+  const nextBtn = document.getElementById('nextBtn');
 
-    fileInput.addEventListener('change', function () {
-      const file = this.files[0];
-      if (!file) return;
+  // Wait for voices to load
+  function loadVoices() {
+    const voices = speechSynthesis.getVoices();
+    selectedVoice = voices.find(voice => voice.name === "Evan (Enhanced)");
+  }
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const text = e.target.result;
-        sentences = text.split('\n').map(s => s.trim()).filter(Boolean);
-        sentenceIndex = 0;
-        isVisible = false;
-        updateToggleButton();
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices(); // in case they're already loaded
 
-        if (sentences.length > 0) {
-          statusMsg.innerHTML = `
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-            </svg>
-            ✅ ${sentences.length} sentences loaded
-          `;
-          startSentence();
-        } else {
-          statusMsg.textContent = '⚠️ File is empty';
-          displayArea.textContent = '';
-        }
-      };
-      reader.readAsText(file);
-    });
+  fileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
 
-    function speakSentence() {
-      if (!currentSentence) return;
-      speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(currentSentence);
-      utterance.rate = 0.7;  // slower speed
-      speechSynthesis.speak(utterance);
-    }
-
-    function toggleVisibility() {
-      isVisible = !isVisible;
-      updateDisplay();
-      updateToggleButton();
-    }
-
-    function updateToggleButton() {
-      toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
-    }
-
-    function nextSentence() {
-      if (sentences.length === 0) return;
-      sentenceIndex = (sentenceIndex + 1) % sentences.length;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const text = e.target.result;
+      sentences = text.split('\n').map(s => s.trim()).filter(Boolean);
+      sentenceIndex = 0;
       isVisible = false;
       updateToggleButton();
-      startSentence();
-    }
 
-    function prevSentence() {
-      if (sentences.length === 0) return;
-      sentenceIndex = (sentenceIndex - 1 + sentences.length) % sentences.length;
-      isVisible = false;
-      updateToggleButton();
-      startSentence();
-    }
-
-    function startSentence() {
-      currentSentence = sentences[sentenceIndex];
-      updateDisplay();
-      speakSentence();
-    }
-
-    function updateDisplay() {
-      if (isVisible) {
-        displayArea.classList.remove('number');
-        displayArea.textContent = currentSentence;
+      if (sentences.length > 0) {
+        statusMsg.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+          </svg>
+          ✅ ${sentences.length} sentences loaded
+        `;
+        startSentence();
       } else {
-        displayArea.classList.add('number');
-        displayArea.textContent = (sentenceIndex + 1).toString();
+        statusMsg.textContent = '⚠️ File is empty';
+        displayArea.textContent = '';
       }
+    };
+    reader.readAsText(file);
+  });
+
+  function speakSentence() {
+    if (!currentSentence) return;
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentSentence);
+    utterance.rate = 0.6; // slower speed
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
     }
 
-    function setVh() {
-      setTimeout(() => {
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-      }, 50);
+    speechSynthesis.speak(utterance);
+  }
+
+  function toggleVisibility() {
+    isVisible = !isVisible;
+    updateDisplay();
+    updateToggleButton();
+  }
+
+  function updateToggleButton() {
+    toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
+  }
+
+  function nextSentence() {
+    if (sentences.length === 0) return;
+    sentenceIndex = (sentenceIndex + 1) % sentences.length;
+    isVisible = false;
+    updateToggleButton();
+    startSentence();
+  }
+
+  function prevSentence() {
+    if (sentences.length === 0) return;
+    sentenceIndex = (sentenceIndex - 1 + sentences.length) % sentences.length;
+    isVisible = false;
+    updateToggleButton();
+    startSentence();
+  }
+
+  function startSentence() {
+    currentSentence = sentences[sentenceIndex];
+    updateDisplay();
+    speakSentence();
+  }
+
+  function updateDisplay() {
+    if (isVisible) {
+      displayArea.classList.remove('number');
+      displayArea.textContent = currentSentence;
+    } else {
+      displayArea.classList.add('number');
+      displayArea.textContent = (sentenceIndex + 1).toString();
     }
+  }
 
-    window.addEventListener('resize', setVh);
-    window.addEventListener('orientationchange', setVh);
-    setVh();
+  function setVh() {
+    setTimeout(() => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }, 50);
+  }
 
-    prevBtn.addEventListener('click', prevSentence);
-  </script>
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+  setVh();
+
+  prevBtn.addEventListener('click', prevSentence);
+</script>
 </body>
 </html>
+
 
