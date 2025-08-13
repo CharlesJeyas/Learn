@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>List Available Voices</title>
+</head>
+<body>
+  <h1>Available Voices</h1>
+  <ul id="voiceList"></ul>
+
+  <script>
+    function listVoices() {
+      const voices = speechSynthesis.getVoices();
+      const list = document.getElementById("voiceList");
+      list.innerHTML = "";
+
+      voices.forEach(voice => {
+        const li = document.createElement("li");
+        li.textContent = `${voice.name} (${voice.lang}) - ${voice.default ? "Default" : ""}`;
+        list.appendChild(li);
+      });
+    }
+
+    // Voices may not be loaded immediately, so we wait
+    speechSynthesis.onvoiceschanged = listVoices;
+
+    // Also try to call once in case voices are already available
+    listVoices();
+  </script>
+</body>
+</html>
