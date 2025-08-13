@@ -15,12 +15,23 @@
       --brown-shadow-light: rgba(193,154,107,0.3);
     }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      width: 100%;
+      height: calc(var(--vh, 1vh) * 100);
+      box-sizing: border-box;
+      overflow: hidden; /* no sideways scroll */
+    }
+
+    * {
+      box-sizing: inherit;
+    }
+
+    body {
       font-family: 'Comic Neue', cursive, Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      height: calc(var(--vh, 1vh) * 100);
       background: linear-gradient(135deg, #F5F1EB 0%, #EDE6DC 100%);
       user-select: none;
       color: var(--brown-dark);
@@ -72,6 +83,7 @@
       align-items: center;
       text-align: center;
       overflow: hidden;
+      width: 100%;
       padding: 1rem;
     }
 
@@ -79,9 +91,9 @@
       font-family: 'Comic Neue', cursive, sans-serif;
       font-size: 40px;
       color: var(--brown-dark);
-      height: 200px;
       width: 100%;
-      max-width: 90vw;
+      max-width: 400px;
+      height: 200px;
       white-space: normal;
       overflow-wrap: break-word;
       transition: none;
@@ -91,7 +103,6 @@
     }
 
     #displayArea.number {
-      font-family: 'Comic Neue', cursive, sans-serif;
       font-weight: 700;
       font-size: 6rem;
       width: 150px;
@@ -105,7 +116,6 @@
       justify-content: center;
       align-items: center;
       line-height: normal;
-      padding-top: 0;
     }
 
     footer {
@@ -114,6 +124,7 @@
       display: flex;
       justify-content: space-around;
       box-shadow: 0 -4px 8px var(--brown-shadow);
+      flex-shrink: 0;
     }
 
     button {
@@ -174,13 +185,11 @@
 
   <footer>
     <button id="replayBtn" onclick="speakSentence()" title="Replay">
-      <!-- Replay icon -->
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
       Replay
     </button>
     <button id="toggleBtn" onclick="toggleVisibility()" title="Toggle Sentence Visibility">Show</button>
     <button id="nextBtn" onclick="nextSentence()" title="Next Sentence">
-      <!-- Next icon -->
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"/></svg>
       Next
     </button>
@@ -227,7 +236,6 @@
 
     function speakSentence() {
       if (!currentSentence) return;
-
       speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(currentSentence);
       speechSynthesis.speak(utterance);
@@ -257,21 +265,21 @@
       speakSentence();
     }
 
-   function updateDisplay() {
+    function updateDisplay() {
       if (isVisible) {
         displayArea.classList.remove('number');
         displayArea.textContent = currentSentence;
       } else {
         displayArea.classList.add('number');
         displayArea.textContent = (sentenceIndex + 1).toString();
-        displayArea.style.fontSize = '';
       }
     }
 
-    // Set --vh to actual viewport height on load and resize
     function setVh() {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      setTimeout(() => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }, 50);
     }
 
     window.addEventListener('resize', setVh);
