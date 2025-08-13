@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --vh: 1vh; /* fallback */
+      --vh: 1vh;
       --brown-light: #A67B5B;
       --brown-lighter: #C19A6B;
       --brown-dark: #5a3e2b;
@@ -25,6 +25,19 @@
       background: linear-gradient(135deg, #F5F1EB 0%, #EDE6DC 100%);
       user-select: none;
       color: var(--brown-dark);
+      position: relative;
+    }
+
+    #wordIndexDisplay {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-family: 'Comic Neue', cursive;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--brown-dark);
+      user-select: none;
+      z-index: 10;
     }
 
     header {
@@ -67,10 +80,12 @@
     main {
       flex: 1;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
       overflow: hidden;
+      position: relative;
     }
 
     #displayArea {
@@ -163,6 +178,7 @@
   </header>
 
   <main>
+    <div id="wordIndexDisplay"></div>
     <div id="displayArea"></div>
   </main>
 
@@ -190,23 +206,21 @@
   let isVisible = false;
 
   const displayArea = document.getElementById('displayArea');
+  const wordIndexDisplay = document.getElementById('wordIndexDisplay');
   const fileInput = document.getElementById('wordFileInput');
   const toggleBtn = document.getElementById('toggleBtn');
   const statusMsg = document.getElementById('statusMsg');
 
-  // Load voices
   function loadVoices() {
     const voices = speechSynthesis.getVoices();
     selectedVoice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
   }
-
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
 
   fileInput.addEventListener('change', function () {
     const file = this.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function (e) {
       const text = e.target.result;
@@ -214,7 +228,6 @@
       wordIndex = 0;
       isVisible = false;
       updateToggleButton();
-
       if (words.length > 0) {
         statusMsg.innerHTML = `
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -226,6 +239,7 @@
       } else {
         statusMsg.textContent = '⚠️ File is empty';
         displayArea.textContent = '';
+        wordIndexDisplay.textContent = '';
       }
     };
     reader.readAsText(file);
@@ -234,7 +248,7 @@
   function speakWord() {
     if (!currentWord) return;
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentWord+" ");
+    const utterance = new SpeechSynthesisUtterance(currentWord + " ");
     utterance.rate = 0.8;
     if (selectedVoice) utterance.voice = selectedVoice;
     speechSynthesis.speak(utterance);
@@ -273,14 +287,14 @@
   }
 
   function updateDisplay() {
-    displayArea.textContent = isVisible ? currentWord : (wordIndex + 1).toString();
+    displayArea.textContent = isVisible ? currentWord : '';
+    wordIndexDisplay.textContent = `${wordIndex + 1}.`;
   }
 
   function setVh() {
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
   }
-
   window.addEventListener('resize', setVh);
   window.addEventListener('orientationchange', setVh);
   setVh();
