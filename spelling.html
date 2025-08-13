@@ -84,21 +84,17 @@
       padding-top: 120px;
       text-align: center;
       line-height: 0;
-
       background-image:
         linear-gradient(to bottom, blue 1px, transparent 0),
         linear-gradient(to bottom, blue 1px, transparent 0),
         linear-gradient(to bottom, red 1px, transparent 0),
         linear-gradient(to bottom, blue 1px, transparent 0);
-
       background-repeat: no-repeat;
-
       background-position:
         0 95px,
         0 120px,
         0 145px,
         0 170px;
-
       background-size:
         100% 1px,
         100% 1px,
@@ -107,31 +103,33 @@
     }
 
     footer {
-      padding: 1rem;
+      padding: 1rem 0.5rem;
       background-color: var(--brown-light);
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       box-shadow: 0 -4px 8px var(--brown-shadow);
+      flex-shrink: 0;
+      gap: 0.3rem;
     }
 
     button {
-      padding: 0.8rem 1.5rem;
-      font-size: 1.3rem;
+      padding: 0.7rem 0.5rem;
+      font-size: 1.1rem;
       border: none;
       border-radius: 30px;
       background-color: white;
       color: var(--brown-light);
       cursor: pointer;
-      flex: 1;
-      margin: 0 0.5rem;
+      flex: 1 1 22%;
       font-weight: 700;
       box-shadow: 0 4px 8px var(--brown-shadow-light);
       transition: background-color 0.3s ease, color 0.3s ease;
-      user-select: none;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.3rem;
+      user-select: none;
+      min-width: 0;
     }
 
     button:hover {
@@ -139,7 +137,6 @@
       color: white;
     }
 
-    /* Icon styling */
     .icon {
       display: inline-block;
       vertical-align: middle;
@@ -171,22 +168,16 @@
 
   <footer>
     <button id="prevBtn" onclick="prevWord()" title="Previous Word">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M16 19l-7-7 7-7v14z"/>
-      </svg>
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 19l-7-7 7-7v14z"/></svg>
       Prev
     </button>
     <button id="toggleBtn" onclick="toggleVisibility()" title="Show/Hide Word">Show</button>
     <button id="playBtn" onclick="speakWord()" title="Play">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/>
-      </svg>
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
       Play
     </button>
     <button id="nextBtn" onclick="nextWord()" title="Next Word">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M8 5v14l11-7z"/>
-      </svg>
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"/></svg>
       Next
     </button>
   </footer>
@@ -285,7 +276,6 @@
     displayArea.textContent = isVisible ? currentWord : (wordIndex + 1).toString();
   }
 
-  // Set --vh to actual viewport height
   function setVh() {
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
