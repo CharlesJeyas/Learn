@@ -206,7 +206,7 @@ button:hover {
   <span>Hebrew Practice</span>
   <button id="langToggle">EN</button>
   <button id="autoPlayBtn" title="Play/Pause">▶</button>
-  <button id="themeToggle" title="Toggle Night Mode">☀</button>
+  <button id="themeToggle" title="Toggle Night Mode">●</button>
   <span id="statusMsg">No file loaded</span>
   <label id="fileLabel" title="Load sentences file">
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
@@ -345,7 +345,7 @@ function speakOther() {
 
 langToggle.addEventListener('click', ()=>{
   lang = (lang==='en')?'he':'en';
-  langToggle.textContent = (lang==='en')?'EN':'HEB';
+  langToggle.textContent = (lang==='en')?'EN':'HE';
   startSentence();
 });
 
@@ -372,15 +372,15 @@ function runAutoPlay() {
             isVisible=false;
             updateToggleButton();
             updateDisplay();
-            autoPlayTimer = setTimeout(runAutoPlay, 2000);
+            autoPlayTimer = setTimeout(runAutoPlay, 1000);
           } else {
             autoPlay=false;
             autoPlayBtn.classList.remove('active');
             autoPlayBtn.textContent='▶';
           }
-        }, 5000);
+        }, 4000);
       });
-    }, 5000);
+    }, 4000);
   });
 }
 
@@ -397,5 +397,6 @@ setVh();
 </script>
 </body>
 </html>
+
 
 
