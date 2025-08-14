@@ -312,7 +312,7 @@ function prevNextEnable(){
 function speakText(text, voiceName, onEnd) {
   speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.7;
+  utterance.rate = 0.5;
   let voice = voices.find(v => v.name === voiceName);
   if(!voice) voice = voices[0];
   if(voice) utterance.voice = voice;
@@ -432,6 +432,7 @@ function stopWakeLock() {
 function runAutoPlay() {
   if (!autoPlay || sentences.length === 0) return;
 
+  // Determine the order based on selected language
   let firstText, firstVoice, secondText, secondVoice;
   if (lang === 'en') {
     firstText = sentences[sentenceIndex].en;
@@ -447,22 +448,24 @@ function runAutoPlay() {
 
   // Speak first text
   speakText(firstText, firstVoice, () => {
-    // After first finishes, speak second
-    speakText(secondText, secondVoice, () => {
-      // After second finishes, go to next sentence
-      if (sentenceIndex < sentences.length - 1) {
-        sentenceIndex++;
-        isVisible = false;
-        updateToggleButton();
-        updateDisplay();
-        autoPlayTimer = setTimeout(runAutoPlay, 500); // small delay before next
-      } else {
-        autoPlay = false;
-        autoPlayBtn.classList.remove('active');
-        autoPlayBtn.textContent = '▶';
-        stopWakeLock();
-      }
-    });
+    setTimeout(() => { // 3s pause
+      speakText(secondText, secondVoice, () => {
+        setTimeout(() => { // 4s pause before next sentence
+          if (sentenceIndex < sentences.length - 1) {
+            sentenceIndex++;
+            isVisible = false;
+            updateToggleButton();
+            updateDisplay();
+            runAutoPlay(); // start next sentence
+          } else {
+            autoPlay = false;
+            autoPlayBtn.classList.remove('active');
+            autoPlayBtn.textContent = '▶';
+            stopWakeLock();
+          }
+        }, 4000);
+      });
+    }, 3000);
   });
 }
 
@@ -484,3 +487,4 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
