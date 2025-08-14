@@ -252,7 +252,6 @@ let sentences = [];
 let sentenceIndex = 0;
 let isVisible = false;
 let lang = 'en';
-let wakeAudio = null;
 let voices = [];
 let autoPlay = false;
 
@@ -390,37 +389,8 @@ autoPlayBtn.addEventListener('click', () => {
   autoPlay = !autoPlay;
   autoPlayBtn.classList.toggle('active', autoPlay);
   autoPlayBtn.textContent = autoPlay ? '▶◀' : '▶';
-
-  if (autoPlay) {
-    startWakeLock();  // <<< add this
-    runAutoPlay();
-  } else {
-    clearTimeout(autoPlayTimer);
-    stopWakeLock();   // <<< add this
-  }
+  if (autoPlay) runAutoPlay();
 });
-
-function getSpeakDelay(text){
-  return Math.max(2000, text.split(' ').length * 500);
-}
-
-function startWakeLock() {
-  if (wakeAudio) return;
-  wakeAudio = document.createElement('audio');
-  wakeAudio.src = "data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAwAAAQAAAAAAAABDb21wbGV0ZWx5U2lsZW5jZQ==";
-  wakeAudio.loop = true;
-  wakeAudio.muted = true;
-  wakeAudio.autoplay = true;
-  wakeAudio.play().catch(()=>{});
-  document.body.appendChild(wakeAudio);
-}
-
-function stopWakeLock() {
-  if (!wakeAudio) return;
-  wakeAudio.pause();
-  wakeAudio.remove();
-  wakeAudio = null;
-}
     
 function speakWithPause(text, voiceName, pauseMs, onEnd) {
   speakText(text, voiceName, () => {
@@ -459,7 +429,6 @@ function runAutoPlay() {
         autoPlay = false;
         autoPlayBtn.classList.remove('active');
         autoPlayBtn.textContent = '▶';
-        stopWakeLock();
       }
     });
   });
