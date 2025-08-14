@@ -252,6 +252,8 @@ let sentences = [];
 let sentenceIndex = 0;
 let isVisible = false;
 let lang = 'en';
+let wakeVideo = null;
+
 const displayArea = document.getElementById('displayArea');
 const fileInput = document.getElementById('sentenceFileInput');
 const statusMsg = document.getElementById('statusMsg');
@@ -391,18 +393,45 @@ autoPlayBtn.addEventListener('click', () => {
   autoPlay = !autoPlay;
   autoPlayBtn.classList.toggle('active', autoPlay);
   autoPlayBtn.textContent = autoPlay ? '▶◀' : '▶';
-  if(autoPlay) runAutoPlay();
-  else clearTimeout(autoPlayTimer);
+
+  if (autoPlay) {
+    startWakeLock();  // <<< add this
+    runAutoPlay();
+  } else {
+    clearTimeout(autoPlayTimer);
+    stopWakeLock();   // <<< add this
+  }
 });
 
 function getSpeakDelay(text){
   return Math.max(2000, text.split(' ').length * 500);
 }
 
+function startWakeLock() {
+  if (wakeVideo) return;
+  wakeVideo = document.createElement('video');
+  wakeVideo.src = 'data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAGlzb21tcDQyAAAAAG1wNDFtcDQyAAAAAA==';
+  wakeVideo.muted = true;
+  wakeVideo.loop = true;
+  wakeVideo.playsInline = true;
+  wakeVideo.style.width = '1px';
+  wakeVideo.style.height = '1px';
+  wakeVideo.style.position = 'absolute';
+  wakeVideo.style.opacity = '0';
+  document.body.appendChild(wakeVideo);
+  wakeVideo.play().catch(()=>{});
+}
+
+function stopWakeLock() {
+  if (!wakeVideo) return;
+  wakeVideo.pause();
+  wakeVideo.remove();
+  wakeVideo = null;
+}
+
 function runAutoPlay() {
   if (!autoPlay || sentences.length === 0) return;
 
-  // Determine the order based on selected language
   let firstText, firstVoice, secondText, secondVoice;
   if (lang === 'en') {
     firstText = sentences[sentenceIndex].en;
@@ -416,24 +445,24 @@ function runAutoPlay() {
     secondVoice = 'Samantha';
   }
 
+  // Speak first text
   speakText(firstText, firstVoice, () => {
-    setTimeout(() => {
-      speakText(secondText, secondVoice, () => {
-        setTimeout(() => {
-          if (sentenceIndex < sentences.length - 1) {
-            sentenceIndex++;
-            isVisible = false;
-            updateToggleButton();
-            updateDisplay();
-            autoPlayTimer = setTimeout(runAutoPlay, 1000);
-          } else {
-            autoPlay = false;
-            autoPlayBtn.classList.remove('active');
-            autoPlayBtn.textContent = '▶';
-          }
-        }, getSpeakDelay(secondText));
-      });
-    }, getSpeakDelay(firstText));
+    // After first finishes, speak second
+    speakText(secondText, secondVoice, () => {
+      // After second finishes, go to next sentence
+      if (sentenceIndex < sentences.length - 1) {
+        sentenceIndex++;
+        isVisible = false;
+        updateToggleButton();
+        updateDisplay();
+        autoPlayTimer = setTimeout(runAutoPlay, 500); // small delay before next
+      } else {
+        autoPlay = false;
+        autoPlayBtn.classList.remove('active');
+        autoPlayBtn.textContent = '▶';
+        stopWakeLock();
+      }
+    });
   });
 }
 
