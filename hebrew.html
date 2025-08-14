@@ -252,7 +252,9 @@ let sentences = [];
 let sentenceIndex = 0;
 let isVisible = false;
 let lang = 'en';
-let wakeVideo = null;
+let wakeAudio = null;
+let voices = [];
+let autoPlay = false;
 
 const displayArea = document.getElementById('displayArea');
 const fileInput = document.getElementById('sentenceFileInput');
@@ -264,10 +266,6 @@ const autoPlayBtn = document.getElementById('autoPlayBtn');
 const themeToggle = document.getElementById('themeToggle');
 const gotoBtn = document.getElementById('gotoBtn');
 const gotoInput = document.getElementById('gotoInput');
-
-let voices = [];
-let autoPlay = false;
-let autoPlayTimer = null;
 
 function loadVoices() {
   voices = speechSynthesis.getVoices();
@@ -310,9 +308,8 @@ function prevNextEnable(){
 }
 
 function speakText(text, voiceName, onEnd) {
-  speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.5;
+  utterance.rate = 0.7;
   let voice = voices.find(v => v.name === voiceName);
   if(!voice) voice = voices[0];
   if(voice) utterance.voice = voice;
@@ -408,31 +405,35 @@ function getSpeakDelay(text){
 }
 
 function startWakeLock() {
-  if (wakeVideo) return;
-  wakeVideo = document.createElement('video');
-  wakeVideo.src = 'data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAGlzb21tcDQyAAAAAG1wNDFtcDQyAAAAAA==';
-  wakeVideo.muted = true;
-  wakeVideo.loop = true;
-  wakeVideo.playsInline = true;
-  wakeVideo.style.width = '1px';
-  wakeVideo.style.height = '1px';
-  wakeVideo.style.position = 'absolute';
-  wakeVideo.style.opacity = '0';
-  document.body.appendChild(wakeVideo);
-  wakeVideo.play().catch(()=>{});
+  if (wakeAudio) return;
+  wakeAudio = document.createElement('audio');
+  wakeAudio.src = "data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAwAAAQAAAAAAAABDb21wbGV0ZWx5U2lsZW5jZQ==";
+  wakeAudio.loop = true;
+  wakeAudio.muted = true;
+  wakeAudio.autoplay = true;
+  wakeAudio.play().catch(()=>{});
+  document.body.appendChild(wakeAudio);
 }
 
 function stopWakeLock() {
-  if (!wakeVideo) return;
-  wakeVideo.pause();
-  wakeVideo.remove();
-  wakeVideo = null;
+  if (!wakeAudio) return;
+  wakeAudio.pause();
+  wakeAudio.remove();
+  wakeAudio = null;
+}
+    
+function speakWithPause(text, voiceName, pauseMs, onEnd) {
+  speakText(text, voiceName, () => {
+    setTimeout(() => {
+      if(onEnd) onEnd();
+    }, pauseMs);
+  });
 }
 
 function runAutoPlay() {
   if (!autoPlay || sentences.length === 0) return;
 
-  // Determine the order based on selected language
+  // Determine order based on selected language
   let firstText, firstVoice, secondText, secondVoice;
   if (lang === 'en') {
     firstText = sentences[sentenceIndex].en;
@@ -446,26 +447,21 @@ function runAutoPlay() {
     secondVoice = 'Samantha';
   }
 
-  // Speak first text
-  speakText(firstText, firstVoice, () => {
-    setTimeout(() => { // 3s pause
-      speakText(secondText, secondVoice, () => {
-        setTimeout(() => { // 4s pause before next sentence
-          if (sentenceIndex < sentences.length - 1) {
-            sentenceIndex++;
-            isVisible = false;
-            updateToggleButton();
-            updateDisplay();
-            runAutoPlay(); // start next sentence
-          } else {
-            autoPlay = false;
-            autoPlayBtn.classList.remove('active');
-            autoPlayBtn.textContent = '▶';
-            stopWakeLock();
-          }
-        }, 4000);
-      });
-    }, 3000);
+  speakWithPause(firstText, firstVoice, 3000, () => {
+    speakWithPause(secondText, secondVoice, 4000, () => {
+      sentenceIndex++;
+      if(sentenceIndex < sentences.length){
+        isVisible = false;
+        updateToggleButton();
+        updateDisplay();
+        runAutoPlay(); // continue autoplay
+      } else {
+        autoPlay = false;
+        autoPlayBtn.classList.remove('active');
+        autoPlayBtn.textContent = '▶';
+        stopWakeLock();
+      }
+    });
   });
 }
 
@@ -486,5 +482,4 @@ window.addEventListener('load', () => {
 
 </script>
 </body>
-</html>
-
+</html> 
