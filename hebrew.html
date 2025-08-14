@@ -152,16 +152,30 @@ body.dark #displayArea.number {
   color: #fff;
 }
 
+footer {
+  padding: 0.5rem;
+  display: flex;
+  align-items: stretch;
+  gap: 0.2rem;
+}
+
 footer input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
-  max-width: 50px;
-  padding: 0.4rem;
+  width: 50px;
+  padding: 0.5rem;
+  height: 100%;
   border-radius: 30px;
   border: 1px solid #ccc;
   text-align: center;
   font-size: 1rem;
+  box-sizing: border-box;
   margin-right: 0.2rem;
+  color: var(--brown-dark);
+}
+
+footer input[type="number"]:focus {
+  outline: none;
 }
 
 footer input::-webkit-outer-spin-button,
@@ -180,7 +194,6 @@ footer button {
   cursor: pointer;
   flex: 1 1 22%;
   font-weight: 700;
-  box-shadow: 0 4px 8px var(--brown-shadow-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -275,11 +288,13 @@ fileInput.addEventListener('change', function() {
     updateToggleButton();
     prevNextEnable();
     if (sentences.length > 0) {
-      statusMsg.textContent = `✅ ${sentences.length} sentences loaded`;
+      statusMsg.textContent = `${sentences.length} sentences`;
+      gotoInput.value = sentenceIndex + 1; // set input to first sentence
       startSentence();
     } else {
-      statusMsg.textContent = '⚠️ File is empty';
+      statusMsg.textContent = 'File is empty';
       displayArea.textContent = '';
+      gotoInput.value = '';
     }
   };
   reader.readAsText(file);
@@ -342,6 +357,7 @@ function updateDisplay() {
     displayArea.className='number';
     displayArea.textContent=(sentenceIndex+1).toString();
   }
+  gotoInput.value = sentenceIndex + 1;
 }
 
 function speakOther() {
@@ -425,10 +441,17 @@ themeToggle.addEventListener('click', ()=>{
   document.body.classList.toggle('dark');
 });
 
-function setVh(){setTimeout(()=>{document.documentElement.style.setProperty('--vh',`${window.innerHeight*0.01}px`);},50);}
+function setVh() {
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+}
+
 window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
-setVh();
+window.addEventListener('load', () => {
+  setVh();
+  gotoInput.value = ''; // clear input on page load
+});
+
 </script>
 </body>
 </html>
