@@ -248,8 +248,8 @@
   function speakWord() {
     if (!currentWord) return;
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentWord + ".");
-    utterance.rate = 0.7;
+    const utterance = new SpeechSynthesisUtterance(currentWord + ",");
+    utterance.rate = 0.5;
     if (selectedVoice) utterance.voice = selectedVoice;
     speechSynthesis.speak(utterance);
   }
@@ -301,5 +301,6 @@
 </script>
 </body>
 </html>
+
 
 
