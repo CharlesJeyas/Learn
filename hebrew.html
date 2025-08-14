@@ -370,6 +370,10 @@ langToggle.addEventListener('click', ()=>{
   startSentence();
 });
 
+gotoInput.addEventListener('focus', () => {
+  gotoInput.value = '';
+});
+
 nextBtn.addEventListener('click', nextSentence);
 
 gotoBtn.addEventListener('click', () => {
@@ -452,4 +456,5 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html> 
+
 
