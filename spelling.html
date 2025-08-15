@@ -260,9 +260,7 @@
     let parts = words[wordIndex].split('-').map(s => s.trim());
     if (parts.length === 1) {
       currentWord = parts[0];
-    } else if (parts.length === 2) {
-      currentWord = parts[0];
-    } else if (parts.length >= 3) {
+    } else {
       currentWord = `${parts[1]} - ${parts[0]}`;
     }
     updateDisplay();
@@ -344,3 +342,4 @@
 </script>
 </body>
 </html>
+
