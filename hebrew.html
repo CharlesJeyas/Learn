@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Hebrew Practice</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Playpen+Sans+Hebrew:wght@500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -49,7 +49,6 @@ header, footer {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  box-shadow: 0 4px 8px var(--brown-shadow);
   font-weight: 700;
   gap: 0.5rem;
   transition: background-color 0.3s;
@@ -82,6 +81,7 @@ body.dark #autoPlayBtn {
   margin-left: auto;
   display: flex;
   align-items: center;
+  text-align: center;
   gap: 0.3rem;
   color: white;
 }
@@ -225,7 +225,7 @@ button:hover {
   <span>Hebrew Practice</span>
   <button id="langToggle">EN</button>
   <button id="autoPlayBtn" title="Play/Pause">▶</button>
-  <button id="themeToggle" title="Toggle Night Mode">●</button>
+  <button id="themeToggle" title="Toggle Night Mode">◉</button>
   <span id="statusMsg">No file loaded</span>
   <label id="fileLabel" title="Load sentences file">
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
@@ -241,7 +241,6 @@ button:hover {
 
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
-  <button id="gotoBtn">Go</button>
   <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
   <button id="checkBtn" onclick="speakOther()">Check</button>
   <button id="nextBtn">Next</button>
@@ -263,7 +262,6 @@ const nextBtn = document.getElementById('nextBtn');
 const langToggle = document.getElementById('langToggle');
 const autoPlayBtn = document.getElementById('autoPlayBtn');
 const themeToggle = document.getElementById('themeToggle');
-const gotoBtn = document.getElementById('gotoBtn');
 const gotoInput = document.getElementById('gotoInput');
 
 function loadVoices() {
@@ -300,7 +298,6 @@ fileInput.addEventListener('change', function() {
 });
 
 function prevNextEnable(){
-  gotoBtn.disabled = sentences.length===0;
   nextBtn.disabled = sentences.length===0;
   toggleBtn.disabled = sentences.length===0;
   document.getElementById('checkBtn').disabled = sentences.length===0;
@@ -374,25 +371,27 @@ gotoInput.addEventListener('focus', () => {
   gotoInput.value = '';
 });
 
-nextBtn.addEventListener('click', nextSentence);
-
-gotoBtn.addEventListener('click', () => {
-  if(sentences.length === 0) return;
-  let num = parseInt(gotoInput.value);
-  if(isNaN(num) || num < 1 || num > sentences.length){
-    alert(`Enter a number between 1 and ${sentences.length}`);
-    return;
+gotoInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if(sentences.length === 0) return;
+    let num = parseInt(gotoInput.value);
+    if(isNaN(num) || num < 1 || num > sentences.length){
+      alert(`Enter a number between 1 and ${sentences.length}`);
+      return;
+    }
+    sentenceIndex = num - 1;
+    isVisible = false;
+    updateToggleButton();
+    startSentence();
   }
-  sentenceIndex = num - 1;
-  isVisible = false;
-  updateToggleButton();
-  startSentence();
 });
+
+nextBtn.addEventListener('click', nextSentence);
 
 autoPlayBtn.addEventListener('click', () => {
   autoPlay = !autoPlay;
   autoPlayBtn.classList.toggle('active', autoPlay);
-  autoPlayBtn.textContent = autoPlay ? '▶◀' : '▶';
+  autoPlayBtn.textContent = autoPlay ? '◀▶' : '▶';
   if (autoPlay) runAutoPlay();
 });
     
@@ -456,5 +455,3 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html> 
-
-
