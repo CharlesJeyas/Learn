@@ -243,7 +243,7 @@ button:hover {
   <input type="number" id="gotoInput" placeholder="" min="1"/>
   <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
   <button id="checkBtn" onclick="speakOther()">Check</button>
-  <button id="nextBtn">Next</button>
+  <button id="nextBtn" onclick="nextSentence()">Next</button>
 </footer>
 
 <script>
@@ -272,6 +272,13 @@ loadVoices();
 
 fileInput.addEventListener('change', function() {
   const file = this.files[0];
+
+  sentences = [];
+  sentenceIndex = 0;
+  isVisible = false;
+  updateDisplay();
+  updateButtonStates();
+
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -283,8 +290,8 @@ fileInput.addEventListener('change', function() {
     sentenceIndex = 0;
     isVisible = false;
     updateToggleButton();
-    prevNextEnable();
     if (sentences.length > 0) {
+      updateButtonStates();
       statusMsg.textContent = `${sentences.length} sentences`;
       gotoInput.value = sentenceIndex + 1; // set input to first sentence
       startSentence();
@@ -292,15 +299,16 @@ fileInput.addEventListener('change', function() {
       statusMsg.textContent = 'File is empty';
       displayArea.textContent = '';
       gotoInput.value = '';
+      updateButtonStates(); 
     }
   };
   reader.readAsText(file);
 });
 
-function prevNextEnable(){
-  nextBtn.disabled = sentences.length===0;
+function updateButtonStates(){
   toggleBtn.disabled = sentences.length===0;
-  document.getElementById('checkBtn').disabled = sentences.length===0;
+  checkBtn.disabled = sentences.length===0;
+  nextBtn.disabled = sentences.length===0;
 }
 
 function speakText(text, voiceName, onEnd) {
@@ -320,6 +328,7 @@ function startSentence() {
 }
 
 function toggleVisibility() {
+  if (sentences.length === 0) return;
   isVisible = !isVisible;
   updateDisplay();
   updateToggleButton();
@@ -334,6 +343,7 @@ function nextSentence() {
   sentenceIndex = (sentenceIndex+1)%sentences.length;
   isVisible = false;
   updateToggleButton();
+  updateDisplay();
   startSentence();
 }
 
@@ -386,8 +396,6 @@ gotoInput.addEventListener('keydown', (e) => {
   }
 });
 
-nextBtn.addEventListener('click', nextSentence);
-
 autoPlayBtn.addEventListener('click', () => {
   autoPlay = !autoPlay;
   autoPlayBtn.classList.toggle('active', autoPlay);
@@ -427,7 +435,7 @@ function runAutoPlay() {
         isVisible = false;
         updateToggleButton();
         updateDisplay();
-        runAutoPlay(); // continue autoplay
+        runAutoPlay();
       } else {
         autoPlay = false;
         autoPlayBtn.classList.remove('active');
@@ -449,7 +457,7 @@ window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
 window.addEventListener('load', () => {
   setVh();
-  gotoInput.value = ''; // clear input on page load
+  gotoInput.value = '';
 });
 
 </script>

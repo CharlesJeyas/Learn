@@ -3,173 +3,185 @@
 <head>
   <meta charset="UTF-8" />
   <title>Spelling Practice</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --vh: 1vh;
-      --brown-light: #A67B5B;
-      --brown-lighter: #C19A6B;
-      --brown-dark: #5a3e2b;
-      --brown-shadow: rgba(166,123,91,0.4);
-      --brown-shadow-light: rgba(193,154,107,0.3);
-    }
+  :root {
+    --vh: 1vh;
+    --brown-light: #A67B5B;
+    --brown-lighter: #C19A6B;
+    --brown-dark: #5a3e2b;
+    --brown-shadow: rgba(166,123,91,0.4);
+    --brown-shadow-light: rgba(193,154,107,0.3);
+  }
 
-    body {
-      margin: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: calc(var(--vh, 1vh) * 100);
-      background: linear-gradient(135deg, #F5F1EB 0%, #EDE6DC 100%);
-      user-select: none;
-      color: var(--brown-dark);
-      position: relative;
-    }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
 
-    #wordIndexDisplay {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      font-family: 'Comic Neue', cursive;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--brown-dark);
-      user-select: none;
-      z-index: 10;
-    }
+  * { box-sizing: inherit; }
 
-    header {
-      padding: 1rem;
-      background-color: var(--brown-light);
-      color: white;
-      font-size: 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 8px var(--brown-shadow);
-      font-weight: 700;
-    }
+  body {
+    font-family: 'Comic Neue', cursive, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #F5F1EB 0%, #EDE6DC 100%);
+    user-select: none;
+    color: var(--brown-dark);
+  }
 
-    #fileLabel {
-      font-size: 1.4rem;
-      cursor: pointer;
-      margin-left: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      user-select: none;
-    }
+  header, footer {
+    padding: 1rem;
+    background-color: var(--brown-light);
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-weight: 700;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+  }
 
-    input[type="file"] {
-      display: none;
-    }
+  #statusMsg {
+    font-size: 1rem;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    gap: 0.3rem;
+    color: white;
+  }
 
-    #statusMsg {
-      font-size: 1rem;
-      margin-left: auto;
-      margin-right: 1rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      user-select: none;
-    }
+  #fileLabel {
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    user-select: none;
+    color: white;
+  }
 
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      overflow: hidden;
-      position: relative;
-    }
+  input[type="file"] {
+    display: none;
+  }
 
-    #displayArea {
-      font-family: 'Dancing Script', cursive;
-      font-size: 5rem;
-      color: var(--brown-dark);
-      height: 200px;
-      width: 100%;
-      max-width: 400px;
-      margin: auto;
-      padding-top: 120px;
-      text-align: center;
-      line-height: 0;
-      background-image:
-        linear-gradient(to bottom, gray 1px, transparent 75%),
-        linear-gradient(to bottom, gray 1px, transparent 75%),
-        linear-gradient(to bottom, red 1px, transparent 75%),
-        linear-gradient(to bottom, gray 1px, transparent 75%);
-      background-repeat: no-repeat;
-      background-position:
-        0 95px,
-        0 120px,
-        0 145px,
-        0 170px;
-      background-size:
-        100% 1px,
-        100% 1px,
-        100% 1px,
-        100% 1px;
-    }
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    width: 100%;
+    padding: 1rem;
+  }
 
-    footer {
-      padding: 1rem 0.5rem;
-      background-color: var(--brown-light);
-      display: flex;
-      justify-content: space-between;
-      box-shadow: 0 -4px 8px var(--brown-shadow);
-      flex-shrink: 0;
-      gap: 0.3rem;
-    }
+  #displayArea {
+    font-family: 'Dancing Script', cursive;
+    font-size: 5rem;
+    color: var(--brown-dark);
+    height: 200px;
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    padding-top: 120px;
+    text-align: center;
+    line-height: 0;
+    background-image:
+      linear-gradient(to bottom, gray 1px, transparent 75%),
+      linear-gradient(to bottom, gray 1px, transparent 75%),
+      linear-gradient(to bottom, red 1px, transparent 75%),
+      linear-gradient(to bottom, gray 1px, transparent 75%);
+    background-repeat: no-repeat;
+    background-position:
+      0 95px,
+      0 120px,
+      0 145px,
+      0 170px;
+    background-size:
+      100% 1px,
+      100% 1px,
+      100% 1px,
+      100% 1px;
+  }
 
-    button {
-      padding: 0.7rem 0.5rem;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 30px;
-      background-color: white;
-      color: var(--brown-light);
-      cursor: pointer;
-      flex: 1 1 22%;
-      font-weight: 700;
-      box-shadow: 0 4px 8px var(--brown-shadow-light);
-      transition: background-color 0.3s ease, color 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-      user-select: none;
-      min-width: 0;
-    }
+  footer {
+    padding: 0.5rem;
+    display: flex;
+    align-items: stretch;
+    gap: 0.2rem;
+  }
 
-    button:hover {
-      background-color: var(--brown-lighter);
-      color: white;
-    }
+  footer input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+    width: 50px;
+    padding: 0.5rem;
+    height: 100%;
+    border-radius: 30px;
+    border: 1px solid #ccc;
+    text-align: center;
+    font-size: 1rem;
+    box-sizing: border-box;
+    margin-right: 0.2rem;
+    color: var(--brown-dark);
+  }
 
-    .icon {
-      display: inline-block;
-      vertical-align: middle;
-      width: 1.2em;
-      height: 1.2em;
-      fill: var(--brown-light);
-      user-select: none;
-    }
+  footer input[type="number"]:focus {
+    outline: none;
+  }
+
+  footer input::-webkit-outer-spin-button,
+  footer input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  footer button {
+    padding: 0.7rem 0.5rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 30px;
+    background-color: white;
+    color: var(--brown-light);
+    cursor: pointer;
+    flex: 1 1 22%;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  button:hover {
+    background-color: var(--brown-lighter);
+    color: white;
+  }
+
+  .icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 1.2em;
+    height: 1.2em;
+    fill: currentColor;
+  }
   </style>
 </head>
 <body>
   <header>
     <span>Spelling Practice</span>
-    <span id="statusMsg">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
-      No file loaded
-    </span>
-    <label id="fileLabel" title="Load words file">
+    <span id="statusMsg">No file loaded</span>
+    <label id="fileLabel" title="Load sentences file">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
         <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/>
       </svg>
@@ -178,25 +190,15 @@
   </header>
 
   <main>
-    <div id="wordIndexDisplay"></div>
     <div id="displayArea"></div>
   </main>
 
-  <footer>
-    <button id="prevBtn" onclick="prevWord()" title="Previous Word">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 19l-7-7 7-7v14z"/></svg>
-      Prev
-    </button>
-    <button id="toggleBtn" onclick="toggleVisibility()" title="Show/Hide Word">Show</button>
-    <button id="playBtn" onclick="speakWord()" title="Play">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
-      Play
-    </button>
-    <button id="nextBtn" onclick="nextWord()" title="Next Word">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"/></svg>
-      Next
-    </button>
-  </footer>
+<footer>
+  <input type="number" id="gotoInput" placeholder="" min="1"/>
+  <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
+  <button id="playBtn" onclick="startWord()">Play</button>
+  <button id="nextBtn" onclick="nextWord()">Next</button>
+</footer>
 
 <script>
   let words = [];
@@ -206,7 +208,6 @@
   let isVisible = false;
 
   const displayArea = document.getElementById('displayArea');
-  const wordIndexDisplay = document.getElementById('wordIndexDisplay');
   const fileInput = document.getElementById('wordFileInput');
   const toggleBtn = document.getElementById('toggleBtn');
   const statusMsg = document.getElementById('statusMsg');
@@ -228,25 +229,28 @@
       wordIndex = 0;
       isVisible = false;
       updateToggleButton();
+      updateButtonStates();
       if (words.length > 0) {
-        statusMsg.innerHTML = `
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-          </svg>
-          ✅ ${words.length} words loaded
-        `;
+        statusMsg.innerHTML = `${words.length} words`;
+        gotoInput.value = wordIndex + 1; // set input to first word
         startWord();
       } else {
-        statusMsg.textContent = '⚠️ File is empty';
+        statusMsg.textContent = 'File is empty';
         displayArea.textContent = '';
-        wordIndexDisplay.textContent = '';
+        gotoInput.value = '';
       }
     };
     reader.readAsText(file);
   });
 
+  function updateButtonStates(){
+    toggleBtn.disabled = words.length===0;
+    playBtn.disabled = words.length===0;
+    nextBtn.disabled = words.length===0;
+  }
+
   function speakWord() {
-    if (!currentWord) return;
+    if (!currentWord || words.length === 0) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentWord + ",");
     utterance.rate = 0.5;
@@ -255,6 +259,7 @@
   }
 
   function toggleVisibility() {
+    if (words.length === 0) return;
     isVisible = !isVisible;
     updateDisplay();
     updateToggleButton();
@@ -264,12 +269,11 @@
     toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
   }
 
-  function prevWord() {
+  function startWord() {
     if (words.length === 0) return;
-    wordIndex = (wordIndex - 1 + words.length) % words.length;
-    isVisible = false;
-    updateToggleButton();
-    startWord();
+    currentWord = words[wordIndex];
+    updateDisplay();
+    speakWord();
   }
 
   function nextWord() {
@@ -280,31 +284,45 @@
     startWord();
   }
 
-  function startWord() {
-    currentWord = words[wordIndex];
-    updateDisplay();
-    speakWord();
-  }
+  gotoInput.addEventListener('focus', () => {
+    gotoInput.value = '';
+  });
+
+  gotoInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if(words.length === 0) return;
+      let num = parseInt(gotoInput.value);
+      if(isNaN(num) || num < 1 || num > words.length){
+        alert(`Enter a number between 1 and ${words.length}`);
+        return;
+      }
+      sentenceIndex = num - 1;
+      isVisible = false;
+      updateToggleButton();
+      startWord();
+    }
+  });
 
   function updateDisplay() {
     displayArea.textContent = isVisible ? currentWord : '';
-    wordIndexDisplay.textContent = `${wordIndex + 1}.`;
+    if (words.length > 0) {
+      gotoInput.value = wordIndex + 1;
+    } else {
+      gotoInput.value = ''; // leave empty if no words
+    }
   }
 
   function setVh() {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
   }
+
   window.addEventListener('resize', setVh);
   window.addEventListener('orientationchange', setVh);
-  setVh();
+  window.addEventListener('load', () => {
+    setVh();
+    gotoInput.value = ''; // clear input on page load
+  });
+
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
