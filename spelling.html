@@ -308,14 +308,25 @@
   });
 
   function updateDisplay() {
-    displayArea.textContent = isVisible ? currentWord : '';
-    if (words.length > 0) {
-      gotoInput.value = wordIndex + 1;
-    } else {
-      gotoInput.value = ''; // leave empty if no words
-    }
+  if (!currentWord) {
+    displayArea.textContent = '';
+    gotoInput.value = '';
+    return;
   }
 
+  if (isVisible) {
+    // Split on dash
+    const parts = currentWord.split('-').map(s => s.trim());
+    // If there's a dash, show only the part after it
+    displayArea.textContent = parts.length > 1 ? parts[1] : parts[0];
+  } else {
+    displayArea.textContent = '';
+  }
+
+  // Update input number
+  gotoInput.value = words.length > 0 ? wordIndex + 1 : '';
+  }
+  
   function setVh() {
     document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
   }
@@ -330,6 +341,7 @@
 </script>
 </body>
 </html>
+
 
 
 
