@@ -107,10 +107,10 @@
       linear-gradient(to bottom, gray 1px, transparent 75%);
     background-repeat: no-repeat;
     background-position:
-      0 70px,  /* moved up from 90px */
-      0 95px,  /* moved up from 115px */
-      0 125px, /* moved up from 145px */
-      0 150px; /* moved up from 170px */
+      0 80px,
+      0 97px,
+      0 128px,
+      0 145px;
     background-size:
       100% 1px,
       100% 1px,
@@ -200,7 +200,7 @@
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
   <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
-  <button id="playBtn" onclick="startWord()">Play</button>
+  <button id="playBtn" onclick="setWord()">Play</button>
   <button id="nextBtn" onclick="nextWord()">Next</button>
 </footer>
 
@@ -237,7 +237,7 @@
       if (words.length > 0) {
         statusMsg.innerHTML = `${words.length} words`;
         gotoInput.value = wordIndex + 1; // set input to first word
-        startWord();
+        setWord();
       } else {
         statusMsg.textContent = 'File is empty';
         displayArea.textContent = '';
@@ -247,10 +247,26 @@
     reader.readAsText(file);
   });
 
-  function updateButtonStates(){
-    toggleBtn.disabled = words.length===0;
-    playBtn.disabled = words.length===0;
-    nextBtn.disabled = words.length===0;
+  function nextWord() {
+    if (words.length === 0) return;
+    wordIndex = (wordIndex + 1) % words.length;
+    isVisible = false;
+    updateToggleButton();
+    setWord();
+  }
+
+  function setWord() {
+    if (words.length === 0) return;
+    let parts = words[wordIndex].split('-').map(s => s.trim());
+    if (parts.length === 1) {
+      currentWord = parts[0];
+    } else if (parts.length === 2) {
+      currentWord = parts[0];
+    } else if (parts.length >= 3) {
+      currentWord = `${parts[1]} - ${parts[0]}`;
+    }
+    updateDisplay();
+    speakWord();
   }
 
   function speakWord() {
@@ -262,6 +278,32 @@
     speechSynthesis.speak(utterance);
   }
 
+  function updateButtonStates(){
+    toggleBtn.disabled = words.length===0;
+    playBtn.disabled = words.length===0;
+    nextBtn.disabled = words.length===0;
+  }
+
+  function updateDisplay() {
+    if (!currentWord) {
+      displayArea.textContent = '';
+      gotoInput.value = '';
+      return;
+    }
+
+    if (isVisible) {
+      displayArea.textContent = currentWord.split('-')[0].trim();
+    } else {
+      displayArea.textContent = '';
+    }
+
+    gotoInput.value = words.length > 0 ? wordIndex + 1 : '';
+  }
+  
+  function setVh() {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  }
+
   function toggleVisibility() {
     if (words.length === 0) return;
     isVisible = !isVisible;
@@ -271,21 +313,6 @@
 
   function updateToggleButton() {
     toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
-  }
-
-  function startWord() {
-    if (words.length === 0) return;
-    currentWord = words[wordIndex];
-    updateDisplay();
-    speakWord();
-  }
-
-  function nextWord() {
-    if (words.length === 0) return;
-    wordIndex = (wordIndex + 1) % words.length;
-    isVisible = false;
-    updateToggleButton();
-    startWord();
   }
 
   gotoInput.addEventListener('focus', () => {
@@ -303,48 +330,17 @@
       wordIndex = num - 1;
       isVisible = false;
       updateToggleButton();
-      startWord();
+      setWord();
     }
   });
-
-  function updateDisplay() {
-  if (!currentWord) {
-    displayArea.textContent = '';
-    gotoInput.value = '';
-    return;
-  }
-
-  if (isVisible) {
-    // Split on dash
-    const parts = currentWord.split('-').map(s => s.trim());
-    // If there's a dash, show only the part after it
-    displayArea.textContent = parts.length > 1 ? parts[1] : parts[0];
-  } else {
-    displayArea.textContent = '';
-  }
-
-  // Update input number
-  gotoInput.value = words.length > 0 ? wordIndex + 1 : '';
-  }
-  
-  function setVh() {
-    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-  }
 
   window.addEventListener('resize', setVh);
   window.addEventListener('orientationchange', setVh);
   window.addEventListener('load', () => {
     setVh();
-    gotoInput.value = ''; // clear input on page load
+    gotoInput.value = '';
   });
 
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
