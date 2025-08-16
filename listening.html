@@ -319,16 +319,17 @@ function speakWithPause(text, pause, callback) {
 
 function runAutoPlay() {
   if (!autoPlay || sentences.length === 0) return;
-  
+
+  isVisible = false;
+  updateToggleButton();
+  updateDisplay();
+
   let parts = sentences[sentenceIndex].split('|');
   let engPart = (parts[0] || '').trim();
 
   speakWithPause(engPart, 3000, () => {
     sentenceIndex++;
     if (sentenceIndex < sentences.length) {
-      isVisible = false;
-      updateToggleButton();
-      updateDisplay();
       runAutoPlay();
     } else {
       autoPlay = false;
@@ -357,7 +358,7 @@ function updateDisplay() {
 
     let parts = currentSentence.split('|');
     let subParts = (parts[0] || '').split('-');
-    let engPart = (subParts[0] || '').trim();
+    let engPart = subParts.length === 1 ? (subParts[0] || '').trim() : (subParts[1] || '').trim() ;
     let jpPart = (parts[1] || '').trim();
     
     const enDiv = document.createElement('div');
@@ -423,4 +424,3 @@ window.addEventListener('load', () => {
 </body>
 
 </html> 
-
