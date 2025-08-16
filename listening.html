@@ -232,6 +232,7 @@ const displayArea = document.getElementById('displayArea');
 const fileInput = document.getElementById('sentenceFileInput');
 const statusMsg = document.getElementById('statusMsg');
 const toggleBtn = document.getElementById('toggleBtn');
+const playBtn = document.getElementById('playBtn');
 const nextBtn = document.getElementById('nextBtn');
 const autoPlayBtn = document.getElementById('autoPlayBtn');
 const gotoInput = document.getElementById('gotoInput');
@@ -365,7 +366,7 @@ function updateDisplay() {
 
     const jpDiv = document.createElement('div');
     jpDiv.className = 'jp-text';
-    jpDiv.textContent = jpPart);
+    jpDiv.textContent = jpPart;
 
     displayArea.appendChild(enDiv);
     displayArea.appendChild(jpDiv);
@@ -422,3 +423,4 @@ window.addEventListener('load', () => {
 </body>
 
 </html> 
+
