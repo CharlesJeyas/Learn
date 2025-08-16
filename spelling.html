@@ -257,13 +257,8 @@
 
   function setWord() {
     if (words.length === 0) return;
-    let engPart = words[wordIndex].split('|')[0].trim();
-    let parts = engPart.split('-').map(s => s.trim());
-    if (parts.length === 1) {
-      currentWord = parts[0];
-    } else {
-      currentWord = `${parts[1]} - ${parts[0]}`;
-    }
+    let parts = words[wordIndex].split('|');
+    currentWord = (parts[0] || '').trim();
     updateDisplay();
     speakWord();
   }
@@ -291,7 +286,8 @@
     }
 
     if (isVisible) {
-      displayArea.textContent = currentWord.split('-')[1].trim();
+      let parts = currentWord.split('-');
+      displayArea.textContent = (parts[0] || '').trim();
     } else {
       displayArea.textContent = '';
     }
@@ -343,6 +339,3 @@
 </script>
 </body>
 </html>
-
-
-
