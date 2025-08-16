@@ -293,7 +293,7 @@ fileInput.addEventListener('change', function() {
     if (sentences.length > 0) {
       updateButtonStates();
       statusMsg.textContent = `${sentences.length} sentences`;
-      gotoInput.value = sentenceIndex + 1; // set input to first sentence
+      gotoInput.value = sentenceIndex + 1;
       startSentence();
     } else {
       statusMsg.textContent = 'File is empty';
@@ -414,7 +414,10 @@ function speakWithPause(text, voiceName, pauseMs, onEnd) {
 function runAutoPlay() {
   if (!autoPlay || sentences.length === 0) return;
 
-  // Determine order based on selected language
+  isVisible = false;
+  updateToggleButton();
+  updateDisplay();
+
   let firstText, firstVoice, secondText, secondVoice;
   if (lang === 'en') {
     firstText = sentences[sentenceIndex].en;
@@ -431,11 +434,8 @@ function runAutoPlay() {
   speakWithPause(firstText, firstVoice, 3000, () => {
     speakWithPause(secondText, secondVoice, 4000, () => {
       sentenceIndex++;
-      if(sentenceIndex < sentences.length){
-        isVisible = false;
-        updateToggleButton();
-        updateDisplay();
-        runAutoPlay();
+      if (sentenceIndex < sentences.length) {
+        runAutoPlay();  // move to next sentence
       } else {
         autoPlay = false;
         autoPlayBtn.classList.remove('active');
