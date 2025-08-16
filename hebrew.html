@@ -283,6 +283,7 @@ fileInput.addEventListener('change', function() {
   const reader = new FileReader();
   reader.onload = function(e) {
     const text = e.target.result;
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     sentences = text.split('\n').map(s => s.trim()).filter(Boolean).map(s=>{
       const parts = s.split('|');
       return {en: parts[0]?.trim()||'', he: parts[1]?.trim()||''};
@@ -464,3 +465,4 @@ window.addEventListener('load', () => {
 </body>
 
 </html> 
+
