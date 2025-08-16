@@ -257,7 +257,8 @@
 
   function setWord() {
     if (words.length === 0) return;
-    let parts = words[wordIndex].split('-').map(s => s.trim());
+    let engPart = words[wordIndex].split('|')[0].trim();
+    let parts = engPart.split('-').map(s => s.trim());
     if (parts.length === 1) {
       currentWord = parts[0];
     } else {
@@ -342,4 +343,5 @@
 </script>
 </body>
 </html>
+
 
