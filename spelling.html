@@ -229,6 +229,7 @@
     const reader = new FileReader();
     reader.onload = function (e) {
       const text = e.target.result;
+      text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       words = text.split('\n').map(w => w.trim()).filter(Boolean);
       wordIndex = 0;
       isVisible = false;
@@ -339,3 +340,4 @@
 </script>
 </body>
 </html>
+
