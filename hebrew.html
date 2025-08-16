@@ -242,7 +242,7 @@ button:hover {
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
   <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
-  <button id="checkBtn" onclick="speakOther()">Check</button>
+  <button id="playBtn" onclick="playSentence()">Play</button>
   <button id="nextBtn" onclick="nextSentence()">Next</button>
 </footer>
 
@@ -307,7 +307,7 @@ fileInput.addEventListener('change', function() {
 
 function updateButtonStates(){
   toggleBtn.disabled = sentences.length===0;
-  checkBtn.disabled = sentences.length===0;
+  playBtn.disabled = sentences.length===0;
   nextBtn.disabled = sentences.length===0;
 }
 
@@ -365,7 +365,7 @@ function updateDisplay() {
   gotoInput.value = sentenceIndex + 1;
 }
 
-function speakOther() {
+function playSentence() {
   if(sentences.length===0) return;
   if(lang==='en') speakText(sentences[sentenceIndex].he,'Carmit');
   else speakText(sentences[sentenceIndex].en,'Samantha');
