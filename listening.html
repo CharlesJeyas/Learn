@@ -321,6 +321,7 @@ function runAutoPlay() {
   if (!autoPlay || sentences.length === 0) return;
 
   isVisible = false;
+  currentSentence = sentences[sentenceIndex];
   updateToggleButton();
   updateDisplay();
 
@@ -424,3 +425,4 @@ window.addEventListener('load', () => {
 </body>
 
 </html> 
+
