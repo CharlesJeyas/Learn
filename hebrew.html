@@ -399,7 +399,7 @@ gotoInput.addEventListener('keydown', (e) => {
 autoPlayBtn.addEventListener('click', () => {
   autoPlay = !autoPlay;
   autoPlayBtn.classList.toggle('active', autoPlay);
-  autoPlayBtn.textContent = autoPlay ? '◀▶' : '▶';
+  autoPlayBtn.textContent = autoPlay ? '‖' : '▶';
   if (autoPlay) runAutoPlay();
 });
     
@@ -462,4 +462,5 @@ window.addEventListener('load', () => {
 
 </script>
 </body>
+
 </html> 
