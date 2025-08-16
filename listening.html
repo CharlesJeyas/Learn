@@ -250,6 +250,7 @@ fileInput.addEventListener('change', function() {
   const reader = new FileReader();
   reader.onload = function(e) {
     const text = e.target.result;
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     sentences = text.split('\n').map(s => s.trim()).filter(Boolean);
     sentenceIndex = 0;
     isVisible = false;
@@ -425,4 +426,5 @@ window.addEventListener('load', () => {
 </body>
 
 </html> 
+
 
