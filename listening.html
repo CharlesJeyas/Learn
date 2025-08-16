@@ -216,7 +216,7 @@ button:hover {
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
   <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
-  <button id="playBtn" onclick="speakSentence()">Check</button>
+  <button id="playBtn" onclick="speakSentence()">Play</button>
   <button id="nextBtn" onclick="nextSentence()">Next</button>
 </footer>
 
@@ -257,7 +257,7 @@ fileInput.addEventListener('change', function() {
     if (sentences.length > 0) {
       updateButtonStates();
       statusMsg.innerHTML = `${sentences.length} sentences`;
-      gotoInput.value = sentenceIndex + 1; // set input to first sentence
+      gotoInput.value = sentenceIndex + 1;
       setSentence();
     } else {
       statusMsg.textContent = 'File is empty';
@@ -279,21 +279,7 @@ function nextSentence() {
 
 function setSentence() {
   if (sentences.length === 0) return;
-
-  let parts = sentences[sentenceIndex].split('|');
-  let engPart = (parts[0] || '').trim();
-  let jpPart = (parts[1] || '').trim();
-
-  let subParts = engPart.split('-').map(s => s.trim());
-
-  if (subParts.length === 1) {
-    // only one English part
-    currentSentence = `${subParts[0]} - ${jpPart}`;
-  } else {
-    // two or more English parts → take the second
-    currentSentence = `${subParts[1]} - ${jpPart}`;
-  }
-
+  currentSentence = sentences[sentenceIndex];
   updateDisplay();
   speakSentence();
 }
@@ -301,7 +287,11 @@ function setSentence() {
 function speakSentence() {
   if (!currentSentence || sentences.length === 0) return;
   speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(currentSentence.split('-')[0] + ",");
+
+  let parts = currentSentence.split('|');
+  let engPart = (parts[0] || '').trim();
+
+  const utterance = new SpeechSynthesisUtterance(engPart + ",");
   utterance.rate = 0.7;
   if (selectedVoice) utterance.voice = selectedVoice;
   speechSynthesis.speak(utterance);
@@ -313,31 +303,32 @@ autoPlayBtn.addEventListener('click', () => {
   autoPlayBtn.textContent = autoPlay ? '‖' : '▶';
   if (autoPlay) runAutoPlay();
 });
-    
-function speakWithPause(text, voiceName, pause, callback) {
+
+function speakWithPause(text, pause, callback) {
   if (!text) {
-    setTimeout(callback, pause); // skip if no text
+    setTimeout(callback, pause);
     return;
   }
   let utterance = new SpeechSynthesisUtterance(text);
-  utterance.voice = speechSynthesis.getVoices().find(v => v.name === voiceName);
   utterance.onend = () => setTimeout(callback, pause);
+  if (selectedVoice) utterance.voice = selectedVoice;
   utterance.rate = 0.7;
   speechSynthesis.speak(utterance);
 }
 
 function runAutoPlay() {
   if (!autoPlay || sentences.length === 0) return;
+  
+  let parts = sentences[sentenceIndex].split('|');
+  let engPart = (parts[0] || '').trim();
 
-  let enPart = sentences[sentenceIndex].split('|')[0].trim();
-
-  // Speak English only
-  speakWithPause(enPart, 'Samantha', 3000, () => {
+  speakWithPause(engPart, 3000, () => {
     sentenceIndex++;
     if (sentenceIndex < sentences.length) {
-      isVisible = false; // show number
+      isVisible = false;
+      updateToggleButton();
       updateDisplay();
-      runAutoPlay(); // continue autoplay
+      runAutoPlay();
     } else {
       autoPlay = false;
       autoPlayBtn.classList.remove('active');
@@ -363,15 +354,18 @@ function updateDisplay() {
     displayArea.className = '';
     displayArea.innerHTML = '';
 
-    const parts = currentSentence.split('-');
+    let parts = currentSentence.split('|');
+    let subParts = (parts[0] || '').split('-');
+    let engPart = (subParts[0] || '').trim();
+    let jpPart = (parts[1] || '').trim();
     
     const enDiv = document.createElement('div');
     enDiv.className = 'en-text';
-    enDiv.textContent = (parts[0] || '').trim();
+    enDiv.textContent = engPart;
 
     const jpDiv = document.createElement('div');
     jpDiv.className = 'jp-text';
-    jpDiv.textContent = (parts[1] || '').trim();
+    jpDiv.textContent = jpPart);
 
     displayArea.appendChild(enDiv);
     displayArea.appendChild(jpDiv);
@@ -381,10 +375,6 @@ function updateDisplay() {
   }
 
   gotoInput.value = sentences.length > 0 ? sentenceIndex + 1 : '';
-}
-
-function setVh() {
-  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
 }
 
 function toggleVisibility() {
@@ -416,6 +406,10 @@ gotoInput.addEventListener('keydown', (e) => {
     setSentence();
   }
 });
+
+function setVh() {
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+}
 
 window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
