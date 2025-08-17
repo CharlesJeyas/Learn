@@ -23,6 +23,7 @@ html, body {
   box-sizing: border-box;
   overflow: hidden;
   transition: background 0.3s, color 0.3s;
+  touch-action: manipulation;
 }
 
 * { box-sizing: inherit; }
@@ -52,6 +53,7 @@ header, footer {
   font-weight: 700;
   gap: 0.5rem;
   transition: background-color 0.3s;
+  touch-action: manipulation;
 }
 
 body.dark header, body.dark footer {
@@ -469,3 +471,4 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html> 
+
