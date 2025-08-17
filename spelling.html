@@ -116,25 +116,26 @@
       100% 1px,
       100% 1px,
       100% 1px;
-}
+  }
 
   footer {
-    padding: 0.5rem;
+    padding: 1rem;
     display: flex;
-    align-items: stretch;
-    gap: 0.2rem;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 4.5rem;
+    background-color: var(--brown-light);
   }
 
   footer input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
-    width: 50px;
-    padding: 0.5rem;
-    height: 100%;
-    border-radius: 30px;
+    width: 70px;
+    padding: 1rem;
+    font-size: 1.3rem;
+    border-radius: 40px;
     border: 1px solid #ccc;
     text-align: center;
-    font-size: 1rem;
     box-sizing: border-box;
     margin-right: 0.2rem;
     color: var(--brown-dark);
@@ -143,7 +144,7 @@
   footer input[type="number"]:focus {
     outline: none;
   }
-
+  
   footer input::-webkit-outer-spin-button,
   footer input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -151,10 +152,10 @@
   }
 
   footer button {
-    padding: 0.7rem 0.5rem;
-    font-size: 1.1rem;
+    padding: 1rem;
+    font-size: 1.3rem;
     border: none;
-    border-radius: 30px;
+    border-radius: 40px;
     background-color: white;
     color: var(--brown-light);
     cursor: pointer;
@@ -167,7 +168,7 @@
     min-width: 0;
   }
 
-  button:hover {
+  footer button:hover {
     background-color: var(--brown-lighter);
     color: white;
   }
@@ -200,7 +201,6 @@
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
   <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
-  <button id="playBtn" onclick="setWord()">Play</button>
   <button id="nextBtn" onclick="nextWord()">Next</button>
 </footer>
 
@@ -237,7 +237,7 @@
       updateButtonStates();
       if (words.length > 0) {
         statusMsg.innerHTML = `${words.length} words`;
-        gotoInput.value = wordIndex + 1; // set input to first word
+        gotoInput.value = wordIndex + 1; 
         setWord();
       } else {
         statusMsg.textContent = 'File is empty';
@@ -248,6 +248,12 @@
     reader.readAsText(file);
   });
 
+  const mainArea = document.querySelector('main');
+  mainArea.addEventListener('click', () => {
+    if (sentences.length === 0) return;
+    speakSentence();
+  });
+  
   function nextWord() {
     if (words.length === 0) return;
     wordIndex = (wordIndex + 1) % words.length;
@@ -275,7 +281,6 @@
 
   function updateButtonStates(){
     toggleBtn.disabled = words.length===0;
-    playBtn.disabled = words.length===0;
     nextBtn.disabled = words.length===0;
   }
 
@@ -296,10 +301,6 @@
     gotoInput.value = words.length > 0 ? wordIndex + 1 : '';
   }
   
-  function setVh() {
-    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-  }
-
   function toggleVisibility() {
     if (words.length === 0) return;
     isVisible = !isVisible;
@@ -330,6 +331,10 @@
     }
   });
 
+  function setVh() {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  }
+  
   window.addEventListener('resize', setVh);
   window.addEventListener('orientationchange', setVh);
   window.addEventListener('load', () => {
@@ -340,5 +345,3 @@
 </script>
 </body>
 </html>
-
-
