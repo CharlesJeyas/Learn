@@ -49,7 +49,6 @@ header, footer {
   transition: background-color 0.3s;
 }
 
-
 #autoPlayBtn {
   font-size: 1.4rem;
   padding: 0.2rem 0.4rem;
@@ -134,21 +133,21 @@ main {
 }
 
 footer {
-  padding: 1rem;                 /* doubled padding */
+  padding: 1rem;
   display: flex;
-  align-items: center;           /* vertically centered */
-  gap: 0.5rem;                   /* a little more breathing room */
-  min-height: 4.5rem;            /* force double height */
-  background-color: var(--brown-light); /* keeps your theme */
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 4.5rem;
+  background-color: var(--brown-light);
 }
 
 footer input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
-  width: 70px;                   /* wider for fingers */
-  padding: 1rem;                 /* proportional inner padding */
-  font-size: 1.3rem;             /* bigger text */
-  border-radius: 40px;           /* rounder */
+  width: 70px;
+  padding: 1rem;
+  font-size: 1.3rem;
+  border-radius: 40px;
   border: 1px solid #ccc;
   text-align: center;
   box-sizing: border-box;
@@ -167,12 +166,12 @@ footer input::-webkit-inner-spin-button {
 }
 
 footer button {
-  padding: 1rem;                 /* taller buttons */
-  font-size: 1.3rem;             /* larger text */
+  padding: 1rem;
+  font-size: 1.3rem;
   border: none;
-  border-radius: 40px;           /* rounded */
-  background-color: white;       /* matches theme */
-  color: var(--brown-light);     /* matches theme */
+  border-radius: 40px;
+  background-color: white;
+  color: var(--brown-light);
   cursor: pointer;
   flex: 1 1 22%;
   font-weight: 700;
@@ -307,7 +306,7 @@ function speakSentence() {
 autoPlayBtn.addEventListener('click', () => {
   autoPlay = !autoPlay;
   autoPlayBtn.classList.toggle('active', autoPlay);
-  autoPlayBtn.textContent = autoPlay ? '‖' : '▶';
+  autoPlayBtn.textContent = autoPlay ? '◀▶' : '▶';
   if (autoPlay) runAutoPlay();
 });
 
@@ -428,6 +427,4 @@ window.addEventListener('load', () => {
 
 </script>
 </body>
-
 </html> 
-
