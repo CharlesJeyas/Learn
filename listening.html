@@ -114,7 +114,7 @@ main {
 }
 
 .jp-text {
-  font-size: 28px;
+  font-size: 20px;
   margin-top: 0.3rem;
 } 
 
@@ -216,7 +216,6 @@ button:hover {
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
   <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
-  <button id="playBtn" onclick="speakSentence()">Play</button>
   <button id="nextBtn" onclick="nextSentence()">Next</button>
 </footer>
 
@@ -232,7 +231,6 @@ const displayArea = document.getElementById('displayArea');
 const fileInput = document.getElementById('sentenceFileInput');
 const statusMsg = document.getElementById('statusMsg');
 const toggleBtn = document.getElementById('toggleBtn');
-const playBtn = document.getElementById('playBtn');
 const nextBtn = document.getElementById('nextBtn');
 const autoPlayBtn = document.getElementById('autoPlayBtn');
 const gotoInput = document.getElementById('gotoInput');
@@ -269,6 +267,12 @@ fileInput.addEventListener('change', function() {
     }
   };
   reader.readAsText(file);
+});
+
+const mainArea = document.querySelector('main');
+mainArea.addEventListener('click', () => {
+  if (sentences.length === 0) return;
+  speakSentence();
 });
 
 function nextSentence() {
@@ -426,6 +430,7 @@ window.addEventListener('load', () => {
 </body>
 
 </html> 
+
 
 
 
