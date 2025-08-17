@@ -92,7 +92,7 @@
   font-size: 5rem;
   width: 100%;
   max-width: 400px;
-  min-height: 200px;
+  height: 200px;
   margin: auto;
   text-align: center;
   color: var(--brown-dark);
@@ -291,7 +291,8 @@
 
     if (isVisible) {
       let parts = currentWord.split('-');
-      displayArea.textContent = (parts[0] || '').trim();
+      let word = (parts[0] || '').trim();
+      displayArea.textContent = ` ${word}`;
     } else {
       displayArea.textContent = '';
     }
@@ -343,6 +344,7 @@
 </script>
 </body>
 </html>
+
 
 
 
