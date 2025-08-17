@@ -114,7 +114,7 @@ main {
 }
 
 .jp-text {
-  font-size: 20px;
+  font-size: 25px;
   margin-top: 0.3rem;
 } 
 
@@ -134,22 +134,23 @@ main {
 }
 
 footer {
-  padding: 0.5rem;
+  padding: 1rem;                 /* doubled padding */
   display: flex;
-  align-items: stretch;
-  gap: 0.2rem;
+  align-items: center;           /* vertically centered */
+  gap: 0.5rem;                   /* a little more breathing room */
+  min-height: 4.5rem;            /* force double height */
+  background-color: var(--brown-light); /* keeps your theme */
 }
 
 footer input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
-  width: 50px;
-  padding: 0.5rem;
-  height: 100%;
-  border-radius: 30px;
+  width: 70px;                   /* wider for fingers */
+  padding: 1rem;                 /* proportional inner padding */
+  font-size: 1.3rem;             /* bigger text */
+  border-radius: 40px;           /* rounder */
   border: 1px solid #ccc;
   text-align: center;
-  font-size: 1rem;
   box-sizing: border-box;
   margin-right: 0.2rem;
   color: var(--brown-dark);
@@ -166,12 +167,12 @@ footer input::-webkit-inner-spin-button {
 }
 
 footer button {
-  padding: 0.7rem 0.5rem;
-  font-size: 1.1rem;
+  padding: 1rem;                 /* taller buttons */
+  font-size: 1.3rem;             /* larger text */
   border: none;
-  border-radius: 30px;
-  background-color: white;
-  color: var(--brown-light);
+  border-radius: 40px;           /* rounded */
+  background-color: white;       /* matches theme */
+  color: var(--brown-light);     /* matches theme */
   cursor: pointer;
   flex: 1 1 22%;
   font-weight: 700;
@@ -182,7 +183,7 @@ footer button {
   min-width: 0;
 }
 
-button:hover {
+footer button:hover {
   background-color: var(--brown-lighter);
   color: white;
 }
@@ -429,3 +430,4 @@ window.addEventListener('load', () => {
 </body>
 
 </html> 
+
