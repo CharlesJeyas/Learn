@@ -24,6 +24,7 @@
     box-sizing: border-box;
     overflow: hidden;
     transition: background 0.3s, color 0.3s;
+    touch-action: manipulation;
   }
 
   * { box-sizing: inherit; }
@@ -48,6 +49,7 @@
     font-weight: 700;
     gap: 0.5rem;
     transition: background-color 0.3s;
+    touch-action: manipulation;
   }
 
   #statusMsg {
@@ -88,16 +90,17 @@
   #displayArea {
     font-family: 'Dancing Script', cursive;
     font-size: 5rem;
-    color: var(--brown-dark);
-    height: 200px;
     width: 100%;
     max-width: 400px;
-    margin: auto;
+    padding: 1rem 0.5rem;
+    box-sizing: border-box;
+    color: var(--brown-dark);
+    line-height: 1.2;
     text-align: center;
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 
     background-image:
@@ -106,16 +109,12 @@
       linear-gradient(to bottom, red 1px, transparent 75%),
       linear-gradient(to bottom, gray 1px, transparent 75%);
     background-repeat: no-repeat;
+    background-size: 100% 1px;
     background-position:
-      0 80px,
-      0 97px,
-      0 128px,
-      0 145px;
-    background-size:
-      100% 1px,
-      100% 1px,
-      100% 1px,
-      100% 1px;
+      0 1.2em,
+      0 2.4em,
+      0 3.6em,
+      0 4.8em;
   }
 
   footer {
@@ -345,4 +344,5 @@
 </script>
 </body>
 </html>
+
 
