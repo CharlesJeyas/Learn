@@ -163,6 +163,21 @@ body.dark #displayArea.number {
   color: #fff;
 }
 
+#fileNameTopRight {
+  position: fixed;
+  font-size: 0.8rem;
+  right: 0.5rem;
+  bottom: 6rem;
+  color: rgba(0,0,0,0.4);
+  font-family: 'Comic Neue', cursive, Arial, sans-serif;
+  pointer-events: none;
+  z-index: 1000;
+  transition: color 0.3s, opacity 0.3s;
+}
+
+body.dark #fileNameTopRight {
+  color: rgba(255,255,255,0.4);
+}
 
 footer {
   padding: 1rem;
@@ -249,6 +264,7 @@ body.dark footer button {
 
 <main>
   <div id="upperArea">
+    <div id="fileNameTopRight"></div>
     <div id="displayArea"></div>
   </div>
   <div id="lowerArea"></div>
@@ -279,6 +295,7 @@ const themeToggle = document.getElementById('themeToggle');
 const gotoInput = document.getElementById('gotoInput');
 const upperArea = document.getElementById('upperArea');
 const lowerArea = document.getElementById('lowerArea');
+const fileNameTopRight = document.getElementById('fileNameTopRight');
 
 function loadVoices() {
   voices = speechSynthesis.getVoices();
@@ -288,6 +305,12 @@ loadVoices();
 
 fileInput.addEventListener('change', function() {
   const file = this.files[0];
+
+  if(file) {
+      fileNameTopRight.textContent = file.name;
+  } else {
+      fileNameTopRight.textContent = '';
+  }
 
   sentences = [];
   sentenceIndex = 0;
