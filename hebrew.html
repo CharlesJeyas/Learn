@@ -103,15 +103,21 @@ input[type="file"] { display: none; }
 main {
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  overflow: hidden;
-  width: 100%;
-  padding: 1rem;
+  flex-direction: column;
+  position: relative;
+}
+
+#upperArea,
+#lowerArea {
+  flex: 1;
+  background: transparent;
 }
 
 #displayArea {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   font-family: 'Comic Neue', cursive, 'Playpen Sans Hebrew', sans-serif;
   color: var(--brown-dark);
   width: 100%;
@@ -121,9 +127,12 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
-#displayArea .hebrew { font-family: 'Playpen Sans Hebrew', sans-serif; }
+#displayArea .hebrew {
+  font-family: 'Playpen Sans Hebrew', sans-serif;
+}
 
 #displayArea div { 
   font-size: 40px; 
@@ -153,6 +162,7 @@ body.dark #displayArea.number {
   background-color: #444;
   color: #fff;
 }
+
 
 footer {
   padding: 1rem;
@@ -238,7 +248,10 @@ body.dark footer button {
 </header>
 
 <main>
-  <div id="displayArea"></div>
+  <div id="upperArea">
+    <div id="displayArea"></div>
+  </div>
+  <div id="lowerArea"></div>
 </main>
 
 <footer>
@@ -264,6 +277,8 @@ const langToggle = document.getElementById('langToggle');
 const autoPlayBtn = document.getElementById('autoPlayBtn');
 const themeToggle = document.getElementById('themeToggle');
 const gotoInput = document.getElementById('gotoInput');
+const upperArea = document.getElementById('upperArea');
+const lowerArea = document.getElementById('lowerArea');
 
 function loadVoices() {
   voices = speechSynthesis.getVoices();
@@ -307,10 +322,18 @@ fileInput.addEventListener('change', function() {
   reader.readAsText(file);
 });
 
-const mainArea = document.querySelector('main');
-mainArea.addEventListener('click', () => {
+upperArea.addEventListener('click', () => {
   if (sentences.length === 0) return;
-  playSentence();
+  // Play question (current lang)
+  if (lang === 'en') speakSentence(sentences[sentenceIndex].en, 'Samantha');
+  else speakSentence(sentences[sentenceIndex].he, 'Carmit');
+});
+
+lowerArea.addEventListener('click', () => {
+  if (sentences.length === 0) return;
+  // Play answer (other lang)
+  if (lang === 'en') speakSentence(sentences[sentenceIndex].he, 'Carmit');
+  else speakSentence(sentences[sentenceIndex].en, 'Samantha');
 });
 
 function nextSentence() {
@@ -400,19 +423,27 @@ function updateButtonStates(){
 }
 
 function updateDisplay() {
-  if(isVisible){
-    displayArea.className='';
-    displayArea.innerHTML='';
+  if (isVisible) {
+    displayArea.className = '';
+    displayArea.innerHTML = '';
+
     const enDiv = document.createElement('div');
     enDiv.textContent = sentences[sentenceIndex].en;
+
     const heDiv = document.createElement('div');
     heDiv.textContent = sentences[sentenceIndex].he;
-    heDiv.className='hebrew';
-    displayArea.appendChild(enDiv);
-    displayArea.appendChild(heDiv);
+    heDiv.className = 'hebrew';
+
+    if (lang === 'en') {
+      displayArea.appendChild(enDiv);
+      displayArea.appendChild(heDiv);
+    } else {
+      displayArea.appendChild(heDiv);
+      displayArea.appendChild(enDiv);
+    }
   } else {
-    displayArea.className='number';
-    displayArea.textContent=(sentenceIndex+1).toString();
+    displayArea.className = 'number';
+    displayArea.textContent = (sentenceIndex + 1).toString();
   }
   gotoInput.value = sentenceIndex + 1;
 }
@@ -471,4 +502,3 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html> 
-
