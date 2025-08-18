@@ -307,7 +307,7 @@ fileInput.addEventListener('change', function() {
   const file = this.files[0];
 
   if(file) {
-      fileNameTopRight.textContent = file.name;
+      fileNameTopRight.textContent = file.name.replace(/\.[^/.]+$/, "");
   } else {
       fileNameTopRight.textContent = '';
   }
@@ -525,3 +525,4 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html> 
+
