@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --vh: 1vh;
+    }
     body {
       margin: 0;
       font-family: 'Comic Neue', cursive, Arial, sans-serif;
@@ -13,11 +16,11 @@
       color: #5a3e2b;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      min-height: calc(var(--vh, 1vh) * 100);
       touch-action: manipulation;
     }
     header {
-      background-color: #A67B5B; /* light brown */
+      background-color: #A67B5B;
       box-shadow: 0 4px 8px rgba(166,123,91,0.4);
       padding: 2rem 1rem;
       text-align: center;
@@ -26,21 +29,29 @@
       color: white;
       letter-spacing: 0.1em;
       text-shadow: 2px 2px 2px #775a3e;
-      touch-action: manipulation;
     }
     main {
       flex: 1;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 4rem 1rem;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 2rem 1rem;
       background: #fff8f0;
     }
     .btn-group {
       display: flex;
       flex-direction: column;
+      gap: 2rem;
+      width: 100%;
+      max-width: 320px;
+    }
+    .btn-row {
+      display: flex;
       gap: 1.5rem;
-      width: 280px;
+      width: 100%;
+    }
+    .btn-row a.button {
+      flex: 1;
     }
     a.button {
       text-decoration: none;
@@ -65,13 +76,20 @@
   <header>Fun Practice! 🎉</header>
   <main>
     <div class="btn-group">
-      <a href="listening.html" class="button">Listen</a>
-      <a href="spelling.html" class="button">Spell</a>
+      <div class="btn-row">
+        <a href="listening.html" class="button">Listen</a>
+        <a href="spelling.html" class="button">Spell</a>
+      </div>
       <a href="hebrew.html" class="button">Hebrew</a>
     </div>
   </main>
+  <script>
+    function setVh() {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    setVh();
+    window.addEventListener('resize', setVh);
+  </script>
 </body>
 </html>
-
-
-
