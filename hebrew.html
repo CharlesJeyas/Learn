@@ -311,8 +311,8 @@ const themeToggle = document.getElementById('themeToggle');
 const gotoInput = document.getElementById('gotoInput');
 const upperArea = document.getElementById('upperArea');
 const lowerArea = document.getElementById('lowerArea');
-const fileNameTopRight = document.getElementById('textBottomLeft');
-const fileNameTopRight = document.getElementById('textBottomRight');
+const textBottomLeft = document.getElementById('textBottomLeft');
+const textBottomRight = document.getElementById('textBottomRight');
 
 function loadVoices() {
   voices = speechSynthesis.getVoices();
@@ -330,7 +330,7 @@ function startTimer() {
 function updateTimer() {
   if (!startTime) return;
   let elapsedMs = Date.now() - startTime;
-  let elapsedMinutes = Math.floor(elapsedMs / 60000);
+  let elapsedMinutes = Math.floor(elapsedMs / 60000) + 1;
   textBottomRight.textContent = `${elapsedMinutes}:00`;
 }
 
@@ -343,13 +343,15 @@ fileInput.addEventListener('change', function() {
       textBottomLeft.textContent = '';
   }
 
+  if (!file) return;
+  
   sentences = [];
   sentenceIndex = 0;
   isVisible = false;
+  startTimer();
   updateDisplay();
   updateButtonStates();
 
-  if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
     let text = e.target.result;
@@ -556,5 +558,6 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html> 
+
 
 
