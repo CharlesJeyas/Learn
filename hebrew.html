@@ -163,7 +163,19 @@ body.dark #displayArea.number {
   color: #fff;
 }
 
-#fileNameTopRight {
+#textBottomLeft {
+  position: fixed;
+  font-size: 0.8rem;
+  left: 0.5rem;
+  bottom: 6rem;
+  color: rgba(0,0,0,0.4);
+  font-family: 'Comic Neue', cursive, Arial, sans-serif;
+  pointer-events: none;
+  z-index: 1000;
+  transition: color 0.3s, opacity 0.3s;
+}
+
+#textBottomRight {
   position: fixed;
   font-size: 0.8rem;
   right: 0.5rem;
@@ -174,8 +186,9 @@ body.dark #displayArea.number {
   z-index: 1000;
   transition: color 0.3s, opacity 0.3s;
 }
-
-body.dark #fileNameTopRight {
+  
+body.dark #textBottomLeft,
+body.dark #textBottomRight {
   color: rgba(255,255,255,0.4);
 }
 
@@ -264,7 +277,8 @@ body.dark footer button {
 
 <main>
   <div id="upperArea">
-    <div id="fileNameTopRight"></div>
+    <div id="textBottomLeft"></div>
+    <div id="textBottomRight"></div>
     <div id="displayArea"></div>
   </div>
   <div id="lowerArea"></div>
@@ -283,6 +297,8 @@ let isVisible = false;
 let lang = 'en';
 let voices = [];
 let autoPlay = false;
+let timerInterval = null;
+let startTime = null;
 
 const displayArea = document.getElementById('displayArea');
 const fileInput = document.getElementById('sentenceFileInput');
@@ -295,7 +311,8 @@ const themeToggle = document.getElementById('themeToggle');
 const gotoInput = document.getElementById('gotoInput');
 const upperArea = document.getElementById('upperArea');
 const lowerArea = document.getElementById('lowerArea');
-const fileNameTopRight = document.getElementById('fileNameTopRight');
+const fileNameTopRight = document.getElementById('textBottomLeft');
+const fileNameTopRight = document.getElementById('textBottomRight');
 
 function loadVoices() {
   voices = speechSynthesis.getVoices();
@@ -303,13 +320,27 @@ function loadVoices() {
 speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  startTime = Date.now();
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 60000);
+}
+
+function updateTimer() {
+  if (!startTime) return;
+  let elapsedMs = Date.now() - startTime;
+  let elapsedMinutes = Math.floor(elapsedMs / 60000);
+  textBottomRight.textContent = `${elapsedMinutes}:00`;
+}
+
 fileInput.addEventListener('change', function() {
   const file = this.files[0];
 
   if(file) {
-      fileNameTopRight.textContent = file.name.replace(/\.[^/.]+$/, "");
+      textBottomLeft.textContent = file.name.replace(/\.[^/.]+$/, "");
   } else {
-      fileNameTopRight.textContent = '';
+      textBottomLeft.textContent = '';
   }
 
   sentences = [];
@@ -525,4 +556,5 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html> 
+
 
