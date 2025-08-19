@@ -219,10 +219,8 @@
   <main>
     <div id="displayArea"></div>
   </main>
-  
   <div id="textBottomLeft"></div>
   <div id="textBottomRight"></div>
-  
   <footer>
     <input type="number" id="gotoInput" placeholder="" min="1"/>
     <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
@@ -242,7 +240,6 @@
   const fileInput = document.getElementById('wordFileInput');
   const toggleBtn = document.getElementById('toggleBtn');
   const statusMsg = document.getElementById('statusMsg');
-  const fileNameTopRight = document.getElementById('fileNameTopRight');
   const textBottomLeft = document.getElementById('textBottomLeft');
   const textBottomRight = document.getElementById('textBottomRight');
   
@@ -271,9 +268,9 @@
     const file = this.files[0];
 
     if(file) {
-        fileNameTopRight.textContent = file.name.replace(/\.[^/.]+$/, "");
+        textBottomLeft.textContent = file.name.replace(/\.[^/.]+$/, "");
     } else {
-        fileNameTopRight.textContent = '';
+        textBottomLeft.textContent = '';
     }
     
     if (!file) return;
@@ -399,6 +396,7 @@
 </script>
 </body>
 </html>
+
 
 
 
