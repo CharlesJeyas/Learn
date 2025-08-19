@@ -116,7 +116,19 @@
     0 95px;
   }
 
-  #fileNameTopRight {
+  #textBottomLeft {
+    position: fixed;
+    font-size: 0.8rem;
+    left: 0.5rem;
+    bottom: 6rem;
+    color: rgba(0,0,0,0.4);
+    font-family: 'Comic Neue', cursive, Arial, sans-serif;
+    pointer-events: none;
+    z-index: 1000;
+    transition: color 0.3s, opacity 0.3s;
+  }
+  
+  #textBottomRight {
     position: fixed;
     font-size: 0.8rem;
     right: 0.5rem;
@@ -208,7 +220,8 @@
     <div id="displayArea"></div>
   </main>
   
-  <div id="fileNameTopRight"></div>
+  <div id="textBottomLeft"></div>
+  <div id="textBottomRight"></div>
   
   <footer>
     <input type="number" id="gotoInput" placeholder="" min="1"/>
@@ -222,13 +235,17 @@
   let wordIndex = 0;
   let selectedVoice = null;
   let isVisible = false;
-
+  let timerInterval = null;
+  let startTime = null;
+  
   const displayArea = document.getElementById('displayArea');
   const fileInput = document.getElementById('wordFileInput');
   const toggleBtn = document.getElementById('toggleBtn');
   const statusMsg = document.getElementById('statusMsg');
   const fileNameTopRight = document.getElementById('fileNameTopRight');
-
+  const textBottomLeft = document.getElementById('textBottomLeft');
+  const textBottomRight = document.getElementById('textBottomRight');
+  
   function loadVoices() {
     const voices = speechSynthesis.getVoices();
     selectedVoice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
@@ -236,6 +253,20 @@
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
 
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    startTime = Date.now();
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 60000);
+  }
+  
+  function updateTimer() {
+    if (!startTime) return;
+    let elapsedMs = Date.now() - startTime;
+    let elapsedMinutes = Math.floor(elapsedMs / 60000) + 1;
+    textBottomRight.textContent = `${elapsedMinutes}:00`;
+  }
+  
   fileInput.addEventListener('change', function () {
     const file = this.files[0];
 
@@ -246,6 +277,9 @@
     }
     
     if (!file) return;
+
+    startTimer();
+    
     const reader = new FileReader();
     reader.onload = function (e) {
       let text = e.target.result;
@@ -365,5 +399,6 @@
 </script>
 </body>
 </html>
+
 
 
