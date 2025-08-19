@@ -380,16 +380,15 @@ fileInput.addEventListener('change', function() {
 
 upperArea.addEventListener('click', () => {
   if (sentences.length === 0) return;
-  // Play question (current lang)
-  if (lang === 'en') speakSentence(sentences[sentenceIndex].en, 'Samantha');
-  else speakSentence(sentences[sentenceIndex].he, 'Carmit');
+  if (lang === 'en') speakSentence(sentences[sentenceIndex].he, 'Carmit');
+  else speakSentence(sentences[sentenceIndex].en, 'Samantha');
+
 });
 
 lowerArea.addEventListener('click', () => {
   if (sentences.length === 0) return;
-  // Play answer (other lang)
-  if (lang === 'en') speakSentence(sentences[sentenceIndex].he, 'Carmit');
-  else speakSentence(sentences[sentenceIndex].en, 'Samantha');
+  if (lang === 'en') speakSentence(sentences[sentenceIndex].en, 'Samantha');
+  else speakSentence(sentences[sentenceIndex].he, 'Carmit');
 });
 
 function nextSentence() {
@@ -558,6 +557,7 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html> 
+
 
 
 
