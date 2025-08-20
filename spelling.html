@@ -311,12 +311,6 @@
     reader.readAsText(file);
   });
 
-  const mainArea = document.querySelector('main');
-  mainArea.addEventListener('click', () => {
-    if (sentences.length === 0) return;
-    speakWord();
-  });
-
   upperArea.addEventListener('click', () => {
     if (sentences.length === 0) return;
     speakSentence();
@@ -431,3 +425,4 @@
 </script>
 </body>
 </html>
+
