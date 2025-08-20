@@ -87,6 +87,12 @@
     padding: 1rem;
   }
 
+  #upperArea,
+  #lowerArea {
+    flex: 1;
+    background: transparent;
+  }
+
   #displayArea {
   font-family: 'Dancing Script', cursive;
   font-size: 5rem;
@@ -218,9 +224,12 @@
 
   <main>
     <div id="displayArea"></div>
+    <div id="upperArea"></div>
+    <div id="lowerArea"></div>
+    <div id="textBottomLeft"></div>
+    <div id="textBottomRight"></div>
   </main>
-  <div id="textBottomLeft"></div>
-  <div id="textBottomRight"></div>
+
   <footer>
     <input type="number" id="gotoInput" placeholder="" min="1"/>
     <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
@@ -228,8 +237,10 @@
   </footer>
 
 <script>
-  let words = [];
+  let sentences = [];
+  let voices = [];
   let currentWord = '';
+  let currentSentence = '';
   let wordIndex = 0;
   let selectedVoice = null;
   let isVisible = false;
@@ -240,12 +251,13 @@
   const fileInput = document.getElementById('wordFileInput');
   const toggleBtn = document.getElementById('toggleBtn');
   const statusMsg = document.getElementById('statusMsg');
+  const upperArea = document.getElementById('upperArea');
+  const lowerArea = document.getElementById('lowerArea');
   const textBottomLeft = document.getElementById('textBottomLeft');
   const textBottomRight = document.getElementById('textBottomRight');
   
   function loadVoices() {
-    const voices = speechSynthesis.getVoices();
-    selectedVoice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
+    voices = speechSynthesis.getVoices();
   }
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
@@ -281,15 +293,15 @@
     reader.onload = function (e) {
       let text = e.target.result;
       text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      words = text.split('\n').map(w => w.trim()).filter(Boolean);
+      sentences = text.split('\n').map(w => w.trim()).filter(Boolean);
       wordIndex = 0;
       isVisible = false;
       updateToggleButton();
       updateButtonStates();
-      if (words.length > 0) {
-        statusMsg.innerHTML = `${words.length} words`;
+      if (sentences.length > 0) {
+        statusMsg.innerHTML = `${sentences.length} sentences`;
         gotoInput.value = wordIndex + 1; 
-        setWord();
+        setSentence();
       } else {
         statusMsg.textContent = 'File is empty';
         displayArea.textContent = '';
@@ -301,38 +313,61 @@
 
   const mainArea = document.querySelector('main');
   mainArea.addEventListener('click', () => {
-    if (words.length === 0) return;
+    if (sentences.length === 0) return;
+    speakWord();
+  });
+
+  upperArea.addEventListener('click', () => {
+    if (sentences.length === 0) return;
+    speakSentence();
+  });
+
+  lowerArea.addEventListener('click', () => {
+    if (sentences.length === 0) return;
     speakWord();
   });
   
   function nextWord() {
-    if (words.length === 0) return;
-    wordIndex = (wordIndex + 1) % words.length;
+    if (sentences.length === 0) return;
+    wordIndex = (wordIndex + 1) % sentences.length;
     isVisible = false;
     updateToggleButton();
-    setWord();
+    setSentence();
   }
 
-  function setWord() {
-    if (words.length === 0) return;
-    let parts = words[wordIndex].split('|');
+  function setSentence() {
+    if (sentences.length === 0) return;
+    let parts = sentences[wordIndex].split('|');
     currentWord = (parts[0] || '').trim();
+    currentSentence = (parts[1] || '').trim();
     updateDisplay();
     speakWord();
   }
 
   function speakWord() {
-    if (!currentWord || words.length === 0) return;
+    if (!currentWord || sentences.length === 0) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentWord + ",");
     utterance.rate = 0.7;
-    if (selectedVoice) utterance.voice = selectedVoice;
+    let voice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
+    if(!voice) voice = voices[0];
+    if(voice) utterance.voice = voice;
+    speechSynthesis.speak(utterance);
+  }
+
+  function speakSentence() {
+    if (!currentSentence || sentences.length === 0) return;
+    const utterance = new SpeechSynthesisUtterance(currentSentence);
+    utterance.rate = 0.7;
+    let voice = voices.find(v => v.name === "Kyoko" && v.lang === "ja-JP");
+    if(!voice) voice = voices[0];
+    if(voice) utterance.voice = voice;
     speechSynthesis.speak(utterance);
   }
 
   function updateButtonStates(){
-    toggleBtn.disabled = words.length===0;
-    nextBtn.disabled = words.length===0;
+    toggleBtn.disabled = sentences.length===0;
+    nextBtn.disabled = sentences.length===0;
   }
 
   function updateDisplay() {
@@ -349,11 +384,11 @@
       displayArea.textContent = '';
     }
 
-    gotoInput.value = words.length > 0 ? wordIndex + 1 : '';
+    gotoInput.value = sentences.length > 0 ? wordIndex + 1 : '';
   }
   
   function toggleVisibility() {
-    if (words.length === 0) return;
+    if (sentences.length === 0) return;
     isVisible = !isVisible;
     updateDisplay();
     updateToggleButton();
@@ -369,16 +404,16 @@
 
   gotoInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      if(words.length === 0) return;
+      if(sentences.length === 0) return;
       let num = parseInt(gotoInput.value);
-      if(isNaN(num) || num < 1 || num > words.length){
-        alert(`Enter a number between 1 and ${words.length}`);
+      if(isNaN(num) || num < 1 || num > sentences.length){
+        alert(`Enter a number between 1 and ${sentences.length}`);
         return;
       }
       wordIndex = num - 1;
       isVisible = false;
       updateToggleButton();
-      setWord();
+      setSentence();
     }
   });
 
@@ -396,7 +431,3 @@
 </script>
 </body>
 </html>
-
-
-
-
