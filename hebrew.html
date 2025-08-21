@@ -342,8 +342,14 @@ body.dark footer button {
   }
   
   fileInput.addEventListener('change', function() {
+    if (autoPlay) {
+      autoPlay = false;
+      autoPlayBtn.classList.remove('active');
+      autoPlayBtn.textContent = '▶';
+      speechSynthesis.cancel();
+    }
+    
     const file = this.files[0];
-  
     if(file) {
         textBottomLeft.textContent = file.name.replace(/\.[^/.]+$/, "");
     } else {
@@ -562,5 +568,6 @@ body.dark footer button {
 </script>
 </body>
 </html> 
+
 
 
