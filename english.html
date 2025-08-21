@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>English Practice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --vh: 1vh; 
+  --brown-light: #A67B5B;
+  --brown-lighter: #C19A6B;
+  --brown-dark: #5a3e2b;
+  --brown-shadow: rgba(166,123,91,0.4);
+  --brown-shadow-light: rgba(193,154,107,0.3);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: calc(var(--vh, 1vh) * 100);
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: background 0.3s, color 0.3s;
+  touch-action: manipulation;
+}
+
+* { box-sizing: inherit; }
+
+body {
+  font-family: 'Comic Neue', cursive, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #F5F1EB 0%, #EDE6DC 100%);
+  user-select: none;
+  color: var(--brown-dark);
+}
+
+header, footer {
+  padding: 1rem;
+  background-color: var(--brown-light);
+  color: white;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-weight: 700;
+  gap: 0.5rem;
+  transition: background-color 0.3s;
+  touch-action: manipulation;
+}
+
+#langToggle, #themeToggle, #autoPlayBtn {
+  font-size: 1.4rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 500px;
+  border: none;
+  cursor: pointer;
+  background-color: var(--brown-light);
+  color: white;
+  font-weight: 700;
+  box-shadow: none;   
+}
+
+#statusMsg {
+  font-size: 1rem;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: 0.3rem;
+  color: white;
+}
+
+#fileLabel {
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  user-select: none;
+  color: white;
+}
+
+input[type="file"] { display: none; }
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+#upperArea,
+#lowerArea {
+  flex: 1;
+  background: transparent;
+}
+
+#displayArea {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Comic Neue', cursive;
+  color: var(--brown-dark);
+  width: 100%;
+  max-width: 500px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+#displayArea div { 
+  font-size: 40px; 
+  color: var(--brown-dark);
+}
+
+#displayArea.number {
+  font-weight: 700;
+  font-size: 6rem;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: var(--brown-light);
+  color: white;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: normal;
+}
+
+#textBottomLeft {
+  position: fixed;
+  font-size: 0.8rem;
+  left: 0.5rem;
+  bottom: 6rem;
+  color: rgba(0,0,0,0.4);
+  font-family: 'Comic Neue', cursive, Arial, sans-serif;
+  pointer-events: none;
+  z-index: 1000;
+  transition: color 0.3s, opacity 0.3s;
+}
+
+#textBottomRight {
+  position: fixed;
+  font-size: 0.8rem;
+  right: 0.5rem;
+  bottom: 6rem;
+  color: rgba(0,0,0,0.4);
+  font-family: 'Comic Neue', cursive, Arial, sans-serif;
+  pointer-events: none;
+  z-index: 1000;
+  transition: color 0.3s, opacity 0.3s;
+}
+
+footer {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 4.5rem;
+  background-color: var(--brown-light);
+}
+
+footer input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  width: 70px;
+  padding: 1rem;
+  font-size: 1.3rem;
+  border-radius: 40px;
+  border: 1px solid #ccc;
+  text-align: center;
+  box-sizing: border-box;
+  margin-right: 0.2rem;
+  color: var(--brown-dark);
+}
+
+footer input[type="number"]:focus {
+  outline: none;
+}
+
+footer input::-webkit-outer-spin-button,
+footer input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+footer button {
+  padding: 1rem;
+  font-size: 1.3rem;
+  border: none;
+  border-radius: 40px;
+  background-color: white;
+  color: var(--brown-light);
+  cursor: pointer;
+  flex: 1 1 22%;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1.2em;
+  height: 1.2em;
+  fill: currentColor;
+}
+</style>
+</head>
+<body>
+<header>
+  <span>English Practice</span>
+  <button id="langToggle">EN</button>
+  <button id="autoPlayBtn" title="Play/Pause">▶</button>
+  <span id="statusMsg">No file loaded</span>
+  <label id="fileLabel" title="Load sentences file">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
+      <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a4 4 0 0 0-4-4h-4l-2-2z"/>
+    </svg>
+    <input type="file" accept=".txt" id="sentenceFileInput" />
+  </label>
+</header>
+
+  <main>
+    <div id="displayArea"></div>
+    <div id="upperArea"></div>
+    <div id="lowerArea"></div>
+    <div id="textBottomLeft"></div>
+    <div id="textBottomRight"></div>
+  </main>
+
+<footer>
+  <input type="number" id="gotoInput" placeholder="" min="1"/>
+  <button id="showToggle" onclick="toggleVisibility()">Show</button>
+  <button id="nextBtn" onclick="nextSentence()">Next</button>
+</footer>
+
+<script>
+  let voices = [];
+  let voiceEN = null;
+  let voiceJP = null;
+  let sentences = [];  
+  let sentenceIndex = 0;
+  let lang = 'en';
+  let autoPlay = false;
+  let isVisible = false;
+  let timerInterval = null;
+  let startTime = null;
+  
+  const fileInput = document.getElementById('sentenceFileInput');
+  const statusMsg = document.getElementById('statusMsg');
+  const langToggle = document.getElementById('langToggle');
+  const autoPlayBtn = document.getElementById('autoPlayBtn');
+  const gotoInput = document.getElementById('gotoInput');
+  const showToggle = document.getElementById('showToggle');
+  const nextBtn = document.getElementById('nextBtn');
+  const displayArea = document.getElementById('displayArea');
+  const upperArea = document.getElementById('upperArea');
+  const lowerArea = document.getElementById('lowerArea');
+  const textBottomLeft = document.getElementById('textBottomLeft');
+  const textBottomRight = document.getElementById('textBottomRight');
+  
+  function loadVoices() {
+    voices = speechSynthesis.getVoices();
+    
+    voiceEN = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
+    voiceJP = voices.find(v => v.name === "Kyoko" && v.lang === "ja-JP");
+
+    if (!voiceEN) voiceEN = voices[0];
+    if (!voiceJP) voiceJP = voices[0];
+  }
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+  
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    startTime = Date.now();
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 60000);
+  }
+  
+  function updateTimer() {
+    if (!startTime) return;
+    let elapsedMs = Date.now() - startTime;
+    let elapsedMinutes = Math.floor(elapsedMs / 60000) + 1;
+    textBottomRight.textContent = `${elapsedMinutes}:00`;
+  }
+  
+  fileInput.addEventListener('change', function() {
+    const file = this.files[0];
+  
+    if(file) {
+        textBottomLeft.textContent = file.name.replace(/\.[^/.]+$/, "");
+    } else {
+        textBottomLeft.textContent = '';
+    }
+  
+    if (!file) return;
+    
+    sentences = [];
+    sentenceIndex = 0;
+    isVisible = false;
+    startTimer();
+    updateDisplay();
+    updateButtonStates();
+  
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      let text = e.target.result;
+      text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      sentences = text.split('\n').map(s => s.trim()).filter(Boolean).map(s=>{
+        const parts = s.split('|');
+        return {en: parts[0]?.trim()||'', jp: parts[1]?.trim()||''};
+      });
+      sentenceIndex = 0;
+      isVisible = false;
+      updateToggleButton();
+      if (sentences.length > 0) {
+        updateButtonStates();
+        statusMsg.textContent = `${sentences.length} sentences`;
+        gotoInput.value = sentenceIndex + 1;
+        setSentence();
+      } else {
+        statusMsg.textContent = 'File is empty';
+        displayArea.textContent = '';
+        gotoInput.value = '';
+        updateButtonStates(); 
+      }
+    };
+    reader.readAsText(file);
+  });
+  
+  upperArea.addEventListener('click', () => {
+    if (sentences.length === 0) return;
+    if (lang === 'en') speakSentence(sentences[sentenceIndex].jp, 'jp');
+    else speakSentence(sentences[sentenceIndex].jp, 'jp');
+  
+  });
+  
+  lowerArea.addEventListener('click', () => {
+    if (sentences.length === 0) return;
+    if (lang === 'en') speakSentence(sentences[sentenceIndex].en, 'en');
+    else speakSentence(sentences[sentenceIndex].jp, 'jp');
+  });
+  
+  function nextSentence() {
+    if(sentences.length===0) return;
+    sentenceIndex = (sentenceIndex+1)%sentences.length;
+    setSentence();
+  }
+  
+  function setSentence() {
+    if(sentences.length===0) return;
+    updateDisplay();
+    if(lang==='en') speakSentence(sentences[sentenceIndex].en,'en');
+    else speakSentence(sentences[sentenceIndex].jp,'jp');
+  }
+  
+  function playSentence() {
+    if(sentences.length===0) return;
+    if(lang==='en') speakSentence(sentences[sentenceIndex].jp,'jp');
+    else speakSentence(sentences[sentenceIndex].en,'en');
+  }
+  
+  function speakSentence(text, voiceName, onEnd) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesis.cancel();
+    utterance.rate = 0.7;
+    utterance.voice = (voiceName === "en" && voiceEN) ? voiceEN :
+                      (voiceName === "jp" && voiceJP) ? voiceJP :
+                      voices[0];
+    if (onEnd) utterance.onend = onEnd;
+    speechSynthesis.speak(utterance);
+  }
+  
+  autoPlayBtn.addEventListener('click', () => {
+    autoPlay = !autoPlay;
+    autoPlayBtn.classList.toggle('active', autoPlay);
+    autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
+    if (autoPlay) runAutoPlay();
+  });
+      
+  function speakWithPause(text, voiceName, pauseMs, onEnd) {
+    speakSentence(text, voiceName, () => {
+      setTimeout(() => {
+        if(onEnd) onEnd();
+      }, pauseMs);
+    });
+  }
+  
+  function runAutoPlay() {
+    if (!autoPlay || sentences.length === 0) return;
+  
+    updateDisplay();
+  
+    let firstText, firstVoice, secondText, secondVoice;
+    if (lang === 'en') {
+      firstText = sentences[sentenceIndex].en;
+      firstVoice = 'en';
+      secondText = sentences[sentenceIndex].jp;
+      secondVoice = 'jp';
+    } else {
+      firstText = sentences[sentenceIndex].jp;
+      firstVoice = 'jp';
+      secondText = sentences[sentenceIndex].en;
+      secondVoice = 'en';
+    }
+  
+    speakWithPause(firstText, firstVoice, 2000, () => {
+      speakWithPause(secondText, secondVoice, 3000, () => {
+        sentenceIndex++;
+        if (sentenceIndex < sentences.length) {
+          runAutoPlay();
+        } else {
+          autoPlay = false;
+          autoPlayBtn.classList.remove('active');
+          autoPlayBtn.textContent = '▶';
+        }
+      });
+    });
+  }
+  
+  function updateButtonStates(){
+    showToggle.disabled = sentences.length===0;
+    nextBtn.disabled = sentences.length===0;
+  }
+  
+  function updateDisplay() {
+    if (isVisible) {
+      displayArea.className = '';
+      displayArea.innerHTML = '';
+  
+      const enDiv = document.createElement('div');
+      enDiv.textContent = sentences[sentenceIndex].en;
+  
+      const jpDiv = document.createElement('div');
+      jpDiv.textContent = sentences[sentenceIndex].jp;
+      jpDiv.className = 'japanese';
+  
+      if (lang === 'en') {
+        displayArea.appendChild(enDiv);
+        displayArea.appendChild(jpDiv);
+      } else {
+        displayArea.appendChild(jpDiv);
+        displayArea.appendChild(enDiv);
+      }
+    } else {
+      displayArea.className = 'number';
+      displayArea.textContent = (sentenceIndex + 1).toString();
+    }
+    gotoInput.value = sentenceIndex + 1;
+  }
+  
+  function toggleVisibility() {
+    if (sentences.length === 0) return;
+    isVisible = !isVisible;
+    updateDisplay();
+    updateToggleButton();
+  }
+  
+  function updateToggleButton() {
+    showToggle.textContent = isVisible ? 'Hide':'Show';
+  }
+  
+  langToggle.addEventListener('click', ()=>{
+    lang = (lang==='en')?'jp':'en';
+    langToggle.textContent = (lang==='en')?'EN':'JP';
+    setSentence();
+  });
+  
+  gotoInput.addEventListener('focus', () => {
+    gotoInput.value = '';
+  });
+  
+  gotoInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if(sentences.length === 0) return;
+      let num = parseInt(gotoInput.value);
+      if(isNaN(num) || num < 1 || num > sentences.length){
+        alert(`Enter a number between 1 and ${sentences.length}`);
+        return;
+      }
+      sentenceIndex = num - 1;
+      setSentence();
+    }
+  });
+  
+  function setVh() {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  }
+  
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+  window.addEventListener('load', () => {
+    setVh();
+    gotoInput.value = '';
+  });
+
+</script>
+</body>
+</html> 
