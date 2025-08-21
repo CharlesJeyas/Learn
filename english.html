@@ -335,14 +335,29 @@ footer button {
     reader.onload = function(e) {
       let text = e.target.result;
       text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      sentences = text.split('\n').map(s => s.trim()).filter(Boolean).map(s=>{
-        const [, rest] = s.split('-');
-        const [en, jp] = rest.split('|');
-        return {
-          en: en?.trim() || '',
-          jp: jp?.trim() || ''
-        };
-      });
+sentences = text.split('\n')
+  .map(s => s.trim())
+  .filter(Boolean)
+  .map(s => {
+    let rest;
+    const dashIndex = s.indexOf('-');
+    if (dashIndex === -1) {
+      // No dash: take the whole line
+      rest = s;
+    } else {
+      rest = s.slice(dashIndex + 1);
+    }
+
+    const pipeIndex = rest.indexOf('|');
+    if (pipeIndex === -1) {
+      // No pipe: treat entire rest as English, Japanese empty
+      return { en: rest.trim(), jp: '' };
+    } else {
+      const en = rest.slice(0, pipeIndex).trim();
+      const jp = rest.slice(pipeIndex + 1).trim();
+      return { en, jp };
+    }
+  });
       sentenceIndex = 0;
       isVisible = false;
       updateToggleButton();
