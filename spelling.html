@@ -245,25 +245,29 @@
 
   <footer>
     <input type="number" id="gotoInput" placeholder="" min="1"/>
-    <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
+    <button id="showToggle" onclick="toggleVisibility()">Show</button>
     <button id="nextBtn" onclick="nextWord()">Next</button>
   </footer>
 
 <script>
-  let sentences = [];
   let voices = [];
+  let voiceEN = null;
+  let voiceJP = null;
+  let selectedVoice = null;
+  let sentences = [];
   let currentWord = '';
   let currentSentence = '';
   let wordIndex = 0;
-  let selectedVoice = null;
   let isVisible = false;
   let timerInterval = null;
   let startTime = null;
   
-  const displayArea = document.getElementById('displayArea');
   const fileInput = document.getElementById('wordFileInput');
-  const toggleBtn = document.getElementById('toggleBtn');
   const statusMsg = document.getElementById('statusMsg');
+  const gotoInput = document.getElementById('gotoInput');
+  const showToggle = document.getElementById('showToggle');
+  const nextBtn = document.getElementById('nextBtn');
+  const displayArea = document.getElementById('displayArea');
   const upperArea = document.getElementById('upperArea');
   const lowerArea = document.getElementById('lowerArea');
   const textBottomLeft = document.getElementById('textBottomLeft');
@@ -271,6 +275,12 @@
   
   function loadVoices() {
     voices = speechSynthesis.getVoices();
+    
+    voiceEN = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
+    voiceJP = voices.find(v => v.name === "Kyoko" && v.lang === "ja-JP");
+
+    if (!voiceEN) voiceEN = voices[0];
+    if (!voiceJP) voiceJP = voices[0];
   }
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
@@ -337,8 +347,6 @@
   function nextWord() {
     if (sentences.length === 0) return;
     wordIndex = (wordIndex + 1) % sentences.length;
-    isVisible = false;
-    updateToggleButton();
     setSentence();
   }
 
@@ -354,26 +362,23 @@
   function speakWord() {
     if (!currentWord || sentences.length === 0) return;
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentWord + ",");
+    const utterance = new SpeechSynthesisUtterance(currentWord);
     utterance.rate = 0.7;
-    let voice = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
-    if(!voice) voice = voices[0];
-    if(voice) utterance.voice = voice;
+    utterance.voice = voiceEN;
     speechSynthesis.speak(utterance);
   }
 
   function speakSentence() {
     if (!currentSentence || sentences.length === 0) return;
+    speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSentence);
     utterance.rate = 0.7;
-    let voice = voices.find(v => v.name === "Kyoko" && v.lang === "ja-JP");
-    if(!voice) voice = voices[0];
-    if(voice) utterance.voice = voice;
+    utterance.voice = voiceJP;
     speechSynthesis.speak(utterance);
   }
 
   function updateButtonStates(){
-    toggleBtn.disabled = sentences.length===0;
+    showToggle.disabled = sentences.length===0;
     nextBtn.disabled = sentences.length===0;
   }
 
@@ -402,7 +407,7 @@
   }
 
   function updateToggleButton() {
-    toggleBtn.textContent = isVisible ? 'Hide' : 'Show';
+    showToggle.textContent = isVisible ? 'Hide' : 'Show';
   }
 
   gotoInput.addEventListener('focus', () => {
@@ -418,8 +423,6 @@
         return;
       }
       wordIndex = num - 1;
-      isVisible = false;
-      updateToggleButton();
       setSentence();
     }
   });
@@ -438,7 +441,3 @@
 </script>
 </body>
 </html>
-
-
-
-
