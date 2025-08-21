@@ -115,6 +115,15 @@ main {
   text-align: center;
 }
 
+.en-text {
+  font-size: 40px;
+}
+
+.jp-text {
+  font-size: 25px;
+  margin-top: 0.3rem;
+} 
+
 #displayArea div { 
   font-size: 40px; 
   color: var(--brown-dark);
@@ -320,8 +329,12 @@ footer button {
       let text = e.target.result;
       text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       sentences = text.split('\n').map(s => s.trim()).filter(Boolean).map(s=>{
-        const parts = s.split('|');
-        return {en: parts[0]?.trim()||'', jp: parts[1]?.trim()||''};
+        const [, rest] = s.split('-');
+        const [en, jp] = rest.split('|');
+        return {
+          en: en?.trim() || '',
+          jp: jp?.trim() || ''
+        };
       });
       sentenceIndex = 0;
       isVisible = false;
@@ -344,7 +357,7 @@ footer button {
   upperArea.addEventListener('click', () => {
     if (sentences.length === 0) return;
     if (lang === 'en') speakSentence(sentences[sentenceIndex].jp, 'jp');
-    else speakSentence(sentences[sentenceIndex].jp, 'jp');
+    else speakSentence(sentences[sentenceIndex].en, 'en');
   
   });
   
@@ -442,11 +455,12 @@ footer button {
       displayArea.innerHTML = '';
   
       const enDiv = document.createElement('div');
+      enDiv.className = 'en-text';
       enDiv.textContent = sentences[sentenceIndex].en;
   
       const jpDiv = document.createElement('div');
+      jpDiv.className = 'jp-text';
       jpDiv.textContent = sentences[sentenceIndex].jp;
-      jpDiv.className = 'japanese';
   
       if (lang === 'en') {
         displayArea.appendChild(enDiv);
