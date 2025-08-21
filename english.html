@@ -402,7 +402,11 @@ footer button {
     autoPlay = !autoPlay;
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
-    if (autoPlay) runAutoPlay();
+    if (autoPlay) {
+      runAutoPlay();
+    } else {
+      speechSynthesis.cancel();
+    }
   });
       
   function speakWithPause(text, voiceName, pauseMs, onEnd) {
