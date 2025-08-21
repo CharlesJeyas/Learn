@@ -275,289 +275,286 @@ body.dark footer button {
   </label>
 </header>
 
-<main>
-  <div id="upperArea">
+  <main>
+    <div id="displayArea"></div>
+    <div id="upperArea"></div>
+    <div id="lowerArea"></div>
     <div id="textBottomLeft"></div>
     <div id="textBottomRight"></div>
-    <div id="displayArea"></div>
-  </div>
-  <div id="lowerArea"></div>
-</main>
+  </main>
 
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
-  <button id="toggleBtn" onclick="toggleVisibility()">Show</button>
+  <button id="showToggle" onclick="toggleVisibility()">Show</button>
   <button id="nextBtn" onclick="nextSentence()">Next</button>
 </footer>
 
 <script>
-let sentences = [];
-let sentenceIndex = 0;
-let isVisible = false;
-let lang = 'en';
-let voices = [];
-let autoPlay = false;
-let timerInterval = null;
-let startTime = null;
-
-const displayArea = document.getElementById('displayArea');
-const fileInput = document.getElementById('sentenceFileInput');
-const statusMsg = document.getElementById('statusMsg');
-const toggleBtn = document.getElementById('toggleBtn');
-const nextBtn = document.getElementById('nextBtn');
-const langToggle = document.getElementById('langToggle');
-const autoPlayBtn = document.getElementById('autoPlayBtn');
-const themeToggle = document.getElementById('themeToggle');
-const gotoInput = document.getElementById('gotoInput');
-const upperArea = document.getElementById('upperArea');
-const lowerArea = document.getElementById('lowerArea');
-const textBottomLeft = document.getElementById('textBottomLeft');
-const textBottomRight = document.getElementById('textBottomRight');
-
-function loadVoices() {
-  voices = speechSynthesis.getVoices();
-}
-speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
-
-function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  startTime = Date.now();
-  updateTimer();
-  timerInterval = setInterval(updateTimer, 60000);
-}
-
-function updateTimer() {
-  if (!startTime) return;
-  let elapsedMs = Date.now() - startTime;
-  let elapsedMinutes = Math.floor(elapsedMs / 60000) + 1;
-  textBottomRight.textContent = `${elapsedMinutes}:00`;
-}
-
-fileInput.addEventListener('change', function() {
-  const file = this.files[0];
-
-  if(file) {
-      textBottomLeft.textContent = file.name.replace(/\.[^/.]+$/, "");
-  } else {
-      textBottomLeft.textContent = '';
-  }
-
-  if (!file) return;
+  let voices = [];
+  let voiceEN = null;
+  let voiceHE = null;
+  let sentences = [];  
+  let sentenceIndex = 0;
+  let lang = 'en';
+  let autoPlay = false;
+  let isVisible = false;
+  let timerInterval = null;
+  let startTime = null;
   
-  sentences = [];
-  sentenceIndex = 0;
-  isVisible = false;
-  startTimer();
-  updateDisplay();
-  updateButtonStates();
+  const fileInput = document.getElementById('sentenceFileInput');
+  const statusMsg = document.getElementById('statusMsg');
+  const langToggle = document.getElementById('langToggle');
+  const autoPlayBtn = document.getElementById('autoPlayBtn');
+  const themeToggle = document.getElementById('themeToggle');
+  const gotoInput = document.getElementById('gotoInput');
+  const showToggle = document.getElementById('showToggle');
+  const nextBtn = document.getElementById('nextBtn');
+  const displayArea = document.getElementById('displayArea');
+  const upperArea = document.getElementById('upperArea');
+  const lowerArea = document.getElementById('lowerArea');
+  const textBottomLeft = document.getElementById('textBottomLeft');
+  const textBottomRight = document.getElementById('textBottomRight');
+  
+  function loadVoices() {
+    voices = speechSynthesis.getVoices();
+    
+    voiceEN = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
+    voiceHE = voices.find(v => v.name === "Carmit" && v.lang === "he-IL");
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    let text = e.target.result;
-    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    sentences = text.split('\n').map(s => s.trim()).filter(Boolean).map(s=>{
-      const parts = s.split('|');
-      return {en: parts[0]?.trim()||'', he: parts[1]?.trim()||''};
-    });
+    if (!voiceEN) voiceEN = voices[0];
+    if (!voiceHE) voiceHE = voices[0];
+  }
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+  
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    startTime = Date.now();
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 60000);
+  }
+  
+  function updateTimer() {
+    if (!startTime) return;
+    let elapsedMs = Date.now() - startTime;
+    let elapsedMinutes = Math.floor(elapsedMs / 60000) + 1;
+    textBottomRight.textContent = `${elapsedMinutes}:00`;
+  }
+  
+  fileInput.addEventListener('change', function() {
+    const file = this.files[0];
+  
+    if(file) {
+        textBottomLeft.textContent = file.name.replace(/\.[^/.]+$/, "");
+    } else {
+        textBottomLeft.textContent = '';
+    }
+  
+    if (!file) return;
+    
+    sentences = [];
     sentenceIndex = 0;
     isVisible = false;
-    updateToggleButton();
-    if (sentences.length > 0) {
-      updateButtonStates();
-      statusMsg.textContent = `${sentences.length} sentences`;
-      gotoInput.value = sentenceIndex + 1;
-      setSentence();
-    } else {
-      statusMsg.textContent = 'File is empty';
-      displayArea.textContent = '';
-      gotoInput.value = '';
-      updateButtonStates(); 
-    }
-  };
-  reader.readAsText(file);
-});
-
-upperArea.addEventListener('click', () => {
-  if (sentences.length === 0) return;
-  if (lang === 'en') speakSentence(sentences[sentenceIndex].he, 'Carmit');
-  else speakSentence(sentences[sentenceIndex].en, 'Samantha');
-
-});
-
-lowerArea.addEventListener('click', () => {
-  if (sentences.length === 0) return;
-  if (lang === 'en') speakSentence(sentences[sentenceIndex].en, 'Samantha');
-  else speakSentence(sentences[sentenceIndex].he, 'Carmit');
-});
-
-function nextSentence() {
-  if(sentences.length===0) return;
-  sentenceIndex = (sentenceIndex+1)%sentences.length;
-  isVisible = false;
-  updateToggleButton();
-  updateDisplay();
-  setSentence();
-}
-
-function setSentence() {
-  if(sentences.length===0) return;
-  updateDisplay();
-  if(lang==='en') speakSentence(sentences[sentenceIndex].en,'Samantha');
-  else speakSentence(sentences[sentenceIndex].he,'Carmit');
-}
-
-function playSentence() {
-  if(sentences.length===0) return;
-  if(lang==='en') speakSentence(sentences[sentenceIndex].he,'Carmit');
-  else speakSentence(sentences[sentenceIndex].en,'Samantha');
-}
-
-function speakSentence(text, voiceName, onEnd) {
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.7;
-  let voice = voices.find(v => v.name === voiceName);
-  if(!voice) voice = voices[0];
-  if(voice) utterance.voice = voice;
-  if(onEnd) utterance.onend = onEnd;
-  speechSynthesis.speak(utterance);
-}
-
-autoPlayBtn.addEventListener('click', () => {
-  autoPlay = !autoPlay;
-  autoPlayBtn.classList.toggle('active', autoPlay);
-  autoPlayBtn.textContent = autoPlay ? '◀▶' : '▶';
-  if (autoPlay) runAutoPlay();
-});
-    
-function speakWithPause(text, voiceName, pauseMs, onEnd) {
-  speakSentence(text, voiceName, () => {
-    setTimeout(() => {
-      if(onEnd) onEnd();
-    }, pauseMs);
-  });
-}
-
-function runAutoPlay() {
-  if (!autoPlay || sentences.length === 0) return;
-
-  isVisible = false;
-  updateToggleButton();
-  updateDisplay();
-
-  let firstText, firstVoice, secondText, secondVoice;
-  if (lang === 'en') {
-    firstText = sentences[sentenceIndex].en;
-    firstVoice = 'Samantha';
-    secondText = sentences[sentenceIndex].he;
-    secondVoice = 'Carmit';
-  } else {
-    firstText = sentences[sentenceIndex].he;
-    firstVoice = 'Carmit';
-    secondText = sentences[sentenceIndex].en;
-    secondVoice = 'Samantha';
-  }
-
-  speakWithPause(firstText, firstVoice, 3000, () => {
-    speakWithPause(secondText, secondVoice, 4000, () => {
-      sentenceIndex++;
-      if (sentenceIndex < sentences.length) {
-        runAutoPlay();
+    startTimer();
+    updateDisplay();
+    updateButtonStates();
+  
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      let text = e.target.result;
+      text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      sentences = text.split('\n').map(s => s.trim()).filter(Boolean).map(s=>{
+        const parts = s.split('|');
+        return {en: parts[0]?.trim()||'', he: parts[1]?.trim()||''};
+      });
+      sentenceIndex = 0;
+      isVisible = false;
+      updateToggleButton();
+      if (sentences.length > 0) {
+        updateButtonStates();
+        statusMsg.textContent = `${sentences.length} sentences`;
+        gotoInput.value = sentenceIndex + 1;
+        setSentence();
       } else {
-        autoPlay = false;
-        autoPlayBtn.classList.remove('active');
-        autoPlayBtn.textContent = '▶';
+        statusMsg.textContent = 'File is empty';
+        displayArea.textContent = '';
+        gotoInput.value = '';
+        updateButtonStates(); 
       }
-    });
+    };
+    reader.readAsText(file);
   });
-}
-
-function updateButtonStates(){
-  toggleBtn.disabled = sentences.length===0;
-  nextBtn.disabled = sentences.length===0;
-}
-
-function updateDisplay() {
-  if (isVisible) {
-    displayArea.className = '';
-    displayArea.innerHTML = '';
-
-    const enDiv = document.createElement('div');
-    enDiv.textContent = sentences[sentenceIndex].en;
-
-    const heDiv = document.createElement('div');
-    heDiv.textContent = sentences[sentenceIndex].he;
-    heDiv.className = 'hebrew';
-
-    if (lang === 'en') {
-      displayArea.appendChild(enDiv);
-      displayArea.appendChild(heDiv);
-    } else {
-      displayArea.appendChild(heDiv);
-      displayArea.appendChild(enDiv);
-    }
-  } else {
-    displayArea.className = 'number';
-    displayArea.textContent = (sentenceIndex + 1).toString();
-  }
-  gotoInput.value = sentenceIndex + 1;
-}
-
-function toggleVisibility() {
-  if (sentences.length === 0) return;
-  isVisible = !isVisible;
-  updateDisplay();
-  updateToggleButton();
-}
-
-function updateToggleButton() {
-  toggleBtn.textContent = isVisible ? 'Hide':'Show';
-}
-
-langToggle.addEventListener('click', ()=>{
-  lang = (lang==='en')?'he':'en';
-  langToggle.textContent = (lang==='en')?'EN':'HE';
-  setSentence();
-});
-
-gotoInput.addEventListener('focus', () => {
-  gotoInput.value = '';
-});
-
-gotoInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    if(sentences.length === 0) return;
-    let num = parseInt(gotoInput.value);
-    if(isNaN(num) || num < 1 || num > sentences.length){
-      alert(`Enter a number between 1 and ${sentences.length}`);
-      return;
-    }
-    sentenceIndex = num - 1;
-    isVisible = false;
-    updateToggleButton();
+  
+  upperArea.addEventListener('click', () => {
+    if (sentences.length === 0) return;
+    if (lang === 'en') speakSentence(sentences[sentenceIndex].he, 'he');
+    else speakSentence(sentences[sentenceIndex].en, 'en');
+  
+  });
+  
+  lowerArea.addEventListener('click', () => {
+    if (sentences.length === 0) return;
+    if (lang === 'en') speakSentence(sentences[sentenceIndex].en, 'en');
+    else speakSentence(sentences[sentenceIndex].he, 'he');
+  });
+  
+  function nextSentence() {
+    if(sentences.length===0) return;
+    sentenceIndex = (sentenceIndex+1)%sentences.length;
     setSentence();
   }
-});
-
-themeToggle.addEventListener('click', ()=>{
-  document.body.classList.toggle('dark');
-});
-
-function setVh() {
-  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-}
-
-window.addEventListener('resize', setVh);
-window.addEventListener('orientationchange', setVh);
-window.addEventListener('load', () => {
-  setVh();
-  gotoInput.value = '';
-});
+  
+  function setSentence() {
+    if(sentences.length===0) return;
+    updateDisplay();
+    if(lang==='en') speakSentence(sentences[sentenceIndex].en,'en');
+    else speakSentence(sentences[sentenceIndex].he,'he');
+  }
+  
+  function playSentence() {
+    if(sentences.length===0) return;
+    if(lang==='en') speakSentence(sentences[sentenceIndex].he,'he');
+    else speakSentence(sentences[sentenceIndex].en,'en');
+  }
+  
+  function speakSentence(text, voiceName, onEnd) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesis.cancel();
+    utterance.rate = 0.7;
+    utterance.voice = (voiceName === "en" && voiceEN) ? voiceEN :
+                      (voiceName === "he" && voiceHE) ? voiceHE :
+                      voices[0];
+    if (onEnd) utterance.onend = onEnd;
+    speechSynthesis.speak(utterance);
+  }
+  
+  autoPlayBtn.addEventListener('click', () => {
+    autoPlay = !autoPlay;
+    autoPlayBtn.classList.toggle('active', autoPlay);
+    autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
+    if (autoPlay) runAutoPlay();
+  });
+      
+  function speakWithPause(text, voiceName, pauseMs, onEnd) {
+    speakSentence(text, voiceName, () => {
+      setTimeout(() => {
+        if(onEnd) onEnd();
+      }, pauseMs);
+    });
+  }
+  
+  function runAutoPlay() {
+    if (!autoPlay || sentences.length === 0) return;
+  
+    updateDisplay();
+  
+    let firstText, firstVoice, secondText, secondVoice;
+    if (lang === 'en') {
+      firstText = sentences[sentenceIndex].en;
+      firstVoice = 'en';
+      secondText = sentences[sentenceIndex].he;
+      secondVoice = 'he';
+    } else {
+      firstText = sentences[sentenceIndex].he;
+      firstVoice = 'he';
+      secondText = sentences[sentenceIndex].en;
+      secondVoice = 'en';
+    }
+  
+    speakWithPause(firstText, firstVoice, 2000, () => {
+      speakWithPause(secondText, secondVoice, 3000, () => {
+        sentenceIndex++;
+        if (sentenceIndex < sentences.length) {
+          runAutoPlay();
+        } else {
+          autoPlay = false;
+          autoPlayBtn.classList.remove('active');
+          autoPlayBtn.textContent = '▶';
+        }
+      });
+    });
+  }
+  
+  function updateButtonStates(){
+    showToggle.disabled = sentences.length===0;
+    nextBtn.disabled = sentences.length===0;
+  }
+  
+  function updateDisplay() {
+    if (isVisible) {
+      displayArea.className = '';
+      displayArea.innerHTML = '';
+  
+      const enDiv = document.createElement('div');
+      enDiv.textContent = sentences[sentenceIndex].en;
+  
+      const heDiv = document.createElement('div');
+      heDiv.textContent = sentences[sentenceIndex].he;
+      heDiv.className = 'hebrew';
+  
+      if (lang === 'en') {
+        displayArea.appendChild(enDiv);
+        displayArea.appendChild(heDiv);
+      } else {
+        displayArea.appendChild(heDiv);
+        displayArea.appendChild(enDiv);
+      }
+    } else {
+      displayArea.className = 'number';
+      displayArea.textContent = (sentenceIndex + 1).toString();
+    }
+    gotoInput.value = sentenceIndex + 1;
+  }
+  
+  function toggleVisibility() {
+    if (sentences.length === 0) return;
+    isVisible = !isVisible;
+    updateDisplay();
+    updateToggleButton();
+  }
+  
+  function updateToggleButton() {
+    showToggle.textContent = isVisible ? 'Hide':'Show';
+  }
+  
+  langToggle.addEventListener('click', ()=>{
+    lang = (lang==='en')?'he':'en';
+    langToggle.textContent = (lang==='en')?'EN':'HE';
+    setSentence();
+  });
+  
+  gotoInput.addEventListener('focus', () => {
+    gotoInput.value = '';
+  });
+  
+  gotoInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if(sentences.length === 0) return;
+      let num = parseInt(gotoInput.value);
+      if(isNaN(num) || num < 1 || num > sentences.length){
+        alert(`Enter a number between 1 and ${sentences.length}`);
+        return;
+      }
+      sentenceIndex = num - 1;
+      setSentence();
+    }
+  });
+  
+  themeToggle.addEventListener('click', ()=>{
+    document.body.classList.toggle('dark');
+  });
+  
+  function setVh() {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  }
+  
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+  window.addEventListener('load', () => {
+    setVh();
+    gotoInput.value = '';
+  });
 
 </script>
 </body>
 </html> 
-
-
-
-
