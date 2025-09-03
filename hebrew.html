@@ -300,6 +300,8 @@ body.dark footer button {
   let isVisible = false;
   let timerInterval = null;
   let startTime = null;
+  let shuffledIndices = [];
+  let shufflePointer = 0;
   let nextClickTimeout = null;
   
   const fileInput = document.getElementById('sentenceFileInput');
@@ -376,6 +378,7 @@ body.dark footer button {
       });
       sentenceIndex = 0;
       isVisible = false;
+      shuffleIndices();
       updateToggleButton();
       if (sentences.length > 0) {
         updateButtonStates();
@@ -424,9 +427,27 @@ body.dark footer button {
     setSentence();
   }
 
+  function shuffleIndices() {
+    shuffledIndices = [...Array(sentences.length).keys()];
+  
+    for (let i = shuffledIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+    }
+  
+    shufflePointer = 0;
+  }
+  
   function randomSentence() {
     if (sentences.length === 0) return;
-    sentenceIndex = Math.floor(Math.random() * sentences.length);
+  
+    if (shufflePointer >= shuffledIndices.length) {
+      shuffleIndices();
+    }
+  
+    wordIndex = shuffledIndices[shufflePointer];
+    shufflePointer++;
+  
     setSentence();
   }
   
@@ -588,6 +609,7 @@ body.dark footer button {
 </script>
 </body>
 </html> 
+
 
 
 
