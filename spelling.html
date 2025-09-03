@@ -246,7 +246,7 @@
   <footer>
     <input type="number" id="gotoInput" placeholder="" min="1"/>
     <button id="showToggle" onclick="toggleVisibility()">Show</button>
-    <button id="nextBtn" onclick="nextWord()">Next</button>
+    <button id="nextBtn">Next</button>
   </footer>
 
 <script>
@@ -261,6 +261,7 @@
   let isVisible = false;
   let timerInterval = null;
   let startTime = null;
+  let nextClickTimeout = null;
   
   const fileInput = document.getElementById('wordFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -343,13 +344,32 @@
     if (sentences.length === 0) return;
     speakWord();
   });
-  
+
+  nextBtn.addEventListener('click', () => {
+    if (nextClickTimeout !== null) {
+      clearTimeout(nextClickTimeout);
+      nextClickTimeout = null;
+      randomWord();
+    } else {
+      nextClickTimeout = setTimeout(() => {
+        nextClickTimeout = null;
+        nextWord();
+      }, 250);
+    }
+  });
+
   function nextWord() {
     if (sentences.length === 0) return;
     wordIndex = (wordIndex + 1) % sentences.length;
     setSentence();
   }
 
+  function randomWord() {
+    if (sentences.length === 0) return;
+    wordIndex = Math.floor(Math.random() * sentences.length);
+    setSentence();
+  }
+  
   function setSentence() {
     if (sentences.length === 0) return;
     let parts = sentences[wordIndex].split('|');
@@ -441,3 +461,4 @@
 </script>
 </body>
 </html>
+
