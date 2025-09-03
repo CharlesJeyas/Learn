@@ -261,6 +261,8 @@
   let isVisible = false;
   let timerInterval = null;
   let startTime = null;
+  let shuffledIndices = [];
+  let shufflePointer = 0;
   let nextClickTimeout = null;
   
   const fileInput = document.getElementById('wordFileInput');
@@ -320,6 +322,7 @@
       sentences = text.split('\n').map(w => w.trim()).filter(Boolean);
       wordIndex = 0;
       isVisible = false;
+      shuffleIndices();
       updateToggleButton();
       updateButtonStates();
       if (sentences.length > 0) {
@@ -364,9 +367,27 @@
     setSentence();
   }
 
+  function shuffleIndices() {
+    shuffledIndices = [...Array(sentences.length).keys()]; // [0, 1, 2, ..., N-1]
+  
+    for (let i = shuffledIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+    }
+  
+    shufflePointer = 0;
+  }
+  
   function randomWord() {
     if (sentences.length === 0) return;
-    wordIndex = Math.floor(Math.random() * sentences.length);
+  
+    if (shufflePointer >= shuffledIndices.length) {
+      shuffleIndices();
+    }
+  
+    wordIndex = shuffledIndices[shufflePointer];
+    shufflePointer++;
+  
     setSentence();
   }
   
@@ -461,4 +482,5 @@
 </script>
 </body>
 </html>
+
 
