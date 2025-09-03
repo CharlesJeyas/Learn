@@ -267,6 +267,9 @@ footer button {
   let isVisible = false;
   let timerInterval = null;
   let startTime = null;
+  let shuffledIndices = [];
+  let shufflePointer = 0;
+  let nextClickTimeout = null;
   
   const fileInput = document.getElementById('sentenceFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -335,31 +338,32 @@ footer button {
     reader.onload = function(e) {
       let text = e.target.result;
       text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-sentences = text.split('\n')
-  .map(s => s.trim())
-  .filter(Boolean)
-  .map(s => {
-    let rest;
-    const dashIndex = s.indexOf('-');
-    if (dashIndex === -1) {
-      // No dash: take the whole line
-      rest = s;
-    } else {
-      rest = s.slice(dashIndex + 1);
-    }
-
-    const pipeIndex = rest.indexOf('|');
-    if (pipeIndex === -1) {
-      // No pipe: treat entire rest as English, Japanese empty
-      return { en: rest.trim(), jp: '' };
-    } else {
-      const en = rest.slice(0, pipeIndex).trim();
-      const jp = rest.slice(pipeIndex + 1).trim();
-      return { en, jp };
-    }
-  });
+      sentences = text.split('\n')
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => {
+          let rest;
+          const dashIndex = s.indexOf('-');
+          if (dashIndex === -1) {
+            // No dash: take the whole line
+            rest = s;
+          } else {
+            rest = s.slice(dashIndex + 1);
+          }
+      
+          const pipeIndex = rest.indexOf('|');
+          if (pipeIndex === -1) {
+            // No pipe: treat entire rest as English, Japanese empty
+            return { en: rest.trim(), jp: '' };
+          } else {
+            const en = rest.slice(0, pipeIndex).trim();
+            const jp = rest.slice(pipeIndex + 1).trim();
+            return { en, jp };
+          }
+        });
       sentenceIndex = 0;
       isVisible = false;
+      shuffleIndices();
       updateToggleButton();
       if (sentences.length > 0) {
         updateButtonStates();
@@ -408,9 +412,27 @@ sentences = text.split('\n')
     setSentence();
   }
 
+  function shuffleIndices() {
+    shuffledIndices = [...Array(sentences.length).keys()];
+  
+    for (let i = shuffledIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+    }
+  
+    shufflePointer = 0;
+  }
+  
   function randomSentence() {
     if (sentences.length === 0) return;
-    sentenceIndex = Math.floor(Math.random() * sentences.length);
+  
+    if (shufflePointer >= shuffledIndices.length) {
+      shuffleIndices();
+    }
+  
+    wordIndex = shuffledIndices[shufflePointer];
+    shufflePointer++;
+  
     setSentence();
   }
   
