@@ -286,7 +286,7 @@ body.dark footer button {
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
   <button id="showToggle" onclick="toggleVisibility()">Show</button>
-  <button id="nextBtn" onclick="nextSentence()">Next</button>
+  <button id="nextBtn">Next</button>
 </footer>
 
 <script>
@@ -300,6 +300,7 @@ body.dark footer button {
   let isVisible = false;
   let timerInterval = null;
   let startTime = null;
+  let nextClickTimeout = null;
   
   const fileInput = document.getElementById('sentenceFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -403,10 +404,29 @@ body.dark footer button {
     if (lang === 'en') speakSentence(sentences[sentenceIndex].en, 'en');
     else speakSentence(sentences[sentenceIndex].he, 'he');
   });
+
+  nextBtn.addEventListener('click', () => {
+    if (nextClickTimeout !== null) {
+      clearTimeout(nextClickTimeout);
+      nextClickTimeout = null;
+      randomSentence();
+    } else {
+      nextClickTimeout = setTimeout(() => {
+        nextClickTimeout = null;
+        nextSentence();
+      }, 250);
+    }
+  });
   
   function nextSentence() {
     if(sentences.length===0) return;
     sentenceIndex = (sentenceIndex+1)%sentences.length;
+    setSentence();
+  }
+
+  function randomSentence() {
+    if (sentences.length === 0) return;
+    sentenceIndex = Math.floor(Math.random() * sentences.length);
     setSentence();
   }
   
@@ -568,6 +588,7 @@ body.dark footer button {
 </script>
 </body>
 </html> 
+
 
 
 
