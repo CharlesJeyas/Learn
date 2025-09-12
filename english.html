@@ -465,6 +465,9 @@ footer button {
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
     if (autoPlay) {
+      shuffleIndices();
+      shufflePointer = 0;
+      sentenceIndex = shuffledIndices[shufflePointer];
       runAutoPlay();
     } else {
       speechSynthesis.cancel();
@@ -499,8 +502,9 @@ footer button {
   
     speakWithPause(firstText, firstVoice, 2000, () => {
       speakWithPause(secondText, secondVoice, 3000, () => {
-        sentenceIndex++;
-        if (sentenceIndex < sentences.length) {
+        shufflePointer++;
+        if (shufflePointer < shuffledIndices.length) {
+          sentenceIndex = shuffledIndices[shufflePointer];
           runAutoPlay();
         } else {
           autoPlay = false;
