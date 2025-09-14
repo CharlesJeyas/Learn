@@ -89,54 +89,54 @@
   }
 
   #upperArea {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  cursor: pointer;
-}
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    cursor: pointer;
+  }
 
-#lowerArea {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  cursor: pointer;
-}
+  #lowerArea {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    cursor: pointer;
+  }
 
   #displayArea {
-  font-family: 'Dancing Script', cursive;
-  font-size: 5rem;
-  width: 100%;
-  max-width: 400px;
-  height: 150px;
-  margin: auto;
-  text-align: center;
-  color: var(--brown-dark);
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-
-  background-image:
-    linear-gradient(to bottom, gray 1px, transparent 0),
-    linear-gradient(to bottom, gray 1px, transparent 0),
-    linear-gradient(to bottom, red 1px, transparent 0),
-    linear-gradient(to bottom, gray 1px, transparent 0);
-  background-repeat: no-repeat;
-  background-size: 100% 200px;
-  background-position: 
-    0 25px, 
-    0 45px, 
-    0 75px, 
-    0 95px;
+    font-family: 'Dancing Script', cursive;
+    font-size: 5rem;
+    width: 100%;
+    max-width: 400px;
+    height: 150px;
+    margin: auto;
+    text-align: center;
+    color: var(--brown-dark);
+  
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  
+    background-image:
+      linear-gradient(to bottom, gray 1px, transparent 0),
+      linear-gradient(to bottom, gray 1px, transparent 0),
+      linear-gradient(to bottom, red 1px, transparent 0),
+      linear-gradient(to bottom, gray 1px, transparent 0);
+    background-repeat: no-repeat;
+    background-size: 100% 200px;
+    background-position: 
+      0 25px, 
+      0 45px, 
+      0 75px, 
+      0 95px;
   }
 
   #textBottomLeft {
-    position: fixed;
+    position: absolute;
     font-size: 0.8rem;
     left: 0.5rem;
     top: 0.5rem;
@@ -148,7 +148,7 @@
   }
   
   #textBottomRight {
-    position: fixed;
+    position: absolute;
     font-size: 0.8rem;
     right: 0.5rem;
     top: 0.5rem;
@@ -257,6 +257,10 @@
     <div id="textBottomRight"></div>
   </main>
 
+  <div id="track">
+    <div id="runner"></div>
+  </div>
+  
   <footer>
     <input type="number" id="gotoInput" placeholder="" min="1"/>
     <button id="showToggle" onclick="toggleVisibility()">Show</button>
@@ -337,6 +341,7 @@
     sentences = [];
     wordIndex = 0;
     learned.clear();
+    isVisible = false;
 
     progress = 0;
     runner.style.left = "0%";
@@ -350,8 +355,7 @@
       let text = e.target.result;
       text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       sentences = text.split('\n').map(w => w.trim()).filter(Boolean);
-      wordIndex = 0;
-      isVisible = false;
+
       shuffleIndices();
       updateToggleButton();
       updateButtonStates();
@@ -537,6 +541,7 @@
 </script>
 </body>
 </html>
+
 
 
 
