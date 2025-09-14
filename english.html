@@ -169,6 +169,20 @@ main {
   transition: color 0.3s, opacity 0.3s;
 }
 
+#track {
+  width: 100%;
+  position: relative;
+}
+
+#runner {
+  position: absolute;
+  top: -30px;
+  left: 0;
+  font-size: 24px;
+  transition: left 4s ease;
+  transform: scaleX(-1);
+}
+
 footer {
   padding: 1rem;
   display: flex;
@@ -242,14 +256,18 @@ footer button {
   </label>
 </header>
 
-  <main>
-    <div id="displayArea"></div>
-    <div id="upperArea"></div>
-    <div id="lowerArea"></div>
-    <div id="textBottomLeft"></div>
-    <div id="textBottomRight"></div>
-  </main>
+<main>
+  <div id="displayArea"></div>
+  <div id="upperArea"></div>
+  <div id="lowerArea"></div>
+  <div id="textBottomLeft"></div>
+  <div id="textBottomRight"></div>
+</main>
 
+<div id="track">
+  <div id="runner"></div>
+</div>
+  
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
   <button id="showToggle" onclick="toggleVisibility()">Show</button>
@@ -270,6 +288,8 @@ footer button {
   let shuffledIndices = [];
   let shufflePointer = 0;
   let nextClickTimeout = null;
+  let learned = new Set();
+  let progress = 0;
   
   const fileInput = document.getElementById('sentenceFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -283,6 +303,11 @@ footer button {
   const lowerArea = document.getElementById('lowerArea');
   const textBottomLeft = document.getElementById('textBottomLeft');
   const textBottomRight = document.getElementById('textBottomRight');
+  const runner = document.getElementById("runner");
+
+  const carEmojis = ['🚗','🚙','🛻','🏎️','🚕','🚓','🚑','🚒',
+                  '🛺','🚜','🚲','🏍️','🛵','🚶‍♂️','🚶‍♀️','🏃‍♂️','🏃‍♀️',
+                  '🐦','🕊️','🦆','🦉','🦅',🚁,'🐕','🐈','🐎'];
   
   function loadVoices() {
     voices = speechSynthesis.getVoices();
@@ -439,14 +464,10 @@ footer button {
   function setSentence() {
     if(sentences.length===0) return;
     updateDisplay();
+    updateRunner();
+    
     if(lang==='en') speakSentence(sentences[sentenceIndex].en,'en');
     else speakSentence(sentences[sentenceIndex].jp,'jp');
-  }
-  
-  function playSentence() {
-    if(sentences.length===0) return;
-    if(lang==='en') speakSentence(sentences[sentenceIndex].jp,'jp');
-    else speakSentence(sentences[sentenceIndex].en,'en');
   }
   
   function speakSentence(text, voiceName, onEnd) {
@@ -486,6 +507,7 @@ footer button {
     if (!autoPlay || sentences.length === 0) return;
   
     updateDisplay();
+    updateRunner();
   
     let firstText, firstVoice, secondText, secondVoice;
     if (lang === 'en') {
@@ -591,6 +613,27 @@ footer button {
     setVh();
     gotoInput.value = '';
   });
+
+  function updateRunner() {
+    if (sentences.length === 0) return;
+
+    const trackWidth = runner.parentElement.offsetWidth;
+    const runnerWidth = runner.offsetWidth;
+    const maxPercent = ((trackWidth - runnerWidth) / trackWidth) * 100;
+
+    learned.add(sentenceIndex);
+    let percent = (learned.size / sentences.length) * 100;
+    percent = Math.min(percent, maxPercent);
+
+      if (percent < progress) {
+        runner.style.transform = 'scaleX(1)';
+      } else {
+        runner.style.transform = 'scaleX(-1)';
+      }
+
+    runner.style.left = percent + "%";
+    progress = percent;
+  }
 
 </script>
 </body>
