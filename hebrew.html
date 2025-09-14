@@ -409,8 +409,7 @@ body.dark footer button {
         const parts = s.split('|');
         return {en: parts[0]?.trim()||'', he: parts[1]?.trim()||''};
       });
-      sentenceIndex = 0;
-      isVisible = false;
+
       updateToggleButton();
       if (sentences.length > 0) {
         updateButtonStates();
@@ -668,6 +667,7 @@ body.dark footer button {
 </script>
 </body>
 </html> 
+
 
 
 
