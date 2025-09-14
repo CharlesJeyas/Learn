@@ -307,7 +307,7 @@ footer button {
 
   const carEmojis = ['🚗','🚙','🛻','🏎️','🚕','🚓','🚑','🚒',
                   '🛺','🚜','🚲','🏍️','🛵','🚶‍♂️','🚶‍♀️','🏃‍♂️','🏃‍♀️',
-                  '🐦','🕊️','🦆','🦉','🦅',🚁,'🐕','🐈','🐎'];
+                  '🐦','🕊️','🦆','🦉','🦅','🚁','🐕','🐈','🐎'];
   
   function loadVoices() {
     voices = speechSynthesis.getVoices();
@@ -354,7 +354,11 @@ footer button {
     
     sentences = [];
     sentenceIndex = 0;
+    learned.clear();
     isVisible = false;
+
+    runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
+
     startTimer();
     updateDisplay();
     updateButtonStates();
@@ -434,6 +438,9 @@ footer button {
   function nextSentence() {
     if(sentences.length===0) return;
     sentenceIndex = (sentenceIndex+1)%sentences.length;
+    if (sentenceIndex === 0) {
+      learned.clear();
+    }
     setSentence();
   }
 
@@ -452,6 +459,7 @@ footer button {
     if (sentences.length === 0) return;
   
     if (shufflePointer >= shuffledIndices.length) {
+      learned.clear();
       shuffleIndices();
     }
   
