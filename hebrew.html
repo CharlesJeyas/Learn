@@ -165,10 +165,10 @@ body.dark #displayArea.number {
 }
 
 #textBottomLeft {
-  position: fixed;
+  position: absolute;
   font-size: 0.8rem;
   left: 0.5rem;
-  bottom: 6rem;
+  top: 0.5rem;
   color: rgba(0,0,0,0.4);
   font-family: 'Comic Neue', cursive, Arial, sans-serif;
   pointer-events: none;
@@ -177,10 +177,10 @@ body.dark #displayArea.number {
 }
 
 #textBottomRight {
-  position: fixed;
+  position: absolute;
   font-size: 0.8rem;
   right: 0.5rem;
-  bottom: 6rem;
+  top: 0.5rem;
   color: rgba(0,0,0,0.4);
   font-family: 'Comic Neue', cursive, Arial, sans-serif;
   pointer-events: none;
@@ -191,6 +191,20 @@ body.dark #displayArea.number {
 body.dark #textBottomLeft,
 body.dark #textBottomRight {
   color: rgba(255,255,255,0.4);
+}
+
+#track {
+  width: 100%;
+  position: relative;
+}
+
+#runner {
+  position: absolute;
+  top: -30px;
+  left: 0;
+  font-size: 24px;
+  transition: left 4s ease;
+  transform: scaleX(-1);
 }
 
 footer {
@@ -276,13 +290,17 @@ body.dark footer button {
   </label>
 </header>
 
-  <main>
-    <div id="displayArea"></div>
-    <div id="upperArea"></div>
-    <div id="lowerArea"></div>
-    <div id="textBottomLeft"></div>
-    <div id="textBottomRight"></div>
-  </main>
+<main>
+  <div id="displayArea"></div>
+  <div id="upperArea"></div>
+  <div id="lowerArea"></div>
+  <div id="textBottomLeft"></div>
+  <div id="textBottomRight"></div>
+</main>
+
+<div id="track">
+  <div id="runner"></div>
+</div>
 
 <footer>
   <input type="number" id="gotoInput" placeholder="" min="1"/>
@@ -304,6 +322,8 @@ body.dark footer button {
   let shuffledIndices = [];
   let shufflePointer = 0;
   let nextClickTimeout = null;
+  let learned = new Set();
+  let progress = 0;
   
   const fileInput = document.getElementById('sentenceFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -318,7 +338,12 @@ body.dark footer button {
   const lowerArea = document.getElementById('lowerArea');
   const textBottomLeft = document.getElementById('textBottomLeft');
   const textBottomRight = document.getElementById('textBottomRight');
-  
+  const runner = document.getElementById("runner");
+
+  const carEmojis = ['🚗','🚙','🛻','🏎️','🚕','🚓','🚑','🚒',
+                  '🛺','🚜','🚲','🏍️','🛵','🚶‍♂️','🚶‍♀️','🏃‍♂️','🏃‍♀️',
+                  '🐦','🕊️','🦆','🦉','🦅',🚁,'🐕','🐈','🐎'];
+
   function loadVoices() {
     voices = speechSynthesis.getVoices();
     
@@ -364,7 +389,11 @@ body.dark footer button {
     
     sentences = [];
     sentenceIndex = 0;
+    learned.clear();
     isVisible = false;
+
+    runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
+
     startTimer();
     updateDisplay();
     updateButtonStates();
@@ -379,7 +408,6 @@ body.dark footer button {
       });
       sentenceIndex = 0;
       isVisible = false;
-      shuffleIndices();
       updateToggleButton();
       if (sentences.length > 0) {
         updateButtonStates();
@@ -425,6 +453,9 @@ body.dark footer button {
   function nextSentence() {
     if(sentences.length===0) return;
     sentenceIndex = (sentenceIndex+1)%sentences.length;
+    if (sentenceIndex === 0) {
+      learned.clear();
+    }
     setSentence();
   }
 
@@ -443,6 +474,7 @@ body.dark footer button {
     if (sentences.length === 0) return;
   
     if (shufflePointer >= shuffledIndices.length) {
+      learned.clear();
       shuffleIndices();
     }
   
@@ -455,16 +487,12 @@ body.dark footer button {
   function setSentence() {
     if(sentences.length===0) return;
     updateDisplay();
+    updateRunner();
+
     if(lang==='en') speakSentence(sentences[sentenceIndex].en,'en');
     else speakSentence(sentences[sentenceIndex].he,'he');
   }
-  
-  function playSentence() {
-    if(sentences.length===0) return;
-    if(lang==='en') speakSentence(sentences[sentenceIndex].he,'he');
-    else speakSentence(sentences[sentenceIndex].en,'en');
-  }
-  
+   
   function speakSentence(text, voiceName, onEnd) {
     const utterance = new SpeechSynthesisUtterance(text);
     speechSynthesis.cancel();
@@ -481,6 +509,7 @@ body.dark footer button {
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
     if (autoPlay) {
+      learned.clear();
       shuffleIndices();
       shufflePointer = 0;
       sentenceIndex = shuffledIndices[shufflePointer];
@@ -502,6 +531,7 @@ body.dark footer button {
     if (!autoPlay || sentences.length === 0) return;
   
     updateDisplay();
+    updateRunner();
   
     let firstText, firstVoice, secondText, secondVoice;
     if (lang === 'en') {
@@ -611,14 +641,27 @@ body.dark footer button {
     gotoInput.value = '';
   });
 
+  function updateRunner() {
+    if (sentences.length === 0) return;
+
+    const trackWidth = runner.parentElement.offsetWidth;
+    const runnerWidth = runner.offsetWidth;
+    const maxPercent = ((trackWidth - runnerWidth) / trackWidth) * 100;
+
+    learned.add(sentenceIndex);
+    let percent = (learned.size / sentences.length) * 100;
+    percent = Math.min(percent, maxPercent);
+
+      if (percent < progress) {
+        runner.style.transform = 'scaleX(1)';
+      } else {
+        runner.style.transform = 'scaleX(-1)';
+      }
+
+    runner.style.left = percent + "%";
+    progress = percent;
+  }
+
 </script>
 </body>
 </html> 
-
-
-
-
-
-
-
-
