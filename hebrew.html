@@ -392,6 +392,9 @@ body.dark footer button {
     learned.clear();
     isVisible = false;
 
+    progress = 0;
+    runner.style.left = "0%";
+    runner.style.transform = 'scaleX(1)';
     runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
 
     startTimer();
@@ -665,6 +668,7 @@ body.dark footer button {
 </script>
 </body>
 </html> 
+
 
 
 
