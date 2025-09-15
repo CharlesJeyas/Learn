@@ -289,7 +289,6 @@ footer button {
   let shufflePointer = 0;
   let nextClickTimeout = null;
   let learned = new Set();
-  let progress = 0;
   
   const fileInput = document.getElementById('sentenceFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -357,7 +356,6 @@ footer button {
     learned.clear();
     isVisible = false;
 
-    progress = 0;
     runner.style.left = "0%";
     runner.style.transform = 'scaleX(1)';
     runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
@@ -439,10 +437,8 @@ footer button {
   
   function nextSentence() {
     if(sentences.length===0) return;
+    
     sentenceIndex = (sentenceIndex+1)%sentences.length;
-    if (sentenceIndex === 0) {
-      learned.clear();
-    }
     setSentence();
   }
 
@@ -459,11 +455,7 @@ footer button {
   
   function randomSentence() {
     if (sentences.length === 0) return;
-  
-    if (shufflePointer >= shuffledIndices.length) {
-      learned.clear();
-      shuffleIndices();
-    }
+    if (shufflePointer >= shuffledIndices.length) shuffleIndices();
   
     sentenceIndex = shuffledIndices[shufflePointer];
     shufflePointer++;
@@ -496,9 +488,14 @@ footer button {
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
     if (autoPlay) {
-      shuffleIndices();
-      shufflePointer = 0;
-      sentenceIndex = shuffledIndices[shufflePointer];
+      if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) {
+        shuffleIndices();
+        shufflePointer = 0;
+      } else {
+        shufflePointer = shuffledIndices.indexOf(sentenceIndex);
+        if (shufflePointer < 0) shufflePointer = 0;
+      }
+    
       runAutoPlay();
     } else {
       speechSynthesis.cancel();
@@ -626,23 +623,27 @@ footer button {
 
   function updateRunner() {
     if (sentences.length === 0) return;
-
+  
     const trackWidth = runner.parentElement.offsetWidth;
     const runnerWidth = runner.offsetWidth;
-    const maxPercent = ((trackWidth - runnerWidth) / trackWidth) * 100;
-
+  
     learned.add(sentenceIndex);
-    let percent = (learned.size / sentences.length) * 100;
-    percent = Math.min(percent, maxPercent);
 
-      if (percent < progress) {
-        runner.style.transform = 'scaleX(1)';
-      } else {
-        runner.style.transform = 'scaleX(-1)';
-      }
-
-    runner.style.left = percent + "%";
-    progress = percent;
+    if (learned.size >= sentences.length) {
+      learned.clear();
+      runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
+    }
+  
+    let fraction = learned.size / sentences.length;
+    let leftPx = fraction * (trackWidth - runnerWidth);
+    
+    if (leftPx === 0) {
+      runner.style.transform = 'scaleX(1)';
+    } else {
+      runner.style.transform = 'scaleX(-1)';
+    }
+  
+    runner.style.left = leftPx + "px";
   }
 
 </script>
