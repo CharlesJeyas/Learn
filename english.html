@@ -216,13 +216,15 @@ footer input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-footer button {
+footer button,
+footer button:hover,
+footer button:active {
   padding: 1rem;
   font-size: 1.3rem;
   border: none;
   border-radius: 40px;
-  background-color: white;
-  color: var(--brown-light);
+  background-color: white !important;
+  color: var(--brown-light) !important;
   cursor: pointer;
   flex: 1 1 22%;
   font-weight: 700;
@@ -536,6 +538,8 @@ footer button {
           sentenceIndex = shuffledIndices[shufflePointer];
           runAutoPlay();
         } else {
+          updateRunner();
+          
           autoPlay = false;
           autoPlayBtn.classList.remove('active');
           autoPlayBtn.textContent = '▶';
