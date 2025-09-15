@@ -344,7 +344,7 @@
     isVisible = false;
 
     runner.style.left = "0%";
-    runner.style.transform = 'scaleX(1)';
+    runner.style.transform = 'scaleX(-1)';
     runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
     
     startTimer();
@@ -517,7 +517,7 @@
     const trackWidth = runner.parentElement.offsetWidth;
     const runnerWidth = runner.offsetWidth;
   
-    learned.add(sentenceIndex);
+    learned.add(wordIndex);
   
     let fraction = learned.size / sentences.length;
     let leftPx = fraction * (trackWidth - runnerWidth);
@@ -583,3 +583,4 @@
 </script>
 </body>
 </html>
+
