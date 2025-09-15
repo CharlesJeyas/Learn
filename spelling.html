@@ -283,7 +283,6 @@
   let shufflePointer = 0;
   let nextClickTimeout = null;
   let learned = new Set();
-  let progress = 0;
   
   const fileInput = document.getElementById('wordFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -343,7 +342,6 @@
     learned.clear();
     isVisible = false;
 
-    progress = 0;
     runner.style.left = "0%";
     runner.style.transform = 'scaleX(1)';
     runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
@@ -397,15 +395,13 @@
 
   function nextWord() {
     if (sentences.length === 0) return;
+    
     wordIndex = (wordIndex + 1) % sentences.length;
-    if (wordIndex === 0) {
-      learned.clear();
-    }
     setSentence();
   }
 
   function shuffleIndices() {
-    shuffledIndices = [...Array(sentences.length).keys()]; // [0, 1, 2, ..., N-1]
+    shuffledIndices = [...Array(sentences.length).keys()];
   
     for (let i = shuffledIndices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -417,10 +413,7 @@
   
   function randomWord() {
     if (sentences.length === 0) return;
-  
-    if (shufflePointer >= shuffledIndices.length) {
-      shuffleIndices();
-    }
+    if (shufflePointer >= shuffledIndices.length) shuffleIndices();
   
     wordIndex = shuffledIndices[shufflePointer];
     shufflePointer++;
@@ -519,28 +512,33 @@
 
   function updateRunner() {
     if (sentences.length === 0) return;
-
+  
     const trackWidth = runner.parentElement.offsetWidth;
     const runnerWidth = runner.offsetWidth;
-    const maxPercent = ((trackWidth - runnerWidth) / trackWidth) * 100;
-
+  
     learned.add(wordIndex);
-    let percent = (learned.size / sentences.length) * 100;
-    percent = Math.min(percent, maxPercent);
 
-      if (percent < progress) {
-        runner.style.transform = 'scaleX(1)';
-      } else {
-        runner.style.transform = 'scaleX(-1)';
-      }
-
-    runner.style.left = percent + "%";
-    progress = percent;
+    if (learned.size >= sentences.length) {
+      learned.clear();
+      runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
+    }
+  
+    let fraction = learned.size / sentences.length;
+    let leftPx = fraction * (trackWidth - runnerWidth);
+    
+    if (leftPx === 0) {
+      runner.style.transform = 'scaleX(1)';
+    } else {
+      runner.style.transform = 'scaleX(-1)';
+    }
+  
+    runner.style.left = leftPx + "px";
   }
 
 </script>
 </body>
 </html>
+
 
 
 
