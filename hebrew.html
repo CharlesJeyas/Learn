@@ -240,13 +240,15 @@ footer input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-footer button {
+footer button,
+footer button:hover,
+footer button:active {
   padding: 1rem;
   font-size: 1.3rem;
   border: none;
   border-radius: 40px;
-  background-color: white;
-  color: var(--brown-light);
+  background-color: white !important;
+  color: var(--brown-light) !important;
   cursor: pointer;
   flex: 1 1 22%;
   font-weight: 700;
@@ -255,11 +257,6 @@ footer button {
   justify-content: center;
   gap: 0.3rem;
   min-width: 0;
-}
-
-footer button:hover {
-  background-color: var(--brown-lighter);
-  color: white;
 }
 
 body.dark footer button {
@@ -552,13 +549,7 @@ body.dark footer button {
           sentenceIndex = shuffledIndices[shufflePointer];
           runAutoPlay();
         } else {
-          learned.clear();
-          runner.style.transition = "none";
-          runner.style.left = "0px";
-          runner.style.transform = "scaleX(1) scale(1)";
-          runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
-        
-          isTransforming = false;
+          updateRunner();
         
           autoPlay = false;
           autoPlayBtn.classList.remove('active');
@@ -720,4 +711,5 @@ body.dark footer button {
 </script>
 </body>
 </html> 
+
 
