@@ -454,10 +454,8 @@ body.dark footer button {
   
   function nextSentence() {
     if(sentences.length===0) return;
+    
     sentenceIndex = (sentenceIndex+1)%sentences.length;
-    if (sentenceIndex === 0) {
-      learned.clear();
-    }
     setSentence();
   }
 
@@ -474,11 +472,7 @@ body.dark footer button {
   
   function randomSentence() {
     if (sentences.length === 0) return;
-  
-    if (shufflePointer >= shuffledIndices.length) {
-      learned.clear();
-      shuffleIndices();
-    }
+    if (shufflePointer >= shuffledIndices.length) shuffleIndices();
   
     sentenceIndex = shuffledIndices[shufflePointer];
     shufflePointer++;
@@ -511,10 +505,14 @@ body.dark footer button {
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
     if (autoPlay) {
-      learned.clear();
-      shuffleIndices();
-      shufflePointer = 0;
-      sentenceIndex = shuffledIndices[shufflePointer];
+      if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) {
+        shuffleIndices();
+        shufflePointer = 0;
+      } else {
+        shufflePointer = shuffledIndices.indexOf(sentenceIndex);
+        if (shufflePointer < 0) shufflePointer = 0;
+      }
+    
       runAutoPlay();
     } else {
       speechSynthesis.cancel();
@@ -645,28 +643,30 @@ body.dark footer button {
 
   function updateRunner() {
     if (sentences.length === 0) return;
-
+  
     const trackWidth = runner.parentElement.offsetWidth;
     const runnerWidth = runner.offsetWidth;
-    const maxPercent = ((trackWidth - runnerWidth) / trackWidth) * 100;
-
+  
     learned.add(sentenceIndex);
-    let percent = (learned.size / sentences.length) * 100;
-    percent = Math.min(percent, maxPercent);
-
-      if (percent < progress) {
-        runner.style.transform = 'scaleX(1)';
-      } else {
-        runner.style.transform = 'scaleX(-1)';
-      }
-
-    runner.style.left = percent + "%";
-    progress = percent;
+  
+    let fraction = learned.size / sentences.length;
+    let leftPx = fraction * (trackWidth - runnerWidth);
+    if (leftPx < parseFloat(runner.style.left || 0)) {
+      runner.style.transform = 'scaleX(1)';
+    } else {
+      runner.style.transform = 'scaleX(-1)';
+    }
+  
+    runner.style.left = leftPx + "px";
+  
+    progress = leftPx;
   }
+
 
 </script>
 </body>
 </html> 
+
 
 
 
