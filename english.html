@@ -378,7 +378,6 @@ footer button:active {
           let rest;
           const dashIndex = s.indexOf('-');
           if (dashIndex === -1) {
-            // No dash: take the whole line
             rest = s;
           } else {
             rest = s.slice(dashIndex + 1);
@@ -538,11 +537,36 @@ footer button:active {
           sentenceIndex = shuffledIndices[shufflePointer];
           runAutoPlay();
         } else {
-          updateRunner();
-          
-          autoPlay = false;
-          autoPlayBtn.classList.remove('active');
-          autoPlayBtn.textContent = '▶';
+  if (sentences.length === 0) return;
+  isTransforming = true;
+
+  // Animate runner like the "last sentence" effect
+  runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+  runner.style.transform = "scale(0.2) scaleX(1)";
+  runner.style.opacity = "0";
+
+  setTimeout(() => {
+    // Change emoji during animation
+    runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
+    runner.style.transform = "scale(0.2) scaleX(1)";
+    runner.style.opacity = "1";
+
+    setTimeout(() => {
+      // Restore normal scale and finalize animation
+      runner.style.transform = "scale(1) scaleX(1)";
+      
+      // Reset learned set
+      learned.clear();
+
+      // Allow further runner updates
+      isTransforming = false;
+
+      // Stop autoplay and update button
+      autoPlay = false;
+      autoPlayBtn.classList.remove('active');
+      autoPlayBtn.textContent = '▶';
+    }, 400);
+  }, 400);
         }
       });
     });
