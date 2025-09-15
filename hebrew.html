@@ -203,7 +203,7 @@ body.dark #textBottomRight {
   top: -46px;
   left: 0;
   font-size: 40px;
-  transition: left 4s ease;
+  transition: left 3s ease;
   transform: scaleX(-1);
 }
 
@@ -323,6 +323,7 @@ body.dark footer button {
   let shufflePointer = 0;
   let nextClickTimeout = null;
   let learned = new Set();
+  let isTransforming = false;
   
   const fileInput = document.getElementById('sentenceFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -640,43 +641,74 @@ body.dark footer button {
   });
 
   function updateRunner() {
-    if (sentences.length === 0) return;
+    if (sentences.length === 0 || isTransforming) return;
   
     const trackWidth = runner.parentElement.offsetWidth;
     const runnerWidth = runner.offsetWidth;
   
     learned.add(sentenceIndex);
-
-    if (learned.size >= sentences.length) {
-      learned.clear();
-      runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
-    }
   
     let fraction = learned.size / sentences.length;
     let leftPx = fraction * (trackWidth - runnerWidth);
-    
-    if (leftPx === 0) {
-      runner.style.transform = 'scaleX(1)';
-    } else {
-      runner.style.transform = 'scaleX(-1)';
-    }
+    let currentLeft = parseInt(runner.style.left, 10) || 0;
   
+    nextBtn.disabled = true;
+  
+    runner.style.transition = "left 3s ease";
     runner.style.left = leftPx + "px";
-  }
+  
+    setTimeout(() => {
+      if (isTransforming) return;
+  
+      if (leftPx < currentLeft) {
+        isTransforming = true;
+        runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+        runner.style.transform = "scale(0.2) scaleX(-1)";
+        runner.style.opacity = "0";
+  
+        setTimeout(() => {
+          runner.style.transform = "scale(1) scaleX(-1)";
+          runner.style.opacity = "1";
+  
+          setTimeout(() => {
+            isTransforming = false;
+            nextBtn.disabled = false;
+          }, 400);
+        }, 400);
+        return;
+      }
+  
+      if (learned.size === sentences.length) {
+        isTransforming = true;
+  
+        runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+        runner.style.transform = "scale(0.2) scaleX(1)";
+        runner.style.opacity = "0";
 
+        setTimeout(() => {
+          runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
+          runner.style.transform = "scale(0.2) scaleX(1)";
+          runner.style.opacity = "1";
+
+          setTimeout(() => {
+            runner.style.transform = "scale(1) scaleX(1)";
+          }, 50);
+
+          setTimeout(() => {
+            learned.clear();
+            isTransforming = false;
+            nextBtn.disabled = false;
+          }, 400);
+        }, 400);
+      }
+  
+      if (leftPx > currentLeft && learned.size < sentences.length) {
+        runner.style.transform = "scale(1) scaleX(-1)";
+        nextBtn.disabled = false; 
+      }
+    }, 3000);
+  }
 
 </script>
 </body>
 </html> 
-
-
-
-
-
-
-
-
-
-
-
-
