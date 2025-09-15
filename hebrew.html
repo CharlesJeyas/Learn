@@ -552,6 +552,14 @@ body.dark footer button {
           sentenceIndex = shuffledIndices[shufflePointer];
           runAutoPlay();
         } else {
+          learned.clear();
+          runner.style.transition = "none";
+          runner.style.left = "0px";
+          runner.style.transform = "scaleX(1) scale(1)";
+          runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
+        
+          isTransforming = false;
+        
           autoPlay = false;
           autoPlayBtn.classList.remove('active');
           autoPlayBtn.textContent = '▶';
@@ -712,3 +720,4 @@ body.dark footer button {
 </script>
 </body>
 </html> 
+
