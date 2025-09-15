@@ -323,7 +323,6 @@ body.dark footer button {
   let shufflePointer = 0;
   let nextClickTimeout = null;
   let learned = new Set();
-  let progress = 0;
   
   const fileInput = document.getElementById('sentenceFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -392,7 +391,6 @@ body.dark footer button {
     learned.clear();
     isVisible = false;
 
-    progress = 0;
     runner.style.left = "0%";
     runner.style.transform = 'scaleX(1)';
     runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
@@ -648,24 +646,29 @@ body.dark footer button {
     const runnerWidth = runner.offsetWidth;
   
     learned.add(sentenceIndex);
+
+    if (learned.size >= sentences.length) {
+      learned.clear();
+      runner.textContent = carEmojis[Math.floor(Math.random() * carEmojis.length)];
+    }
   
     let fraction = learned.size / sentences.length;
     let leftPx = fraction * (trackWidth - runnerWidth);
-    if (leftPx < parseFloat(runner.style.left || 0)) {
+    
+    if (leftPx === 0)) {
       runner.style.transform = 'scaleX(1)';
     } else {
       runner.style.transform = 'scaleX(-1)';
     }
   
     runner.style.left = leftPx + "px";
-  
-    progress = leftPx;
   }
 
 
 </script>
 </body>
 </html> 
+
 
 
 
