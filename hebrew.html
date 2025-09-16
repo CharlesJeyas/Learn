@@ -649,8 +649,6 @@ body.dark footer button {
 function updateRunner() {
   if (sentences.length === 0 || isTransforming) return;
 
-  const style = window.getComputedStyle(runner);
-  const matrix = new DOMMatrixReadOnly(style.transform);
   const trackWidth = runner.parentElement.offsetWidth;
   const runnerWidth = runner.offsetWidth;
 
@@ -658,66 +656,71 @@ function updateRunner() {
   nextBtn.disabled = true;
 
   let fraction = learned.size / sentences.length;
-  let leftPx = fraction * (trackWidth - runnerWidth);
-  let currentLeft = matrix.m41;
+  let leftPx = Math.round(fraction * (trackWidth - runnerWidth)); // integer pixels
+  let currentLeft = runner.offsetLeft;
   let direction = leftPx >= currentLeft ? -1 : 1;
 
-  // Move only, flip instantly
+  // Move + flip (scaleX) separately, no combined scale
   runner.style.transition = "transform 2s ease";
   runner.style.transform = `translateX(${leftPx}px) scaleX(${direction})`;
 
-  setTimeout(() => {
-    if (isTransforming) return;
+  // Use rAF instead of setTimeout for main move
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      if (isTransforming) return;
 
-    if (leftPx < currentLeft) {
-      isTransforming = true;
-      runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-      runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(-1)`;
-      runner.style.opacity = "0";
-
-      setTimeout(() => {
-        runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(-1)`;
-        runner.style.opacity = "1";
+      if (leftPx < currentLeft) {
+        isTransforming = true;
+        runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+        runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(-1)`;
+        runner.style.opacity = "0";
 
         setTimeout(() => {
-          isTransforming = false;
-          nextBtn.disabled = false;
+          runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+          runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(-1)`;
+          runner.style.opacity = "1";
+
+          setTimeout(() => {
+            isTransforming = false;
+            nextBtn.disabled = false;
+          }, 400);
         }, 400);
-      }, 400);
-      return;
-    }
+        return;
+      }
 
-    if (learned.size === sentences.length) {
-      isTransforming = true;
-      runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-      runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
-      runner.style.opacity = "0";
-
-      setTimeout(() => {
-        runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
+      if (learned.size === sentences.length) {
+        isTransforming = true;
+        runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
         runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
-        runner.style.opacity = "1";
+        runner.style.opacity = "0";
 
         setTimeout(() => {
-          runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(1)`;
-        }, 50);
+          runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
+          runner.style.transition = "none"; // reset transition
+          runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
+          runner.style.opacity = "1";
 
-        setTimeout(() => {
-          learned.clear();
-          isTransforming = false;
-          nextBtn.disabled = false;
+          setTimeout(() => {
+            runner.style.transition = "transform 0.4s ease";
+            runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(1)`;
+          }, 50);
+
+          setTimeout(() => {
+            learned.clear();
+            isTransforming = false;
+            nextBtn.disabled = false;
+          }, 400);
         }, 400);
-      }, 400);
-    }
+      }
 
-    if (leftPx > currentLeft && learned.size < sentences.length) {
-      isTransforming = false;
-      nextBtn.disabled = false;
-    }
-  }, 2000);
+      if (leftPx > currentLeft && learned.size < sentences.length) {
+        isTransforming = false;
+        nextBtn.disabled = false;
+      }
+    }, 2000);
+  });
 }
-
-
 </script>
 </body>
 </html> 
+
