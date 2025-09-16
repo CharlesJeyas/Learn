@@ -562,7 +562,7 @@ body.dark footer button {
   
     speakWithPause(firstText, firstVoice, 2000, () => {
       speakWithPause(secondText, secondVoice, 3000, () => {
-        if (shufflePointer >= shuffledIndices.length) {
+        if (shufflePointer < shuffledIndices.length) {
           sentenceIndex = shuffledIndices[shufflePointer];
           shufflePointer++;
           runAutoPlay();
@@ -729,3 +729,4 @@ function updateRunner() {
 </script>
 </body>
 </html> 
+
