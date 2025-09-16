@@ -646,106 +646,78 @@ body.dark footer button {
     gotoInput.value = '';
   });
 
-  function updateRunner() {
-    if (sentences.length === 0 || isTransforming) return;
-  
-    const style = window.getComputedStyle(runner);
-    const matrix = new DOMMatrixReadOnly(style.transform);
-    const trackWidth = runner.parentElement.offsetWidth;
-    const runnerWidth = runner.offsetWidth;
-  
-    learned.add(sentenceIndex);
-    nextBtn.disabled = true;
-  
-    let fraction = learned.size / sentences.length;
-    let leftPx = fraction * (trackWidth - runnerWidth);
-    let currentLeft = matrix.m41;
-    let direction = leftPx >= currentLeft ? -1 : 1;
-  
-    // Move runner to next position
-    runner.style.transition = "transform 3s ease";
-    runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(${direction})`;
-  
-    const onMoveEnd = (e) => {
-      if (e.propertyName !== "transform") return;
-      runner.removeEventListener('transitionend', onMoveEnd);
-  
-      if (leftPx < currentLeft) {
-        isTransforming = true;
-        runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-        runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(-1)`;
-        runner.style.opacity = "0";
-  
-        const onShrinkEnd = (ev) => {
-          if (ev.propertyName !== "transform") return;
-          runner.removeEventListener('transitionend', onShrinkEnd);
-  
-          runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(-1)`;
-          runner.style.opacity = "1";
-  
-          const onEnlargeEnd = (e2) => {
-            if (e2.propertyName !== "transform") return;
-            runner.removeEventListener('transitionend', onEnlargeEnd);
-            isTransforming = false;
-            nextBtn.disabled = false;
-          };
-  
-          runner.addEventListener('transitionend', onEnlargeEnd);
-        };
-  
-        runner.addEventListener('transitionend', onShrinkEnd);
-        return;
-      }
-  
-      if (learned.size === sentences.length) {
-        isTransforming = true;
-        runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+function updateRunner() {
+  if (sentences.length === 0 || isTransforming) return;
+
+  const style = window.getComputedStyle(runner);
+  const matrix = new DOMMatrixReadOnly(style.transform);
+  const trackWidth = runner.parentElement.offsetWidth;
+  const runnerWidth = runner.offsetWidth;
+
+  learned.add(sentenceIndex);
+  nextBtn.disabled = true;
+
+  let fraction = learned.size / sentences.length;
+  let leftPx = fraction * (trackWidth - runnerWidth);
+  let currentLeft = matrix.m41;
+  let direction = leftPx >= currentLeft ? -1 : 1;
+
+  // Move only, flip instantly
+  runner.style.transition = "transform 2s ease";
+  runner.style.transform = `translateX(${leftPx}px) scaleX(${direction})`;
+
+  setTimeout(() => {
+    if (isTransforming) return;
+
+    if (leftPx < currentLeft) {
+      isTransforming = true;
+      runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+      runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(-1)`;
+      runner.style.opacity = "0";
+
+      setTimeout(() => {
+        runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(-1)`;
+        runner.style.opacity = "1";
+
+        setTimeout(() => {
+          isTransforming = false;
+          nextBtn.disabled = false;
+        }, 400);
+      }, 400);
+      return;
+    }
+
+    if (learned.size === sentences.length) {
+      isTransforming = true;
+      runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+      runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
+      runner.style.opacity = "0";
+
+      setTimeout(() => {
+        runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
         runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
-        runner.style.opacity = "0";
-  
-        const onShrinkEnd = (ev) => {
-          if (ev.propertyName !== "transform") return;
-          runner.removeEventListener('transitionend', onShrinkEnd);
-  
-          runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
-          runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
-          runner.style.opacity = "1";
-  
-          const onEnlargeEnd = (e2) => {
-            if (e2.propertyName !== "transform") return;
-            runner.removeEventListener('transitionend', onEnlargeEnd);
-  
-            runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(1)`;
-  
-            const onFinalEnd = (e3) => {
-              if (e3.propertyName !== "transform") return;
-              runner.removeEventListener('transitionend', onFinalEnd);
-  
-              learned.clear();
-              isTransforming = false;
-              nextBtn.disabled = false;
-            };
-  
-            runner.addEventListener('transitionend', onFinalEnd);
-          };
-  
-          runner.addEventListener('transitionend', onEnlargeEnd);
-        };
-  
-        runner.addEventListener('transitionend', onShrinkEnd);
-        return;
-      }
-  
-      if (leftPx > currentLeft && learned.size < sentences.length) {
-        isTransforming = false;
-        nextBtn.disabled = false;
-      }
-    };
-  
-    runner.addEventListener('transitionend', onMoveEnd);
-  }
+        runner.style.opacity = "1";
+
+        setTimeout(() => {
+          runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(1)`;
+        }, 50);
+
+        setTimeout(() => {
+          learned.clear();
+          isTransforming = false;
+          nextBtn.disabled = false;
+        }, 400);
+      }, 400);
+    }
+
+    if (leftPx > currentLeft && learned.size < sentences.length) {
+      isTransforming = false;
+      nextBtn.disabled = false;
+    }
+  }, 2000);
+}
+
 
 </script>
 </body>
 </html> 
-
