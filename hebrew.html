@@ -514,7 +514,7 @@ body.dark footer button {
     if (autoPlay) {
       if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) {
         shuffleIndices();
-        sentenceIndex = shuffledIndices[0]
+        sentenceIndex = shuffledIndices[0];
       } else {
         sentenceIndex = shuffledIndices[shufflePointer]
         if (shufflePointer < 0) shufflePointer = 0;
