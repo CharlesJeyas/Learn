@@ -273,6 +273,7 @@
   let voiceEN = null;
   let voiceJP = null;
   let selectedVoice = null;
+  let voicesLoaded = false;
   let sentences = [];
   let currentWord = '';
   let currentSentence = '';
@@ -315,13 +316,17 @@
   
   function loadVoices() {
     voices = speechSynthesis.getVoices();
+    if (voices.length === 0) return;
     
     voiceEN = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
     voiceJP = voices.find(v => v.name === "Kyoko" && v.lang === "ja-JP");
+    voicesLoaded = true;
 
-    if (!voiceEN) voiceEN = voices[0];
-    if (!voiceJP) voiceJP = voices[0];
+    if (sentences.length > 0) {
+      setSentence();
+    }
   }
+  
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
 
@@ -373,7 +378,9 @@
         updateButtonStates();
         statusMsg.innerHTML = `${sentences.length} sentences`;
         gotoInput.value = wordIndex + 1; 
-        setSentence();
+        if (voicesLoaded) {
+          setSentence();
+        }
       } else {
         statusMsg.textContent = 'File is empty';
         displayArea.textContent = '';
@@ -523,36 +530,31 @@
     gotoInput.value = '';
   });
 
-
   function updateRunner() {
     if (sentences.length === 0 || isTransforming) return;
   
     const trackWidth = runnerWrapper.parentElement.offsetWidth;
     const runnerWidth = runner.offsetWidth;
   
-    learned.add(sentenceIndex);
+    learned.add(wordIndex);
     nextBtn.disabled = true;
   
     let fraction = learned.size / sentences.length;
     let leftPx = fraction * (trackWidth - runnerWidth);
   
-    // Determine flip direction based on movement
     const style = window.getComputedStyle(runnerWrapper);
     const matrix = new DOMMatrixReadOnly(style.transform);
     const currentLeft = matrix.m41;
     const direction = leftPx >= currentLeft ? -1 : 1;
   
-    // Move wrapper (translate only)
     runnerWrapper.style.transition = "transform 2s ease";
     runnerWrapper.style.transform = `translateX(${leftPx}px)`;
   
-    // Flip runner instantly
     runner.style.transform = `scaleX(${direction})`;
   
     setTimeout(() => {
       if (isTransforming) return;
   
-      // Optional: handle "rewind" animation when leftPx < currentLeft
       if (leftPx < currentLeft) {
         isTransforming = true;
         runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
@@ -571,7 +573,6 @@
         return;
       }
   
-      // Optional: handle end-of-track
       if (learned.size === sentences.length) {
         isTransforming = true;
         runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
@@ -604,6 +605,7 @@
 </script>
 </body>
 </html>
+
 
 
 
