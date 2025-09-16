@@ -478,13 +478,17 @@
     }
 
     displayArea.textContent = '';
+    displayArea.style.opacity = '0';
 
-    if (isVisible) {
-      let parts = currentWord.split('-');
-      displayArea.textContent = (parts[0] || '').trim();
-    } else {
-      displayArea.textContent = '';
-    }
+    setTimeout(() => {
+      if (isVisible) {
+          let parts = currentWord.split('-');
+          displayArea.textContent = (parts[0] || '').trim();
+      } else {
+          displayArea.textContent = '';
+      }
+      displayArea.style.opacity = '1';
+    }, 20);
 
     gotoInput.value = sentences.length > 0 ? wordIndex + 1 : '';
   }
@@ -602,6 +606,7 @@
 </script>
 </body>
 </html>
+
 
 
 
