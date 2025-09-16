@@ -477,6 +477,8 @@
       return;
     }
 
+    displayArea.textContent = '';
+
     if (isVisible) {
       let parts = currentWord.split('-');
       displayArea.textContent = (parts[0] || '').trim();
@@ -600,5 +602,6 @@
 </script>
 </body>
 </html>
+
 
 
