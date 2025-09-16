@@ -201,7 +201,6 @@ body.dark #textBottomRight {
 #runner {
   position: absolute;
   top: -46px;
-  left: 0;
   font-size: 40px;
   transform: translateX(0) scaleX(-1);
   will-change: transform;
@@ -400,7 +399,6 @@ body.dark footer button {
     learned.clear();
     isVisible = false;
 
-    runner.style.left = "0%";
     runner.style.transform = 'scaleX(-1)';
     runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
 
@@ -658,67 +656,96 @@ body.dark footer button {
   
     learned.add(sentenceIndex);
     nextBtn.disabled = true;
-
+  
     let fraction = learned.size / sentences.length;
     let leftPx = fraction * (trackWidth - runnerWidth);
     let currentLeft = matrix.m41;
     let direction = leftPx >= currentLeft ? -1 : 1;
+  
+    // Move runner to next position
     runner.style.transition = "transform 3s ease";
     runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(${direction})`;
-
-    setTimeout(() => {
-      if (isTransforming) return;
-
+  
+    const onMoveEnd = (e) => {
+      if (e.propertyName !== "transform") return;
+      runner.removeEventListener('transitionend', onMoveEnd);
+  
       if (leftPx < currentLeft) {
         isTransforming = true;
         runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
         runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(-1)`;
         runner.style.opacity = "0";
   
-        setTimeout(() => {
+        const onShrinkEnd = (ev) => {
+          if (ev.propertyName !== "transform") return;
+          runner.removeEventListener('transitionend', onShrinkEnd);
+  
           runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(-1)`;
           runner.style.opacity = "1";
   
-          setTimeout(() => {
+          const onEnlargeEnd = (e2) => {
+            if (e2.propertyName !== "transform") return;
+            runner.removeEventListener('transitionend', onEnlargeEnd);
             isTransforming = false;
             nextBtn.disabled = false;
-          }, 400);
-        }, 400);
+          };
+  
+          runner.addEventListener('transitionend', onEnlargeEnd);
+        };
+  
+        runner.addEventListener('transitionend', onShrinkEnd);
         return;
       }
-      
+  
       if (learned.size === sentences.length) {
         isTransforming = true;
         runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
         runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
         runner.style.opacity = "0";
-
-        setTimeout(() => {
+  
+        const onShrinkEnd = (ev) => {
+          if (ev.propertyName !== "transform") return;
+          runner.removeEventListener('transitionend', onShrinkEnd);
+  
           runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
           runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
           runner.style.opacity = "1";
-
-          setTimeout(() => {
+  
+          const onEnlargeEnd = (e2) => {
+            if (e2.propertyName !== "transform") return;
+            runner.removeEventListener('transitionend', onEnlargeEnd);
+  
             runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(1)`;
-          }, 50);
-
-          setTimeout(() => {
-             console.log("Location H => prevPos:", currentLeft, "newPos:", leftPx);
-            learned.clear();
-            isTransforming = false;
-            nextBtn.disabled = false;
-          }, 400);
-        }, 400);
+  
+            const onFinalEnd = (e3) => {
+              if (e3.propertyName !== "transform") return;
+              runner.removeEventListener('transitionend', onFinalEnd);
+  
+              learned.clear();
+              isTransforming = false;
+              nextBtn.disabled = false;
+            };
+  
+            runner.addEventListener('transitionend', onFinalEnd);
+          };
+  
+          runner.addEventListener('transitionend', onEnlargeEnd);
+        };
+  
+        runner.addEventListener('transitionend', onShrinkEnd);
+        return;
       }
   
       if (leftPx > currentLeft && learned.size < sentences.length) {
-         console.log("Location K => prevPos:", currentLeft, "newPos:", leftPx);
-         isTransforming = false;
-         nextBtn.disabled = false; 
+        isTransforming = false;
+        nextBtn.disabled = false;
       }
-    }, 3000);
+    };
+  
+    runner.addEventListener('transitionend', onMoveEnd);
   }
 
 </script>
 </body>
 </html> 
+
