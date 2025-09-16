@@ -436,7 +436,7 @@
   
   function randomWord() {
     if (sentences.length === 0) return;
-    if (shufflePointer >= shuffledIndices.length) shuffleIndices();
+    if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) shuffleIndices();
   
     wordIndex = shuffledIndices[shufflePointer];
     shufflePointer++;
@@ -613,6 +613,7 @@
 </script>
 </body>
 </html>
+
 
 
 
