@@ -491,7 +491,7 @@ body.dark footer button {
   
   function randomSentence() {
     if (sentences.length === 0) return;
-    if (shufflePointer >= shuffledIndices.length) shuffleIndices();
+    if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) shuffleIndices();
   
     sentenceIndex = shuffledIndices[shufflePointer];
     shufflePointer++;
@@ -524,14 +524,9 @@ body.dark footer button {
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
     if (autoPlay) {
-      if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) {
-        shuffleIndices();
-        sentenceIndex = shuffledIndices[0];
-      } else {
-        sentenceIndex = shuffledIndices[shufflePointer]
-        if (shufflePointer < 0) shufflePointer = 0;
-      }
-    
+      if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) shuffleIndices();
+      sentenceIndex = shuffledIndices[shufflePointer];
+      shufflePointer++;
       runAutoPlay();
     } else {
       speechSynthesis.cancel();
@@ -567,9 +562,9 @@ body.dark footer button {
   
     speakWithPause(firstText, firstVoice, 2000, () => {
       speakWithPause(secondText, secondVoice, 3000, () => {
-        shufflePointer++;
-        if (shufflePointer < shuffledIndices.length) {
+        if (shufflePointer >= shuffledIndices.length) {
           sentenceIndex = shuffledIndices[shufflePointer];
+          shufflePointer++;
           runAutoPlay();
         } else {
           autoPlay = false;
@@ -734,4 +729,3 @@ function updateRunner() {
 </script>
 </body>
 </html> 
-
