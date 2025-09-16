@@ -363,6 +363,9 @@
     startTimer();
     updateDisplay();
     updateButtonStates();
+
+    const unlock = new SpeechSynthesisUtterance(" ");
+    speechSynthesis.speak(unlock);
     
     const reader = new FileReader();
     reader.onload = function (e) {
@@ -600,3 +603,4 @@
 </script>
 </body>
 </html>
+
