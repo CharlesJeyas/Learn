@@ -174,13 +174,17 @@ main {
   position: relative;
 }
 
-#runner {
+#runnerWrapper {
   position: absolute;
   top: -46px;
   left: 0;
-  font-size: 40px;
-  transform: translateX(0) scaleX(-1);
   will-change: transform;
+}
+
+#runner {
+  font-size: 40px;
+  transform: scaleX(-1);
+  transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
 footer {
@@ -370,7 +374,6 @@ footer button:active {
     learned.clear();
     isVisible = false;
 
-    runner.style.left = "0%";
     runner.style.transform = 'scaleX(-1)';
     runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
 
@@ -632,35 +635,44 @@ footer button:active {
     gotoInput.value = '';
   });
 
+
   function updateRunner() {
     if (sentences.length === 0 || isTransforming) return;
   
-    const style = window.getComputedStyle(runner);
-    const matrix = new DOMMatrixReadOnly(style.transform);
-    const trackWidth = runner.parentElement.offsetWidth;
+    const trackWidth = runnerWrapper.parentElement.offsetWidth;
     const runnerWidth = runner.offsetWidth;
   
-    learned.add(sentenceIndex);
+    learned.add(wordIndex);
     nextBtn.disabled = true;
-
+  
     let fraction = learned.size / sentences.length;
     let leftPx = fraction * (trackWidth - runnerWidth);
-    let currentLeft = matrix.m41;
-    let direction = leftPx >= currentLeft ? -1 : 1;
-    runner.style.transition = "transform 3s ease";
-    runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(${direction})`;
-
+  
+    // Determine flip direction based on movement
+    const style = window.getComputedStyle(runnerWrapper);
+    const matrix = new DOMMatrixReadOnly(style.transform);
+    const currentLeft = matrix.m41;
+    const direction = leftPx >= currentLeft ? -1 : 1;
+  
+    // Move wrapper (translate only)
+    runnerWrapper.style.transition = "transform 2s ease";
+    runnerWrapper.style.transform = `translateX(${leftPx}px)`;
+  
+    // Flip runner instantly
+    runner.style.transform = `scaleX(${direction})`;
+  
     setTimeout(() => {
       if (isTransforming) return;
-
+  
+      // Optional: handle "rewind" animation when leftPx < currentLeft
       if (leftPx < currentLeft) {
         isTransforming = true;
         runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-        runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(-1)`;
+        runner.style.transform = `scaleX(-1) scale(0.2)`;
         runner.style.opacity = "0";
   
         setTimeout(() => {
-          runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(-1)`;
+          runner.style.transform = `scaleX(-1) scale(1)`;
           runner.style.opacity = "1";
   
           setTimeout(() => {
@@ -670,24 +682,24 @@ footer button:active {
         }, 400);
         return;
       }
-      
+  
+      // Optional: handle end-of-track
       if (learned.size === sentences.length) {
         isTransforming = true;
         runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-        runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
+        runner.style.transform = `scaleX(1) scale(0.2)`;
         runner.style.opacity = "0";
-
+  
         setTimeout(() => {
           runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
-          runner.style.transform = `translateX(${leftPx}px) scale(0.2) scaleX(1)`;
+          runner.style.transform = `scaleX(1) scale(0.2)`;
           runner.style.opacity = "1";
-
+  
           setTimeout(() => {
-            runner.style.transform = `translateX(${leftPx}px) scale(1) scaleX(1)`;
+            runner.style.transform = `scaleX(1) scale(1)`;
           }, 50);
-
+  
           setTimeout(() => {
-             console.log("Location H => prevPos:", currentLeft, "newPos:", leftPx);
             learned.clear();
             isTransforming = false;
             nextBtn.disabled = false;
@@ -696,11 +708,9 @@ footer button:active {
       }
   
       if (leftPx > currentLeft && learned.size < sentences.length) {
-         console.log("Location K => prevPos:", currentLeft, "newPos:", leftPx);
-         isTransforming = false;
-         nextBtn.disabled = false; 
+        nextBtn.disabled = false;
       }
-    }, 3000);
+    }, 2000);
   }
 
 </script>
