@@ -478,7 +478,7 @@ footer button:disabled {
   
   function randomSentence() {
     if (sentences.length === 0) return;
-    if (shufflePointer >= shuffledIndices.length) shuffleIndices();
+    if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) shuffleIndices();
   
     sentenceIndex = shuffledIndices[shufflePointer];
     shufflePointer++;
@@ -511,15 +511,10 @@ footer button:disabled {
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
     if (autoPlay) {
-      if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) {
-        shuffleIndices();
-        sentenceIndex = shuffledIndices[0];
-      } else {
-        sentenceIndex = shuffledIndices[shufflePointer]
-        if (shufflePointer < 0) shufflePointer = 0;
-      }
-    
-      runAutoPlay();
+        if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) shuffleIndices();
+        sentenceIndex = shuffledIndices[shufflePointer];
+        shufflePointer++;
+        runAutoPlay();
     } else {
       speechSynthesis.cancel();
     }
@@ -554,9 +549,9 @@ footer button:disabled {
   
     speakWithPause(firstText, firstVoice, 2000, () => {
       speakWithPause(secondText, secondVoice, 3000, () => {
-        shufflePointer++;
-        if (shufflePointer < shuffledIndices.length) {
+        if (shufflePointer >= shuffledIndices.length) {
           sentenceIndex = shuffledIndices[shufflePointer];
+          shufflePointer++;
           runAutoPlay();
         } else {
           autoPlay = false;
@@ -650,7 +645,7 @@ footer button:disabled {
     const trackWidth = runnerWrapper.parentElement.offsetWidth;
     const runnerWidth = runner.offsetWidth;
   
-    learned.add(wordIndex);
+    learned.add(sentenceIndex);
     nextBtn.disabled = true;
   
     let fraction = learned.size / sentences.length;
