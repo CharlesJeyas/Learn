@@ -666,23 +666,18 @@ function updateRunner() {
   let fraction = learned.size / sentences.length;
   let leftPx = fraction * (trackWidth - runnerWidth);
 
-  // Determine flip direction based on movement
   const style = window.getComputedStyle(runnerWrapper);
   const matrix = new DOMMatrixReadOnly(style.transform);
   const currentLeft = matrix.m41;
   const direction = leftPx >= currentLeft ? -1 : 1;
 
-  // Move wrapper (translate only)
   runnerWrapper.style.transition = "transform 2s ease";
   runnerWrapper.style.transform = `translateX(${leftPx}px)`;
-
-  // Flip runner instantly
   runner.style.transform = `scaleX(${direction})`;
 
   setTimeout(() => {
     if (isTransforming) return;
 
-    // Optional: handle "rewind" animation when leftPx < currentLeft
     if (leftPx < currentLeft) {
       isTransforming = true;
       runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
@@ -701,7 +696,6 @@ function updateRunner() {
       return;
     }
 
-    // Optional: handle end-of-track
     if (learned.size === sentences.length) {
       isTransforming = true;
       runner.style.transition = "transform 0.4s ease, opacity 0.4s ease";
@@ -734,5 +728,6 @@ function updateRunner() {
 </script>
 </body>
 </html> 
+
 
 
