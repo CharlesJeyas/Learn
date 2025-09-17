@@ -364,6 +364,7 @@ footer button:disabled {
   fileInput.addEventListener('change', function() {
     if (autoPlay) {
       autoPlay = false;
+      nextBtn.disabled = false;
       autoPlayBtn.classList.remove('active');
       autoPlayBtn.textContent = '▶';
       speechSynthesis.cancel();
@@ -508,6 +509,7 @@ footer button:disabled {
   
   autoPlayBtn.addEventListener('click', () => {
     autoPlay = !autoPlay;
+    nextBtn.disabled = autoPlay;
     nextBtn.disabled = autoplay;
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
@@ -556,6 +558,7 @@ footer button:disabled {
           runAutoPlay();
         } else {
           autoPlay = false;
+          nextBtn.disabled = false;
           nextBtn.disabled = autoPlay;
           autoPlayBtn.classList.remove('active');
           autoPlayBtn.textContent = '▶';
