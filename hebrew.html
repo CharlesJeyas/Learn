@@ -694,7 +694,7 @@ function updateRunner() {
 
         setTimeout(() => {
           isTransforming = false;
-          nextBtn.disabled = false;
+          if(!autoPlay) nextBtn.disabled = false;
         }, 400);
       }, 400);
       return;
@@ -718,13 +718,13 @@ function updateRunner() {
         setTimeout(() => {
           learned.clear();
           isTransforming = false;
-          nextBtn.disabled = false;
+          if(!autoPlay) nextBtn.disabled = false;
         }, 400);
       }, 400);
     }
 
     if (leftPx >= currentLeft && learned.size < sentences.length) {
-      nextBtn.disabled = false;
+      if(!autoPlay) nextBtn.disabled = false;
     }
   }, 2000);
 }
@@ -732,6 +732,7 @@ function updateRunner() {
 </script>
 </body>
 </html> 
+
 
 
 
