@@ -511,7 +511,7 @@ footer button:disabled {
     autoPlay = !autoPlay;
     nextBtn.disabled = autoPlay;
     autoPlayBtn.classList.toggle('active', autoPlay);
-    autoPlayBtn.textContent = autoPlay ? '⏸' : '▶';
+    autoPlayBtn.textContent = autoPlay ? '■' : '▶';
     if (autoPlay) {
         if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) shuffleIndices();
         sentenceIndex = shuffledIndices[shufflePointer];
