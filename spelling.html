@@ -549,11 +549,11 @@
     nextBtn.disabled = true;
   
     let fraction = learned.size / sentences.length;
-    let leftPx = fraction * (trackWidth - runnerWidth);
+    let leftPx = Math.round(fraction * (trackWidth - runnerWidth));
   
     const style = window.getComputedStyle(runnerWrapper);
     const matrix = new DOMMatrixReadOnly(style.transform);
-    const currentLeft = matrix.m41;
+    const currentLeft = Math.round(matrix.m41);
     const direction = leftPx >= currentLeft ? -1 : 1;
   
     runnerWrapper.style.transition = "transform 2s ease";
@@ -604,7 +604,7 @@
         }, 400);
       }
   
-      if (leftPx > currentLeft && learned.size < sentences.length) {
+      if (leftPx >= currentLeft && learned.size < sentences.length) {
         nextBtn.disabled = false;
       }
     }, 2000);
@@ -613,6 +613,7 @@
 </script>
 </body>
 </html>
+
 
 
 
