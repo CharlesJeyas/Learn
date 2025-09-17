@@ -329,6 +329,25 @@
     if (!voiceEN) voiceEN = voices[0];
     if (!voiceJP) voiceJP = voices[0];
   }
+
+  function loadVoices() {
+    voices = speechSynthesis.getVoices();
+    
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isWindows = /Win/.test(navigator.platform);
+
+    if (isIOS) {
+      voiceEN = voices.find(v => v.name === "Samantha" && v.lang === "en-US") || voices[0];
+      voiceJP = voices.find(v => v.name === "Kyoko" && v.lang === "ja-JP") || voices[0];
+    } else if (isWindows) {
+      voiceEN = voices.find(v => v.name === "Microsoft David - English (United States)" && v.lang === "en-US") || voices[0];
+      voiceJP = voices.find(v => v.name === "Microsoft Sayaka - Japanese (Japan)" && v.lang === "ja-JP") || voices[0];
+    } else {
+      voiceEN = voices.find(v => v.lang === "en-US") || voices[0];
+      voiceJP = voices.find(v => v.lang === "ja-JP") || voices[0];
+    }
+  }
+  
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
 
@@ -611,6 +630,7 @@
 </script>
 </body>
 </html>
+
 
 
 
