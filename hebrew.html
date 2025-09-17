@@ -394,6 +394,7 @@ body.dark footer button {
   fileInput.addEventListener('change', function() {
     if (autoPlay) {
       autoPlay = false;
+      nextBtn.disabled = false;
       autoPlayBtn.classList.remove('active');
       autoPlayBtn.textContent = '▶';
       speechSynthesis.cancel();
@@ -521,7 +522,7 @@ body.dark footer button {
   
   autoPlayBtn.addEventListener('click', () => {
     autoPlay = !autoPlay;
-    nextBtn.disabled = autoplay;
+    nextBtn.disabled = autoPlay;
     autoPlayBtn.classList.toggle('active', autoPlay);
     autoPlayBtn.textContent = autoPlay ? '▣' : '▶';
     if (autoPlay) {
@@ -569,7 +570,7 @@ body.dark footer button {
           runAutoPlay();
         } else {
           autoPlay = false;
-          nextBtn.disabled = autoplay;
+          nextBtn.disabled = autoPlay;
           autoPlayBtn.classList.remove('active');
           autoPlayBtn.textContent = '▶';
         }
@@ -731,5 +732,6 @@ function updateRunner() {
 </script>
 </body>
 </html> 
+
 
 
