@@ -510,9 +510,8 @@ footer button:disabled {
   autoPlayBtn.addEventListener('click', () => {
     autoPlay = !autoPlay;
     nextBtn.disabled = autoPlay;
-    nextBtn.disabled = autoplay;
     autoPlayBtn.classList.toggle('active', autoPlay);
-    autoPlayBtn.textContent = autoPlay ? '❚❚' : '▶';
+    autoPlayBtn.textContent = autoPlay ? '⏸' : '▶';
     if (autoPlay) {
         if (shuffledIndices.length === 0 || shufflePointer >= shuffledIndices.length) shuffleIndices();
         sentenceIndex = shuffledIndices[shufflePointer];
