@@ -752,12 +752,16 @@ footer button:disabled {
     }, 2000);
   }
 
-  function createFireworks(x, y) {
+  function createFireworks(container, x, y) {
+    const rect = container.getBoundingClientRect();
+    const offsetX = x - rect.left;
+    const offsetY = y - rect.top;
+  
     for (let i = 0; i < 18; i++) {
       const particle = document.createElement("div");
       particle.className = "particle";
-      particle.style.left = `${x}px`;
-      particle.style.top = `${y}px`;
+      particle.style.left = `${offsetX}px`;
+      particle.style.top = `${offsetY}px`;
   
       particle.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
   
@@ -768,7 +772,7 @@ footer button:disabled {
       particle.style.setProperty("--dx", dx);
       particle.style.setProperty("--dy", dy);
   
-      document.body.appendChild(particle);
+      container.appendChild(particle);
   
       particle.addEventListener("animationend", () => {
         particle.remove();
@@ -776,13 +780,15 @@ footer button:disabled {
     }
   }
   
-  document.body.addEventListener("click", function(e) {
-    createFireworks(e.clientX, e.clientY);
+  const main = document.querySelector("main");
+  
+  main.addEventListener("click", function(e) {
+    createFireworks(main, e.clientX, e.clientY);
   });
   
-  document.body.addEventListener("touchstart", function(e) {
+  main.addEventListener("touchstart", function(e) {
     const touch = e.touches[0];
-    createFireworks(touch.clientX, touch.clientY);
+    createFireworks(main, touch.clientX, touch.clientY);
   });
 
 </script>
