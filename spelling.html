@@ -241,7 +241,28 @@
     height: 1.2em;
     fill: currentColor;
   }
-  </style>
+
+  .particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: explode 600ms ease-out forwards;
+  }
+
+  @keyframes explode {
+    from {
+      opacity: 1;
+      transform: translate(0,0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(var(--dx), var(--dy)) scale(0.5);
+    }
+  }
+  
+</style>
 </head>
 <body>
   <header>
@@ -627,17 +648,39 @@
     }, 2000);
   }
 
+  function createFireworks(x, y) {
+    for (let i = 0; i < 18; i++) {
+      const particle = document.createElement("div");
+      particle.className = "particle";
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+  
+      particle.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+  
+      const angle = Math.random() * 2 * Math.PI;
+      const distance = 60 + Math.random() * 40;
+      const dx = Math.cos(angle) * distance + "px";
+      const dy = Math.sin(angle) * distance + "px";
+      particle.style.setProperty("--dx", dx);
+      particle.style.setProperty("--dy", dy);
+  
+      document.body.appendChild(particle);
+  
+      particle.addEventListener("animationend", () => {
+        particle.remove();
+      });
+    }
+  }
+  
+  document.body.addEventListener("click", function(e) {
+    createFireworks(e.clientX, e.clientY);
+  });
+  
+  document.body.addEventListener("touchstart", function(e) {
+    const touch = e.touches[0];
+    createFireworks(touch.clientX, touch.clientY);
+  });
+
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
