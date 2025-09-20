@@ -258,7 +258,7 @@ footer button:disabled {
   height: 6px;
   border-radius: 50%;
   pointer-events: none;
-  animation: explode 600ms ease-out forwards;
+  animation: explode 1000ms ease-out forwards;
 }
 
 @keyframes explode {
@@ -757,13 +757,18 @@ footer button:disabled {
     const offsetX = x - rect.left;
     const offsetY = y - rect.top;
   
+    const fireworkColors = [
+      '#FF3B30', '#FF9500', '#FFCC00', '#34C759', '#007AFF', '#5856D6', '#FF2D55', '#FF6B81', '#FF9F0A',
+      '#32D74B', '#0A84FF', '#5E5CE6', '#FF375F', '#FF9F45', '#FFD60A', '#64D2FF', '#BF5AF2', '#FF5E3A' ];
+  
+    const color = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+  
     for (let i = 0; i < 18; i++) {
       const particle = document.createElement("div");
       particle.className = "particle";
       particle.style.left = `${offsetX}px`;
       particle.style.top = `${offsetY}px`;
-  
-      particle.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+      particle.style.background = color;
   
       const angle = Math.random() * 2 * Math.PI;
       const distance = 60 + Math.random() * 40;
@@ -790,6 +795,20 @@ footer button:disabled {
     const touch = e.touches[0];
     createFireworks(main, touch.clientX, touch.clientY);
   });
+
+  function fireworkShow() {
+    const container = document.body;
+    const rect = container.getBoundingClientRect();
+  
+    for (let i = 0; i < 12; i++) {
+      const x = rect.left + Math.random() * rect.width;
+      const y = rect.top + Math.random() * rect.height;
+  
+      setTimeout(() => {
+        createFireworks(container, x, y);
+      }, i * 500);
+    }
+  }
 
 </script>
 </body>
