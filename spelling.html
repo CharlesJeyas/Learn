@@ -431,15 +431,18 @@
     reader.readAsText(file);
   });
 
-  upperArea.addEventListener('click', () => {
+  function playUpperSentence() {
     if (sentences.length === 0) return;
     speakSentence();
-  });
+  }
 
-  lowerArea.addEventListener('click', () => {
+  function playLowerSentence() {
     if (sentences.length === 0) return;
     speakWord();
-  });
+  }
+
+  upperArea.addEventListener('click', playUpperSentence);
+  lowerArea.addEventListener('click', playLowerSentence);
 
   nextBtn.addEventListener('click', () => {
     if (nextClickTimeout !== null) {
@@ -452,6 +455,43 @@
         nextWord();
       }, 250);
     }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    if (!['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+
+    const target = e.target;
+    if (target instanceof HTMLElement) {
+      const tag = target.tagName;
+      if (target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    }
+
+    let handled = false;
+
+    if (e.key === 'ArrowRight') {
+      if (sentences.length > 0 && !nextBtn.disabled) {
+        nextWord();
+        handled = true;
+      }
+    } else if (e.key === 'ArrowLeft') {
+      if (sentences.length > 0) {
+        toggleVisibility();
+        handled = true;
+      }
+    } else if (e.key === 'ArrowUp') {
+      if (sentences.length > 0) {
+        playUpperSentence();
+        handled = true;
+      }
+    } else if (e.key === 'ArrowDown') {
+      if (sentences.length > 0) {
+        playLowerSentence();
+        handled = true;
+      }
+    }
+
+    if (handled) e.preventDefault();
   });
 
   function nextWord() {
@@ -711,7 +751,3 @@
 </script>
 </body>
 </html>
-
-
-
-
