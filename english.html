@@ -500,8 +500,21 @@ footer button:disabled {
   });
   
   document.addEventListener('keydown', (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'o') return;
+
+    const target = e.target;
+    if (target instanceof HTMLElement) {
+      const tag = target.tagName;
+      if (target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    }
+
+    e.preventDefault();
+    fileInput.click();
+  });
+
+  document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    if (!['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+    if (!['ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' '].includes(e.key)) return;
 
     const target = e.target;
     if (target instanceof HTMLElement) {
@@ -511,12 +524,12 @@ footer button:disabled {
 
     let handled = false;
 
-    if (e.key === 'ArrowRight') {
+    if (e.key === 'ArrowRight' || e.key === 'Enter') {
       if (sentences.length > 0 && !nextBtn.disabled) {
         nextSentence();
         handled = true;
       }
-    } else if (e.key === 'ArrowLeft') {
+    } else if (e.key === ' ') {
       if (sentences.length > 0) {
         toggleVisibility();
         handled = true;
