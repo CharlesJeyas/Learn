@@ -135,6 +135,22 @@
       0 95px;
   }
 
+  #displayArea .match-bold {
+    font-weight: 400;
+    color: var(--brown-dark);
+  }
+
+  #displayArea .match-rest {
+    font-weight: 400;
+    color: var(--brown-lighter);
+  }
+
+  #displayArea .match-line {
+    display: inline-block;
+    white-space: nowrap;
+    color: var(--brown-lighter);
+  }
+
   #textBottomLeft {
     position: absolute;
     font-size: 0.8rem;
@@ -203,7 +219,7 @@
   footer input[type="number"]:focus {
     outline: none;
   }
-  
+
   footer input::-webkit-outer-spin-button,
   footer input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -313,7 +329,8 @@
   let nextClickTimeout = null;
   let learned = new Set();
   let isTransforming = false;
-  
+  let typedBuffer = '';
+
   const fileInput = document.getElementById('wordFileInput');
   const statusMsg = document.getElementById('statusMsg');
   const gotoInput = document.getElementById('gotoInput');
@@ -341,16 +358,6 @@
 
   let rand = mulberry32(Date.now());
   
-  function loadVoices() {
-    voices = speechSynthesis.getVoices();
-    
-    voiceEN = voices.find(v => v.name === "Samantha" && v.lang === "en-US");
-    voiceJP = voices.find(v => v.name === "Kyoko" && v.lang === "ja-JP");
-
-    if (!voiceEN) voiceEN = voices[0];
-    if (!voiceJP) voiceJP = voices[0];
-  }
-
   function loadVoices() {
     voices = speechSynthesis.getVoices();
     
@@ -458,8 +465,21 @@
   });
 
   document.addEventListener('keydown', (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'o') return;
+
+    const target = e.target;
+    if (target instanceof HTMLElement) {
+      const tag = target.tagName;
+      if (target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    }
+
+    e.preventDefault();
+    fileInput.click();
+  });
+
+  document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    if (!['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+    if (!['ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' '].includes(e.key)) return;
 
     const target = e.target;
     if (target instanceof HTMLElement) {
@@ -469,12 +489,12 @@
 
     let handled = false;
 
-    if (e.key === 'ArrowRight') {
+    if (e.key === 'ArrowRight' || e.key === 'Enter') {
       if (sentences.length > 0 && !nextBtn.disabled) {
         nextWord();
         handled = true;
       }
-    } else if (e.key === 'ArrowLeft') {
+    } else if (e.key === ' ') {
       if (sentences.length > 0) {
         toggleVisibility();
         handled = true;
@@ -492,6 +512,40 @@
     }
 
     if (handled) e.preventDefault();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (sentences.length === 0) return;
+    if (e.defaultPrevented) return;
+
+    const target = e.target;
+    if (target instanceof HTMLElement) {
+      const tag = target.tagName;
+      if (target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    }
+
+    if (e.key === 'Backspace') {
+      typedBuffer = typedBuffer.slice(0, -1);
+      updateDisplay();
+      e.preventDefault();
+      return;
+    }
+
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const targetWord = getTargetWord();
+      if (typedBuffer.length >= targetWord.length) {
+        e.preventDefault();
+        return;
+      }
+
+      const expectedChar = targetWord[typedBuffer.length] || '';
+      if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
+        typedBuffer += e.key;
+        updateDisplay();
+      }
+
+      e.preventDefault();
+    }
   });
 
   function nextWord() {
@@ -527,6 +581,7 @@
     let parts = sentences[wordIndex].split('|');
     currentWord = (parts[0] || '').trim();
     currentSentence = (parts[1] || '').trim();
+    typedBuffer = '';
     updateDisplay();
     updateRunner();
     speakWord();
@@ -555,25 +610,52 @@
     nextBtn.disabled = sentences.length===0;
   }
 
+  function getTargetWord() {
+    return ((currentWord || '').split('-')[0] || '').trim();
+  }
+
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function renderWordWithProgress(word, typed) {
+    const safeWord = escapeHtml(word);
+    if (!typed) return `<span class="match-line"><span class="match-rest">${safeWord}</span></span>`;
+
+    let matched = 0;
+    while (matched < typed.length && matched < word.length && typed[matched].toLowerCase() === word[matched].toLowerCase()) {
+      matched++;
+    }
+
+    const head = escapeHtml(word.slice(0, matched));
+    const tail = escapeHtml(word.slice(matched));
+    return `<span class="match-line"><span class="match-bold">${head}</span><span class="match-rest">${tail}</span></span>`;
+  }
+
+  function renderTypedOnly(typed) {
+    if (!typed) return '';
+    return `<span class="match-line"><span class="match-bold">${escapeHtml(typed)}</span></span>`;
+  }
+
   function updateDisplay() {
-    if (!currentWord) {
+    const targetWord = getTargetWord();
+
+    if (!targetWord) {
       displayArea.textContent = '';
       gotoInput.value = '';
       return;
     }
 
-    displayArea.textContent = '';
-    displayArea.style.opacity = '0';
-
-    setTimeout(() => {
-      if (isVisible) {
-          let parts = currentWord.split('-');
-          displayArea.textContent = (parts[0] || '').trim();
-      } else {
-          displayArea.textContent = '';
-      }
-      displayArea.style.opacity = '1';
-    }, 5);
+    if (isVisible) {
+      displayArea.innerHTML = renderWordWithProgress(targetWord, typedBuffer);
+    } else {
+      displayArea.innerHTML = renderTypedOnly(typedBuffer);
+    }
 
     gotoInput.value = sentences.length > 0 ? wordIndex + 1 : '';
   }
@@ -581,6 +663,7 @@
   function toggleVisibility() {
     if (sentences.length === 0) return;
     isVisible = !isVisible;
+    typedBuffer = '';
     updateDisplay();
     updateToggleButton();
   }
