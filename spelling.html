@@ -120,6 +120,14 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    contain: paint;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   
     background-image:
       linear-gradient(to bottom, gray 1px, transparent 0),
@@ -133,6 +141,14 @@
       0 45px, 
       0 75px, 
       0 95px;
+  }
+
+  #displayArea .display-content {
+    width: 100%;
+    min-height: 1em;
+    text-align: center;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
 
   #displayArea .match-bold {
@@ -642,21 +658,37 @@
     return `<span class="match-line"><span class="match-bold">${escapeHtml(typed)}</span></span>`;
   }
 
+  function isIOSDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  function forceDisplayRepaintForIOS() {
+    if (!isIOSDevice()) return;
+    displayArea.style.webkitTransform = 'translate3d(0,0,0)';
+    void displayArea.offsetHeight;
+    displayArea.style.webkitTransform = 'translateZ(0)';
+  }
+
   function updateDisplay() {
     const targetWord = getTargetWord();
 
     if (!targetWord) {
-      displayArea.textContent = '';
+      displayArea.replaceChildren();
       gotoInput.value = '';
       return;
     }
 
-    displayArea.textContent = '';
+    const content = document.createElement('div');
+    content.className = 'display-content';
+
     if (isVisible) {
-      displayArea.innerHTML = renderWordWithProgress(targetWord, typedBuffer);
+      content.innerHTML = renderWordWithProgress(targetWord, typedBuffer);
     } else {
-      displayArea.innerHTML = renderTypedOnly(typedBuffer);
+      content.innerHTML = renderTypedOnly(typedBuffer);
     }
+
+    displayArea.replaceChildren(content);
+    forceDisplayRepaintForIOS();
 
     gotoInput.value = sentences.length > 0 ? wordIndex + 1 : '';
   }
