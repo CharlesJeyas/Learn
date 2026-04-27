@@ -272,11 +272,24 @@ footer button:disabled {
   }
 }
   
+#appTitle {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#appTitle:visited,
+#appTitle:hover,
+#appTitle:active {
+  color: white;
+  text-decoration: none;
+}
+  
 </style>
 </head>
 <body>
 <header>
-  <span>English Practice</span>
+  <a id="appTitle" href="https://charlesjeyas.github.io/Learn/main.html">English Practice</a>
   <button id="langToggle">JP</button>
   <button id="autoPlayBtn" title="Play/Pause">▶</button>
   <span id="statusMsg">No file loaded</span>
