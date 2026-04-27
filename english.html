@@ -527,7 +527,7 @@ footer button:disabled {
 
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    if (!['ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' '].includes(e.key)) return;
+    if (!['ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' ', ';', ':'].includes(e.key)) return;
 
     const target = e.target;
     if (target instanceof HTMLElement) {
@@ -542,17 +542,17 @@ footer button:disabled {
         nextSentence();
         handled = true;
       }
-    } else if (e.key === ' ') {
+    } else if (e.key === 'ArrowLeft' || e.key === ' ') {
       if (sentences.length > 0) {
         toggleVisibility();
         handled = true;
       }
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === 'ArrowUp' || e.key === ':') {
       if (sentences.length > 0) {
         playUpperSentence();
         handled = true;
       }
-    } else if (e.key === 'ArrowDown') {
+    } else if (e.key === 'ArrowDown' || e.key === ';') {
       if (sentences.length > 0) {
         playLowerSentence();
         handled = true;
