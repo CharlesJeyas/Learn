@@ -72,6 +72,19 @@
     color: white;
   }
 
+  #appTitle {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  #appTitle:visited,
+  #appTitle:hover,
+  #appTitle:active {
+    color: white;
+    text-decoration: none;
+  }
+
   input[type="file"] {
     display: none;
   }
@@ -298,7 +311,7 @@
 </head>
 <body>
   <header>
-    <span>Spelling Practice</span>
+    <a id="appTitle" href="https://charlesjeyas.github.io/Learn/main.html">Spelling Practice</a>
     <span id="statusMsg">No file loaded</span>
     <label id="fileLabel" title="Load sentences file">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="fill: white;">
