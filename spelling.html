@@ -407,7 +407,7 @@
     sentences = [];
     wordIndex = 0;
     learned.clear();
-    isVisible = false;
+    isVisible = true;
 
     runner.style.transform = 'scaleX(-1)';
     runner.textContent = carEmojis[Math.floor(rand() * carEmojis.length)];
@@ -651,6 +651,7 @@
       return;
     }
 
+    displayArea.textContent = '';
     if (isVisible) {
       displayArea.innerHTML = renderWordWithProgress(targetWord, typedBuffer);
     } else {
@@ -663,7 +664,6 @@
   function toggleVisibility() {
     if (sentences.length === 0) return;
     isVisible = !isVisible;
-    typedBuffer = '';
     updateDisplay();
     updateToggleButton();
   }
