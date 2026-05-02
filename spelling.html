@@ -371,8 +371,6 @@
   let learned = new Set();
   let isTransforming = false;
   let typedBuffer = '';
-  let panOnNextDisplay = false;
-  let currentLineOffset = 0;
 
   const fileInput = document.getElementById('wordFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -569,7 +567,6 @@
 
     if (e.key === 'Backspace') {
       typedBuffer = typedBuffer.slice(0, -1);
-      panOnNextDisplay = false;
       updateDisplay();
       e.preventDefault();
       return;
@@ -585,7 +582,6 @@
       const expectedChar = targetWord[typedBuffer.length] || '';
       if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
         typedBuffer += e.key;
-        panOnNextDisplay = e.key === ' ';
         updateDisplay();
       }
 
@@ -627,8 +623,6 @@
     currentWord = (parts[0] || '').trim();
     currentSentence = (parts[1] || '').trim();
     typedBuffer = '';
-    panOnNextDisplay = false;
-    currentLineOffset = 0;
     updateDisplay();
     updateRunner();
     speakWord();
@@ -700,48 +694,11 @@
     displayArea.style.webkitTransform = 'translateZ(0)';
   }
 
-  function adjustDisplayLineOffset(recomputeOffset = false) {
-    const contentEl = displayArea.querySelector('.display-content');
-    const lineEl = displayArea.querySelector('.match-line');
-    if (!contentEl || !lineEl) return;
-
-    const areaWidth = contentEl.clientWidth;
-    const lineWidth = lineEl.scrollWidth;
-
-    if (lineWidth <= areaWidth) {
-      contentEl.style.justifyContent = 'center';
-      currentLineOffset = 0;
-      lineEl.style.transform = 'translateX(0px)';
-      return;
-    }
-
-    contentEl.style.justifyContent = 'flex-start';
-
-    if (recomputeOffset) {
-      if (isVisible) {
-        const boldEl = displayArea.querySelector('.match-bold');
-        const typedWidth = boldEl ? boldEl.getBoundingClientRect().width : 0;
-        const targetX = areaWidth * 0.45;
-        currentLineOffset = targetX - typedWidth;
-      } else {
-        currentLineOffset = areaWidth - lineWidth;
-      }
-    }
-
-    const minOffset = areaWidth - lineWidth;
-    const maxOffset = 0;
-    if (currentLineOffset < minOffset) currentLineOffset = minOffset;
-    if (currentLineOffset > maxOffset) currentLineOffset = maxOffset;
-
-    lineEl.style.transform = `translateX(${Math.round(currentLineOffset)}px)`;
-  }
-
   function updateDisplay() {
     const targetWord = getTargetWord();
 
     if (!targetWord) {
       displayArea.replaceChildren();
-      currentLineOffset = 0;
       gotoInput.value = '';
       return;
     }
@@ -757,10 +714,6 @@
 
     displayArea.replaceChildren(content);
     forceDisplayRepaintForIOS();
-    requestAnimationFrame(() => {
-      adjustDisplayLineOffset(panOnNextDisplay);
-      panOnNextDisplay = false;
-    });
 
     gotoInput.value = sentences.length > 0 ? wordIndex + 1 : '';
   }
@@ -802,7 +755,7 @@
     const screenWidth = window.innerWidth;
     const sideMargin = Math.max(16, Math.round(screenWidth * 0.08));
     const availableWidth = screenWidth - (sideMargin * 2);
-    const clampedWidth = Math.max(400, Math.min(1200, availableWidth));
+    const clampedWidth = Math.max(400, Math.min(1600, availableWidth));
 
     root.style.setProperty('--display-max-width', `${clampedWidth}px`);
   }
@@ -817,8 +770,6 @@
 
   window.addEventListener('resize', setDisplayAreaMetrics);
   window.addEventListener('orientationchange', setDisplayAreaMetrics);
-  window.addEventListener('resize', adjustDisplayLineOffset);
-  window.addEventListener('orientationchange', adjustDisplayLineOffset);
 
   function updateRunner() {
     if (sentences.length === 0 || isTransforming) return;
