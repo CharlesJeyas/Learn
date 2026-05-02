@@ -508,7 +508,7 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' ', ';', ':'].includes(e.key)) return;
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ';', ':', ']'].includes(e.key)) return;
 
     const target = e.target;
     if (target instanceof HTMLElement) {
@@ -523,17 +523,17 @@
         nextWord();
         handled = true;
       }
-    } else if (e.key === 'ArrowLeft' || e.key === ' ') {
+    } else if (e.key === 'ArrowLeft' || e.key === ';') {
       if (sentences.length > 0) {
         toggleVisibility();
         handled = true;
       }
-    } else if (e.key === 'ArrowUp' || e.key === ':') {
+    } else if (e.key === 'ArrowUp' || e.key === ']') {
       if (sentences.length > 0) {
         playUpperSentence();
         handled = true;
       }
-    } else if (e.key === 'ArrowDown' || e.key === ';') {
+    } else if (e.key === 'ArrowDown' || e.key === ':') {
       if (sentences.length > 0) {
         playLowerSentence();
         handled = true;
