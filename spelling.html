@@ -32,6 +32,9 @@
     --display-line-8-y-wrap: 206px;
     --display-line-set-gap: 90px;
     --display-wrapped-line-height: 1.35;
+    --typed-space-marker-width: 0.18em;
+    --typed-space-marker-height: 0.5em;
+    --typed-space-marker-opacity: 0.2;
   }
 
   html, body {
@@ -234,6 +237,16 @@
   #displayArea .match-hidden-rest {
     font-weight: 400;
     color: transparent;
+  }
+
+  #displayArea .typed-space-marker {
+    display: inline-block;
+    width: var(--typed-space-marker-width);
+    height: var(--typed-space-marker-height);
+    margin: 0 0.04em;
+    border-radius: 0.08em;
+    background: rgba(128, 128, 128, var(--typed-space-marker-opacity));
+    vertical-align: middle;
   }
 
   #displayArea .match-line {
@@ -593,7 +606,7 @@
         nextWord();
         handled = true;
       }
-    } else if (e.key === 'ArrowLeft' || e.key === ';') {
+    } else if (e.key === 'ArrowLeft' || e.key === ':') {
       if (sentences.length > 0) {
         toggleVisibility();
         handled = true;
@@ -603,7 +616,7 @@
         playUpperSentence();
         handled = true;
       }
-    } else if (e.key === 'ArrowDown' || e.key === ':') {
+    } else if (e.key === 'ArrowDown' || e.key === ';') {
       if (sentences.length > 0) {
         playLowerSentence();
         handled = true;
@@ -731,13 +744,20 @@
       matched++;
     }
 
-    const head = escapeHtml(word.slice(0, matched));
+    const head = renderTypedHeadForHiddenMode(word.slice(0, matched));
     const tail = escapeHtml(word.slice(matched));
     return `<span class="match-line"><span class="match-bold">${head}</span><span class="match-rest">${tail}</span></span>`;
   }
 
+  function renderTypedHeadForHiddenMode(text) {
+    return Array.from(text).map((ch) => {
+      if (ch === ' ') return '<span class="typed-space-marker"></span>';
+      return escapeHtml(ch);
+    }).join('');
+  }
+
   function renderHiddenWithLayout(word, typed) {
-    const visibleHead = escapeHtml(word.slice(0, typed.length));
+    const visibleHead = renderTypedHeadForHiddenMode(word.slice(0, typed.length));
     const hiddenTail = escapeHtml(word.slice(typed.length));
     return `<span class="match-line"><span class="match-bold">${visibleHead}</span><span class="match-hidden-rest">${hiddenTail}</span></span>`;
   }
