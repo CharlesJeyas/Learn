@@ -16,12 +16,22 @@
     --brown-shadow-light: rgba(193,154,107,0.3);
     --display-font-size: 5rem;
     --display-max-width: 400px;
-    --display-height: 150px;
-    --display-line-canvas-height: 200px;
-    --display-line-1-y: 25px;
-    --display-line-2-y: 45px;
-    --display-line-3-y: 75px;
-    --display-line-4-y: 95px;
+    --display-height: 210px;
+    --display-line-canvas-height: 210px;
+    --display-line-1-y: 30px;
+    --display-line-2-y: 50px;
+    --display-line-3-y: 80px;
+    --display-line-4-y: 100px;
+    --display-line-1-y-wrap: 30px;
+    --display-line-2-y-wrap: 50px;
+    --display-line-3-y-wrap: 80px;
+    --display-line-4-y-wrap: 100px;
+    --display-line-5-y-wrap: 135px;
+    --display-line-6-y-wrap: 155px;
+    --display-line-7-y-wrap: 185px;
+    --display-line-8-y-wrap: 205px;
+    --display-line-set-gap: 90px;
+    --display-wrapped-line-height: 1.35;
   }
 
   html, body {
@@ -155,13 +165,46 @@
       linear-gradient(to bottom, gray 1px, transparent 0),
       linear-gradient(to bottom, red 1px, transparent 0),
       linear-gradient(to bottom, gray 1px, transparent 0);
+
     background-repeat: no-repeat;
     background-size: 100% var(--display-line-canvas-height);
     background-position: 
       0 var(--display-line-1-y), 
       0 var(--display-line-2-y), 
-      0 var(--display-line-3-y), 
+      0 var(--display-line-3-y),
       0 var(--display-line-4-y);
+  }
+
+  #displayArea::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background-image:
+      linear-gradient(to bottom, gray 1px, transparent 0),
+      linear-gradient(to bottom, gray 1px, transparent 0),
+      linear-gradient(to bottom, red 1px, transparent 0),
+      linear-gradient(to bottom, gray 1px, transparent 0);
+    background-repeat: no-repeat;
+    background-size: 100% var(--display-line-canvas-height);
+    background-position:
+      0 var(--display-line-5-y-wrap),
+      0 var(--display-line-6-y-wrap),
+      0 var(--display-line-7-y-wrap),
+      0 var(--display-line-8-y-wrap);
+  }
+
+  #displayArea.show-second-lines::after {
+    opacity: 1;
+  }
+
+  #displayArea.show-second-lines {
+    background-position:
+      0 var(--display-line-1-y-wrap),
+      0 var(--display-line-2-y-wrap),
+      0 var(--display-line-3-y-wrap),
+      0 var(--display-line-4-y-wrap);
   }
 
   #displayArea .display-content {
@@ -171,7 +214,9 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    text-align: left;
+    text-align: center;
+    position: relative;
+    z-index: 1;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
   }
@@ -186,9 +231,22 @@
     color: var(--brown-lighter);
   }
 
+  #displayArea .match-hidden-rest {
+    font-weight: 400;
+    color: transparent;
+  }
+
   #displayArea .match-line {
-    display: inline-block;
-    white-space: nowrap;
+    display: -webkit-box;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    line-height: var(--display-wrapped-line-height);
     color: var(--brown-lighter);
   }
 
@@ -678,6 +736,12 @@
     return `<span class="match-line"><span class="match-bold">${head}</span><span class="match-rest">${tail}</span></span>`;
   }
 
+  function renderHiddenWithLayout(word, typed) {
+    const visibleHead = escapeHtml(word.slice(0, typed.length));
+    const hiddenTail = escapeHtml(word.slice(typed.length));
+    return `<span class="match-line"><span class="match-bold">${visibleHead}</span><span class="match-hidden-rest">${hiddenTail}</span></span>`;
+  }
+
   function renderTypedOnly(typed) {
     if (!typed) return '';
     return `<span class="match-line"><span class="match-bold">${escapeHtml(typed)}</span></span>`;
@@ -694,11 +758,24 @@
     displayArea.style.webkitTransform = 'translateZ(0)';
   }
 
+  function updateSecondLineGuidesVisibility() {
+    const lineEl = displayArea.querySelector('.match-line');
+    if (!lineEl) {
+      displayArea.classList.remove('show-second-lines');
+      return;
+    }
+
+    const lineHeight = parseFloat(getComputedStyle(lineEl).lineHeight) || 0;
+    const wrapped = lineHeight > 0 && lineEl.scrollHeight > (lineHeight * 1.5);
+    displayArea.classList.toggle('show-second-lines', wrapped);
+  }
+
   function updateDisplay() {
     const targetWord = getTargetWord();
 
     if (!targetWord) {
       displayArea.replaceChildren();
+      displayArea.classList.remove('show-second-lines');
       gotoInput.value = '';
       return;
     }
@@ -709,11 +786,12 @@
     if (isVisible) {
       content.innerHTML = renderWordWithProgress(targetWord, typedBuffer);
     } else {
-      content.innerHTML = renderTypedOnly(typedBuffer);
+      content.innerHTML = renderHiddenWithLayout(targetWord, typedBuffer);
     }
 
     displayArea.replaceChildren(content);
     forceDisplayRepaintForIOS();
+    updateSecondLineGuidesVisibility();
 
     gotoInput.value = sentences.length > 0 ? wordIndex + 1 : '';
   }
@@ -770,6 +848,8 @@
 
   window.addEventListener('resize', setDisplayAreaMetrics);
   window.addEventListener('orientationchange', setDisplayAreaMetrics);
+  window.addEventListener('resize', updateSecondLineGuidesVisibility);
+  window.addEventListener('orientationchange', updateSecondLineGuidesVisibility);
 
   function updateRunner() {
     if (sentences.length === 0 || isTransforming) return;
