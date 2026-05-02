@@ -14,6 +14,14 @@
     --brown-dark: #5a3e2b;
     --brown-shadow: rgba(166,123,91,0.4);
     --brown-shadow-light: rgba(193,154,107,0.3);
+    --display-font-size: 5rem;
+    --display-max-width: 400px;
+    --display-height: 150px;
+    --display-line-canvas-height: 200px;
+    --display-line-1-y: 25px;
+    --display-line-2-y: 45px;
+    --display-line-3-y: 75px;
+    --display-line-4-y: 95px;
   }
 
   html, body {
@@ -121,14 +129,14 @@
 
   #displayArea {
     font-family: 'Dancing Script', cursive;
-    font-size: 5rem;
+    font-size: var(--display-font-size);
     width: 100%;
-    max-width: 400px;
-    height: 150px;
+    max-width: var(--display-max-width);
+    height: var(--display-height);
     margin: auto;
     text-align: center;
     color: var(--brown-dark);
-  
+
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -141,25 +149,29 @@
     -webkit-backface-visibility: hidden;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
-  
+
     background-image:
       linear-gradient(to bottom, gray 1px, transparent 0),
       linear-gradient(to bottom, gray 1px, transparent 0),
       linear-gradient(to bottom, red 1px, transparent 0),
       linear-gradient(to bottom, gray 1px, transparent 0);
     background-repeat: no-repeat;
-    background-size: 100% 200px;
+    background-size: 100% var(--display-line-canvas-height);
     background-position: 
-      0 25px, 
-      0 45px, 
-      0 75px, 
-      0 95px;
+      0 var(--display-line-1-y), 
+      0 var(--display-line-2-y), 
+      0 var(--display-line-3-y), 
+      0 var(--display-line-4-y);
   }
 
   #displayArea .display-content {
     width: 100%;
     min-height: 1em;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    text-align: left;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
   }
@@ -359,6 +371,8 @@
   let learned = new Set();
   let isTransforming = false;
   let typedBuffer = '';
+  let panOnNextDisplay = false;
+  let currentLineOffset = 0;
 
   const fileInput = document.getElementById('wordFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -555,6 +569,7 @@
 
     if (e.key === 'Backspace') {
       typedBuffer = typedBuffer.slice(0, -1);
+      panOnNextDisplay = false;
       updateDisplay();
       e.preventDefault();
       return;
@@ -570,6 +585,7 @@
       const expectedChar = targetWord[typedBuffer.length] || '';
       if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
         typedBuffer += e.key;
+        panOnNextDisplay = e.key === ' ';
         updateDisplay();
       }
 
@@ -611,6 +627,8 @@
     currentWord = (parts[0] || '').trim();
     currentSentence = (parts[1] || '').trim();
     typedBuffer = '';
+    panOnNextDisplay = false;
+    currentLineOffset = 0;
     updateDisplay();
     updateRunner();
     speakWord();
@@ -682,11 +700,48 @@
     displayArea.style.webkitTransform = 'translateZ(0)';
   }
 
+  function adjustDisplayLineOffset(recomputeOffset = false) {
+    const contentEl = displayArea.querySelector('.display-content');
+    const lineEl = displayArea.querySelector('.match-line');
+    if (!contentEl || !lineEl) return;
+
+    const areaWidth = contentEl.clientWidth;
+    const lineWidth = lineEl.scrollWidth;
+
+    if (lineWidth <= areaWidth) {
+      contentEl.style.justifyContent = 'center';
+      currentLineOffset = 0;
+      lineEl.style.transform = 'translateX(0px)';
+      return;
+    }
+
+    contentEl.style.justifyContent = 'flex-start';
+
+    if (recomputeOffset) {
+      if (isVisible) {
+        const boldEl = displayArea.querySelector('.match-bold');
+        const typedWidth = boldEl ? boldEl.getBoundingClientRect().width : 0;
+        const targetX = areaWidth * 0.45;
+        currentLineOffset = targetX - typedWidth;
+      } else {
+        currentLineOffset = areaWidth - lineWidth;
+      }
+    }
+
+    const minOffset = areaWidth - lineWidth;
+    const maxOffset = 0;
+    if (currentLineOffset < minOffset) currentLineOffset = minOffset;
+    if (currentLineOffset > maxOffset) currentLineOffset = maxOffset;
+
+    lineEl.style.transform = `translateX(${Math.round(currentLineOffset)}px)`;
+  }
+
   function updateDisplay() {
     const targetWord = getTargetWord();
 
     if (!targetWord) {
       displayArea.replaceChildren();
+      currentLineOffset = 0;
       gotoInput.value = '';
       return;
     }
@@ -702,10 +757,14 @@
 
     displayArea.replaceChildren(content);
     forceDisplayRepaintForIOS();
+    requestAnimationFrame(() => {
+      adjustDisplayLineOffset(panOnNextDisplay);
+      panOnNextDisplay = false;
+    });
 
     gotoInput.value = sentences.length > 0 ? wordIndex + 1 : '';
   }
-  
+
   function toggleVisibility() {
     if (sentences.length === 0) return;
     isVisible = !isVisible;
@@ -737,13 +796,29 @@
   function setVh() {
     document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
   }
-  
+
+  function setDisplayAreaMetrics() {
+    const root = document.documentElement;
+    const screenWidth = window.innerWidth;
+    const sideMargin = Math.max(16, Math.round(screenWidth * 0.08));
+    const availableWidth = screenWidth - (sideMargin * 2);
+    const clampedWidth = Math.max(400, Math.min(1200, availableWidth));
+
+    root.style.setProperty('--display-max-width', `${clampedWidth}px`);
+  }
+
   window.addEventListener('resize', setVh);
   window.addEventListener('orientationchange', setVh);
   window.addEventListener('load', () => {
     setVh();
+    setDisplayAreaMetrics();
     gotoInput.value = '';
   });
+
+  window.addEventListener('resize', setDisplayAreaMetrics);
+  window.addEventListener('orientationchange', setDisplayAreaMetrics);
+  window.addEventListener('resize', adjustDisplayLineOffset);
+  window.addEventListener('orientationchange', adjustDisplayLineOffset);
 
   function updateRunner() {
     if (sentences.length === 0 || isTransforming) return;
