@@ -16,23 +16,24 @@
     --brown-shadow-light: rgba(193,154,107,0.3);
     --display-font-size: 5rem;
     --display-max-width: 400px;
-    --display-height: 210px;
-    --display-line-canvas-height: 210px;
-    --display-line-1-y: 30px;
-    --display-line-2-y: 50px;
-    --display-line-3-y: 80px;
-    --display-line-4-y: 100px;
-    --display-line-1-y-wrap: 28px;
-    --display-line-2-y-wrap: 48px;
-    --display-line-3-y-wrap: 78px;
-    --display-line-4-y-wrap: 98px;
-    --display-line-5-y-wrap: 136px;
-    --display-line-6-y-wrap: 156px;
-    --display-line-7-y-wrap: 186px;
-    --display-line-8-y-wrap: 206px;
+    --display-height: 330px;
+    --display-line-canvas-height: 330px;
+    --display-line-1-y: 31px;
+    --display-line-2-y: 51px;
+    --display-line-3-y: 81px;
+    --display-line-4-y: 101px;
+    --display-line-5-y: 139px;
+    --display-line-6-y: 159px;
+    --display-line-7-y: 189px;
+    --display-line-8-y: 209px;
+    --display-line-9-y: 247px;
+    --display-line-10-y: 267px;
+    --display-line-11-y: 297px;
+    --display-line-12-y: 317px;
     --display-line-set-gap: 90px;
     --display-wrapped-line-height: 1.35;
-    --typed-space-marker-width: 0.18em;
+    --display-text-max-height: 4.75em;
+    --typed-space-marker-width: 0.17em;
     --typed-space-marker-height: 0.5em;
     --typed-space-marker-opacity: 0.2;
   }
@@ -178,6 +179,26 @@
       0 var(--display-line-4-y);
   }
 
+  #displayArea::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background-image:
+      linear-gradient(to bottom, gray 1px, transparent 0),
+      linear-gradient(to bottom, gray 1px, transparent 0),
+      linear-gradient(to bottom, red 1px, transparent 0),
+      linear-gradient(to bottom, gray 1px, transparent 0);
+    background-repeat: no-repeat;
+    background-size: 100% var(--display-line-canvas-height);
+    background-position:
+      0 var(--display-line-9-y),
+      0 var(--display-line-10-y),
+      0 var(--display-line-11-y),
+      0 var(--display-line-12-y);
+  }
+
   #displayArea::after {
     content: '';
     position: absolute;
@@ -192,10 +213,14 @@
     background-repeat: no-repeat;
     background-size: 100% var(--display-line-canvas-height);
     background-position:
-      0 var(--display-line-5-y-wrap),
-      0 var(--display-line-6-y-wrap),
-      0 var(--display-line-7-y-wrap),
-      0 var(--display-line-8-y-wrap);
+      0 var(--display-line-5-y),
+      0 var(--display-line-6-y),
+      0 var(--display-line-7-y),
+      0 var(--display-line-8-y);
+  }
+
+  #displayArea.show-third-lines::before {
+    opacity: 1;
   }
 
   #displayArea.show-second-lines::after {
@@ -204,10 +229,10 @@
 
   #displayArea.show-second-lines {
     background-position:
-      0 var(--display-line-1-y-wrap),
-      0 var(--display-line-2-y-wrap),
-      0 var(--display-line-3-y-wrap),
-      0 var(--display-line-4-y-wrap);
+      0 var(--display-line-1-y),
+      0 var(--display-line-2-y),
+      0 var(--display-line-3-y),
+      0 var(--display-line-4-y);
   }
 
   #displayArea .display-content {
@@ -250,14 +275,12 @@
   }
 
   #displayArea .match-line {
-    display: -webkit-box;
+    display: block;
     max-width: 100%;
     white-space: normal;
     overflow-wrap: break-word;
     word-break: break-word;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    max-height: var(--display-text-max-height);
     overflow: hidden;
     line-height: var(--display-wrapped-line-height);
     color: var(--brown-lighter);
@@ -782,12 +805,15 @@
     const lineEl = displayArea.querySelector('.match-line');
     if (!lineEl) {
       displayArea.classList.remove('show-second-lines');
+      displayArea.classList.remove('show-third-lines');
       return;
     }
 
     const lineHeight = parseFloat(getComputedStyle(lineEl).lineHeight) || 0;
-    const wrapped = lineHeight > 0 && lineEl.scrollHeight > (lineHeight * 1.5);
-    displayArea.classList.toggle('show-second-lines', wrapped);
+    const hasSecondLine = lineHeight > 0 && lineEl.scrollHeight > (lineHeight * 1.5);
+    const hasThirdLine = lineHeight > 0 && lineEl.scrollHeight > (lineHeight * 2.5);
+    displayArea.classList.toggle('show-second-lines', hasSecondLine);
+    displayArea.classList.toggle('show-third-lines', hasThirdLine);
   }
 
   function updateDisplay() {
@@ -796,6 +822,7 @@
     if (!targetWord) {
       displayArea.replaceChildren();
       displayArea.classList.remove('show-second-lines');
+      displayArea.classList.remove('show-third-lines');
       gotoInput.value = '';
       return;
     }
