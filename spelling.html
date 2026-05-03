@@ -442,6 +442,17 @@
   let learned = new Set();
   let isTransforming = false;
   let typedBuffer = '';
+  const keyHitSoundSrc = 'keyhit.wav';
+  const keyHitSoundPoolSize = 8;
+  const keyHitSoundVolume = 0.7;
+  const keyHitSoundPool = Array.from({ length: keyHitSoundPoolSize }, () => {
+    const audio = new Audio(keyHitSoundSrc);
+    audio.preload = 'auto';
+    audio.volume = keyHitSoundVolume;
+    return audio;
+  });
+  let keyHitSoundPrimed = false;
+  let keyHitSoundIndex = 0;
 
   const fileInput = document.getElementById('wordFileInput');
   const statusMsg = document.getElementById('statusMsg');
@@ -559,6 +570,52 @@
     if (sentences.length === 0) return;
     speakWord();
   }
+
+  function playKeyHitSound() {
+    if (!keyHitSoundPrimed) return;
+    const audio = keyHitSoundPool[keyHitSoundIndex];
+    keyHitSoundIndex = (keyHitSoundIndex + 1) % keyHitSoundPool.length;
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  }
+
+  function primeKeyHitSound() {
+    if (keyHitSoundPrimed) return;
+    keyHitSoundPool.forEach((audio) => {
+      audio.load();
+    });
+
+    const first = keyHitSoundPool[0];
+    first.muted = true;
+    first.currentTime = 0;
+    first.play()
+      .then(() => {
+        first.pause();
+        first.currentTime = 0;
+        first.muted = false;
+        keyHitSoundPrimed = true;
+      })
+      .catch(() => {
+        first.muted = false;
+      });
+  }
+
+  document.addEventListener('pointerdown', primeKeyHitSound, { once: true });
+  document.addEventListener('touchstart', primeKeyHitSound, { once: true });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Meta') return;
+
+    const target = e.target;
+    if (target instanceof HTMLElement) {
+      const tag = target.tagName;
+      if (target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    }
+
+    playKeyHitSound();
+  });
 
   upperArea.addEventListener('click', playUpperSentence);
   lowerArea.addEventListener('click', playLowerSentence);
