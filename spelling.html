@@ -677,6 +677,9 @@
       if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
         typedBuffer += e.key;
         updateDisplay();
+        if (typedBuffer.length === targetWord.length) {
+          triggerFinalLetterAnimation();
+        }
       }
 
       e.preventDefault();
@@ -841,6 +844,13 @@
     updateSecondLineGuidesVisibility();
 
     gotoInput.value = sentences.length > 0 ? wordIndex + 1 : '';
+  }
+
+  function triggerFinalLetterAnimation() {
+    const rect = displayArea.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    createFireworks(main, centerX, centerY);
   }
 
   function toggleVisibility() {
