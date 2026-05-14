@@ -666,7 +666,9 @@
       return;
     }
 
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const hasModifier = e.ctrlKey || e.metaKey || e.altKey;
+    const isSpaceKey = e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
+    if ((e.key.length === 1 || isSpaceKey) && !hasModifier) {
       const targetWord = getTargetWord();
       if (typedBuffer.length >= targetWord.length) {
         e.preventDefault();
@@ -674,8 +676,9 @@
       }
 
       const expectedChar = targetWord[typedBuffer.length] || '';
-      if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
-        typedBuffer += e.key;
+      const typedChar = isSpaceKey ? ' ' : e.key;
+      if (typedChar.toLowerCase() === expectedChar.toLowerCase()) {
+        typedBuffer += typedChar;
         updateDisplay();
         if (typedBuffer.length === targetWord.length) {
           triggerFinalLetterAnimation();
