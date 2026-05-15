@@ -535,7 +535,7 @@
     if (isIOSLikeDevice()) return null;
 
     const poolSize = 12;
-    const poolVolume = 0.4;
+    const poolVolume = 0.3;
     keyHitAudioPool = Array.from({ length: poolSize }, () => {
       const audio = new Audio('keyhit.wav');
       audio.preload = 'auto';
