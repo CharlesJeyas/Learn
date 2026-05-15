@@ -491,6 +491,7 @@
   ]);
   const unifiedSoundVolume = 0.7;
   const keyClickMinIntervalMs = 16;
+  const speechDuckLeadMs = 180;
   const speechDuckRecoveryMs = 450;
 
   function isIOSLikeDevice() {
@@ -500,6 +501,13 @@
 
   function markSpeechDuckRecoveryWindow() {
     speechDuckCompensationUntil = performance.now() + speechDuckRecoveryMs;
+  }
+
+  function markSpeechDuckLeadWindow() {
+    const leadUntil = performance.now() + speechDuckLeadMs;
+    if (leadUntil > speechDuckCompensationUntil) {
+      speechDuckCompensationUntil = leadUntil;
+    }
   }
 
   function getKeyHitAudioContext() {
@@ -894,6 +902,7 @@
 
   function speakWord() {
     if (!currentWord || sentences.length === 0) return;
+    markSpeechDuckLeadWindow();
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentWord);
     utterance.rate = 0.7;
@@ -906,6 +915,7 @@
 
   function speakSentence() {
     if (!currentSentence || sentences.length === 0) return;
+    markSpeechDuckLeadWindow();
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSentence);
     utterance.rate = 0.7;
