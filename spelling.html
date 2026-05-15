@@ -565,7 +565,7 @@
         source.buffer = keyHitAudioBuffer;
 
         const gain = ctx.createGain();
-        gain.gain.value = 0.3;
+        gain.gain.value = 0.1;
 
         source.connect(gain);
         gain.connect(ctx.destination);
