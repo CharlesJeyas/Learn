@@ -735,12 +735,12 @@
 
   function playUpperSentence() {
     if (sentences.length === 0) return;
-    speakSentence();
+    speakSentence(true);
   }
 
   function playLowerSentence() {
     if (sentences.length === 0) return;
-    speakWord();
+    speakWord(true);
   }
 
   upperArea.addEventListener('click', playUpperSentence);
@@ -893,8 +893,8 @@
     speakWord();
   }
 
-  function speakWord() {
-    if (!isSpeechEnabled || !currentWord || sentences.length === 0) return;
+  function speakWord(force = false) {
+    if ((!isSpeechEnabled && !force) || !currentWord || sentences.length === 0) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentWord);
     utterance.rate = 0.8;
@@ -903,8 +903,8 @@
     speechSynthesis.speak(utterance);
   }
 
-  function speakSentence() {
-    if (!isSpeechEnabled || !currentSentence || sentences.length === 0) return;
+  function speakSentence(force = false) {
+    if ((!isSpeechEnabled && !force) || !currentSentence || sentences.length === 0) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSentence);
     utterance.rate = 0.8;
