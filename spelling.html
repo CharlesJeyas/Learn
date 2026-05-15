@@ -465,9 +465,6 @@
   let learned = new Set();
   let isTransforming = false;
   let typedBuffer = '';
-  let keyClickAudioCtx = null;
-  let keyClickAudioBuffer = null;
-  let keyClickFallbackAudio = null;
   let keyHitAudioPool = null;
   let keyHitAudioPoolIndex = 0;
   let lastKeyClickAt = 0;
@@ -495,98 +492,15 @@
       || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
-  function getKeyClickAudioContext() {
-    if (!keyClickAudioCtx) {
-      keyClickAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    return keyClickAudioCtx;
-  }
-
-  function getKeyClickAudioBuffer(ctx) {
-    if (keyClickAudioBuffer) return keyClickAudioBuffer;
-
-    const durationSeconds = 0.022;
-    const sampleCount = Math.max(1, Math.floor(ctx.sampleRate * durationSeconds));
-    const buffer = ctx.createBuffer(1, sampleCount, ctx.sampleRate);
-    const channel = buffer.getChannelData(0);
-
-    for (let i = 0; i < sampleCount; i++) {
-      const t = i / ctx.sampleRate;
-      const attack = Math.min(1, t / 0.0009);
-      const decay = Math.exp(-t * 120);
-      const envelope = attack * decay;
-      const body = Math.sin(2 * Math.PI * 620 * t) * 0.75;
-      const snap = Math.sin(2 * Math.PI * 1180 * t) * 0.22;
-      const noise = (Math.random() * 2 - 1) * 0.08;
-      channel[i] = (body + snap + noise) * envelope;
-    }
-
-    keyClickAudioBuffer = buffer;
-    return keyClickAudioBuffer;
-  }
-
-  function createClickWavBlobUrl() {
-    const sampleRate = 22050;
-    const durationSeconds = 0.04;
-    const sampleCount = Math.floor(sampleRate * durationSeconds);
-    const dataSize = sampleCount * 2;
-    const buffer = new ArrayBuffer(44 + dataSize);
-    const view = new DataView(buffer);
-
-    function writeString(offset, text) {
-      for (let i = 0; i < text.length; i++) {
-        view.setUint8(offset + i, text.charCodeAt(i));
-      }
-    }
-
-    writeString(0, 'RIFF');
-    view.setUint32(4, 36 + dataSize, true);
-    writeString(8, 'WAVE');
-    writeString(12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, 1, true);
-    view.setUint16(22, 1, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, sampleRate * 2, true);
-    view.setUint16(32, 2, true);
-    view.setUint16(34, 16, true);
-    writeString(36, 'data');
-    view.setUint32(40, dataSize, true);
-
-    for (let i = 0; i < sampleCount; i++) {
-      const t = i / sampleRate;
-      const attack = Math.min(1, t / 0.0012);
-      const decay = Math.exp(-t * 65);
-      const envelope = attack * decay;
-      const body = Math.sin(2 * Math.PI * 600 * t) * 0.78;
-      const snap = Math.sin(2 * Math.PI * 1080 * t) * 0.2;
-      const noise = (Math.random() * 2 - 1) * 0.07;
-      const sample = Math.max(-1, Math.min(1, (body + snap + noise) * envelope));
-      view.setInt16(44 + i * 2, sample * 32767, true);
-    }
-
-    const blob = new Blob([buffer], { type: 'audio/wav' });
-    return URL.createObjectURL(blob);
-  }
-
-  function getFallbackClickAudio() {
-    if (!keyClickFallbackAudio) {
-      keyClickFallbackAudio = new Audio(createClickWavBlobUrl());
-      keyClickFallbackAudio.preload = 'auto';
-      keyClickFallbackAudio.volume = 0.7;
-    }
-    return keyClickFallbackAudio;
-  }
-
   function initKeyHitAudioPool() {
     if (keyHitAudioPool) return keyHitAudioPool;
-    if (isIOSLikeDevice()) return null;
 
-    const poolSize = 12;
+    const poolSize = isIOSLikeDevice() ? 4 : 12;
+    const poolVolume = isIOSLikeDevice() ? 0.65 : 0.7;
     keyHitAudioPool = Array.from({ length: poolSize }, () => {
       const audio = new Audio('keyhit.wav');
       audio.preload = 'auto';
-      audio.volume = 0.7;
+      audio.volume = poolVolume;
       audio.load();
       return audio;
     });
@@ -595,8 +509,6 @@
   }
 
   function playKeyHitWavSound() {
-    if (isIOSLikeDevice()) return false;
-
     try {
       const pool = initKeyHitAudioPool();
       if (!pool || pool.length === 0) return false;
@@ -615,68 +527,12 @@
 
   function unlockKeyClickAudio() {
     try {
-      const ctx = getKeyClickAudioContext();
-      if (ctx.state === 'suspended') {
-        ctx.resume().catch(() => {});
-      }
-    } catch (_) {}
-
-    try {
       initKeyHitAudioPool();
     } catch (_) {}
   }
 
-  function playTypewriterClickSound() {
-    const ctx = getKeyClickAudioContext();
-    if (ctx.state !== 'running') return;
-
-    const source = ctx.createBufferSource();
-    source.buffer = getKeyClickAudioBuffer(ctx);
-
-    const gain = ctx.createGain();
-    gain.gain.value = 0.85;
-
-    source.connect(gain);
-    gain.connect(ctx.destination);
-    source.start();
-  }
-
-  function playFallbackTypewriterClickSound() {
-    try {
-      const audio = getFallbackClickAudio();
-      audio.currentTime = 0;
-      const p = audio.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-    } catch (_) {}
-  }
-
   function playTypewriterClickSoundWithUnlock() {
-    if (playKeyHitWavSound()) return;
-
-    let ctx;
-    try {
-      ctx = getKeyClickAudioContext();
-    } catch (_) {
-      playFallbackTypewriterClickSound();
-      return;
-    }
-
-    if (ctx.state === 'running') {
-      playTypewriterClickSound();
-      return;
-    }
-
-    ctx.resume()
-      .then(() => {
-        if (ctx.state === 'running') {
-          playTypewriterClickSound();
-        } else {
-          playFallbackTypewriterClickSound();
-        }
-      })
-      .catch(() => {
-        playFallbackTypewriterClickSound();
-      });
+    playKeyHitWavSound();
   }
 
   function shouldPlayKeyClick(event) {
@@ -693,7 +549,8 @@
     if (!shouldPlayKeyClick(e)) return;
 
     const now = performance.now();
-    if (now - lastKeyClickAt < keyClickMinIntervalMs) return;
+    const minInterval = isIOSLikeDevice() ? 30 : keyClickMinIntervalMs;
+    if (now - lastKeyClickAt < minInterval) return;
     lastKeyClickAt = now;
 
     playTypewriterClickSoundWithUnlock();
