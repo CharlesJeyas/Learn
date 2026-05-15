@@ -488,6 +488,7 @@
     'Shift', 'Control', 'Alt', 'Meta', 'CapsLock',
     'Escape', 'Fn', 'ContextMenu', 'NumLock', 'ScrollLock'
   ]);
+  const unifiedSoundVolume = 0.7;
   const keyClickMinIntervalMs = 16;
 
   function isIOSLikeDevice() {
@@ -534,7 +535,7 @@
     if (isIOSLikeDevice()) return null;
 
     const poolSize = 12;
-    const poolVolume = 0.7;
+    const poolVolume = unifiedSoundVolume;
     keyHitAudioPool = Array.from({ length: poolSize }, () => {
       const audio = new Audio('keyhit.wav');
       audio.preload = 'auto';
@@ -564,7 +565,7 @@
         source.buffer = keyHitAudioBuffer;
 
         const gain = ctx.createGain();
-        gain.gain.value = 0.72;
+        gain.gain.value = unifiedSoundVolume;
 
         source.connect(gain);
         gain.connect(ctx.destination);
@@ -888,6 +889,7 @@
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentWord);
     utterance.rate = 0.7;
+    utterance.volume = unifiedSoundVolume;
     utterance.voice = voiceEN;
     speechSynthesis.speak(utterance);
   }
@@ -897,6 +899,7 @@
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSentence);
     utterance.rate = 0.7;
+    utterance.volume = unifiedSoundVolume;
     utterance.voice = voiceJP;
     speechSynthesis.speak(utterance);
   }
