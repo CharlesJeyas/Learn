@@ -602,7 +602,7 @@ footer button:disabled {
   function speakSentence(text, voiceName, onEnd) {
     const utterance = new SpeechSynthesisUtterance(text);
     speechSynthesis.cancel();
-    utterance.rate = 0.7;
+    utterance.rate = 0.8;
     utterance.voice = (voiceName === "en" && voiceEN) ? voiceEN :
                       (voiceName === "jp" && voiceJP) ? voiceJP :
                       voices[0];
