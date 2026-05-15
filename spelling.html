@@ -443,6 +443,7 @@
   
   <footer>
     <input type="number" id="gotoInput" placeholder="" min="1"/>
+    <button id="speechToggle" onclick="toggleSpeechPlayback()">Mute</button>
     <button id="showToggle" onclick="toggleVisibility()">Show</button>
     <button id="nextBtn">Next</button>
   </footer>
@@ -457,6 +458,7 @@
   let currentSentence = '';
   let wordIndex = 0;
   let isVisible = false;
+  let isSpeechEnabled = true;
   let timerInterval = null;
   let startTime = null;
   let shuffledIndices = [];
@@ -475,6 +477,7 @@
   const fileInput = document.getElementById('wordFileInput');
   const statusMsg = document.getElementById('statusMsg');
   const gotoInput = document.getElementById('gotoInput');
+  const speechToggle = document.getElementById('speechToggle');
   const showToggle = document.getElementById('showToggle');
   const nextBtn = document.getElementById('nextBtn');
   const displayArea = document.getElementById('displayArea');
@@ -714,6 +717,7 @@
       sentences = text.split('\n').map(w => w.trim()).filter(Boolean);
 
       updateToggleButton();
+      updateSpeechToggleButton();
       if (sentences.length > 0) {
         updateButtonStates();
         statusMsg.innerHTML = `${sentences.length} sentences`;
@@ -770,7 +774,7 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ';', ':', ']'].includes(e.key)) return;
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ';', ':', ']', '@', '&'].includes(e.key)) return;
 
     const target = e.target;
     if (target instanceof HTMLElement) {
@@ -798,6 +802,11 @@
     } else if (e.key === 'ArrowDown' || e.key === ';') {
       if (sentences.length > 0) {
         playLowerSentence();
+        handled = true;
+      }
+    } else if (e.key === '@' || e.key === '&') {
+      if (sentences.length > 0) {
+        toggleSpeechPlayback();
         handled = true;
       }
     }
@@ -885,7 +894,7 @@
   }
 
   function speakWord() {
-    if (!currentWord || sentences.length === 0) return;
+    if (!isSpeechEnabled || !currentWord || sentences.length === 0) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentWord);
     utterance.rate = 0.8;
@@ -895,7 +904,7 @@
   }
 
   function speakSentence() {
-    if (!currentSentence || sentences.length === 0) return;
+    if (!isSpeechEnabled || !currentSentence || sentences.length === 0) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSentence);
     utterance.rate = 0.8;
@@ -905,6 +914,7 @@
   }
 
   function updateButtonStates(){
+    speechToggle.disabled = sentences.length===0;
     showToggle.disabled = sentences.length===0;
     nextBtn.disabled = sentences.length===0;
   }
@@ -1029,6 +1039,21 @@
 
   function updateToggleButton() {
     showToggle.textContent = isVisible ? 'Hide' : 'Show';
+  }
+
+  function toggleSpeechPlayback() {
+    isSpeechEnabled = !isSpeechEnabled;
+    if (!isSpeechEnabled) {
+      speechSynthesis.cancel();
+    }
+    updateSpeechToggleButton();
+    if (isSpeechEnabled) {
+      speakWord();
+    }
+  }
+
+  function updateSpeechToggleButton() {
+    speechToggle.textContent = isSpeechEnabled ? 'Mute' : 'Play';
   }
 
   gotoInput.addEventListener('focus', () => {
