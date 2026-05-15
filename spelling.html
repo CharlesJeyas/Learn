@@ -470,6 +470,7 @@
   let keyHitAudioCtx = null;
   let keyHitAudioBuffer = null;
   let keyHitAudioBufferPromise = null;
+  let speechDuckCompensationUntil = 0;
   let lastKeyClickAt = 0;
 
   const fileInput = document.getElementById('wordFileInput');
@@ -490,11 +491,15 @@
   ]);
   const unifiedSoundVolume = 0.7;
   const keyClickMinIntervalMs = 16;
-
+  const speechDuckRecoveryMs = 300;
 
   function isIOSLikeDevice() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent)
       || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  function markSpeechDuckRecoveryWindow() {
+    speechDuckCompensationUntil = performance.now() + speechDuckRecoveryMs;
   }
 
   function getKeyHitAudioContext() {
@@ -566,7 +571,9 @@
         source.buffer = keyHitAudioBuffer;
 
         const gain = ctx.createGain();
-        gain.gain.value = Math.min(1, unifiedSoundVolume * 2);
+        const inDuckRecovery = performance.now() < speechDuckCompensationUntil;
+        const speakingCompensation = (speechSynthesis.speaking || inDuckRecovery) ? 2 : 0.5;
+        gain.gain.value = Math.min(1, unifiedSoundVolume * speakingCompensation);
 
         source.connect(gain);
         gain.connect(ctx.destination);
@@ -628,7 +635,7 @@
     if (!shouldPlayKeyClick(e)) return;
 
     const now = performance.now();
-    const minInterval = isIOSLikeDevice() ? 4 : keyClickMinIntervalMs;
+    const minInterval = isIOSLikeDevice() ? 8 : keyClickMinIntervalMs;
     if (now - lastKeyClickAt < minInterval) return;
     lastKeyClickAt = now;
 
@@ -889,9 +896,11 @@
     if (!currentWord || sentences.length === 0) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentWord);
-    utterance.rate = 0.7;
+    utterance.rate = 0.8;
     utterance.volume = unifiedSoundVolume;
     utterance.voice = voiceEN;
+    utterance.onend = markSpeechDuckRecoveryWindow;
+    utterance.onerror = markSpeechDuckRecoveryWindow;
     speechSynthesis.speak(utterance);
   }
 
@@ -899,9 +908,11 @@
     if (!currentSentence || sentences.length === 0) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSentence);
-    utterance.rate = 0.7;
+    utterance.rate = 0.8;
     utterance.volume = unifiedSoundVolume;
     utterance.voice = voiceJP;
+    utterance.onend = markSpeechDuckRecoveryWindow;
+    utterance.onerror = markSpeechDuckRecoveryWindow;
     speechSynthesis.speak(utterance);
   }
 
