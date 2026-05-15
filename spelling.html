@@ -470,6 +470,7 @@
   let keyHitAudioCtx = null;
   let keyHitAudioBuffer = null;
   let keyHitAudioBufferPromise = null;
+  let speechDuckCompensationUntil = 0;
   let lastKeyClickAt = 0;
 
   const fileInput = document.getElementById('wordFileInput');
@@ -490,10 +491,15 @@
   ]);
   const unifiedSoundVolume = 0.7;
   const keyClickMinIntervalMs = 16;
+  const speechDuckRecoveryMs = 450;
 
   function isIOSLikeDevice() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent)
       || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  function markSpeechDuckRecoveryWindow() {
+    speechDuckCompensationUntil = performance.now() + speechDuckRecoveryMs;
   }
 
   function getKeyHitAudioContext() {
@@ -565,7 +571,8 @@
         source.buffer = keyHitAudioBuffer;
 
         const gain = ctx.createGain();
-        const speakingCompensation = speechSynthesis.speaking ? 1.5 : 1;
+        const inDuckRecovery = performance.now() < speechDuckCompensationUntil;
+        const speakingCompensation = (speechSynthesis.speaking || inDuckRecovery) ? 1.5 : 1;
         gain.gain.value = Math.min(1, unifiedSoundVolume * speakingCompensation);
 
         source.connect(gain);
@@ -892,6 +899,8 @@
     utterance.rate = 0.7;
     utterance.volume = unifiedSoundVolume;
     utterance.voice = voiceEN;
+    utterance.onend = markSpeechDuckRecoveryWindow;
+    utterance.onerror = markSpeechDuckRecoveryWindow;
     speechSynthesis.speak(utterance);
   }
 
@@ -902,6 +911,8 @@
     utterance.rate = 0.7;
     utterance.volume = unifiedSoundVolume;
     utterance.voice = voiceJP;
+    utterance.onend = markSpeechDuckRecoveryWindow;
+    utterance.onerror = markSpeechDuckRecoveryWindow;
     speechSynthesis.speak(utterance);
   }
 
