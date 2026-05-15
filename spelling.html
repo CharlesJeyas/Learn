@@ -565,7 +565,8 @@
         source.buffer = keyHitAudioBuffer;
 
         const gain = ctx.createGain();
-        gain.gain.value = unifiedSoundVolume;
+        const speakingCompensation = speechSynthesis.speaking ? 1.35 : 1;
+        gain.gain.value = Math.min(1, unifiedSoundVolume * speakingCompensation);
 
         source.connect(gain);
         gain.connect(ctx.destination);
