@@ -467,6 +467,9 @@
   let typedBuffer = '';
   let keyHitAudioPool = null;
   let keyHitAudioPoolIndex = 0;
+  let keyHitAudioCtx = null;
+  let keyHitAudioBuffer = null;
+  let keyHitAudioBufferPromise = null;
   let lastKeyClickAt = 0;
 
   const fileInput = document.getElementById('wordFileInput');
@@ -488,11 +491,51 @@
   const unifiedSoundVolume = 0.7;
   const keyClickMinIntervalMs = 16;
 
+  function isIOSLikeDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  function getKeyHitAudioContext() {
+    if (!keyHitAudioCtx) {
+      keyHitAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return keyHitAudioCtx;
+  }
+
+  function loadKeyHitAudioBuffer() {
+    if (keyHitAudioBuffer) return Promise.resolve(keyHitAudioBuffer);
+    if (keyHitAudioBufferPromise) return keyHitAudioBufferPromise;
+
+    keyHitAudioBufferPromise = fetch('keyhit.wav', { cache: 'force-cache' })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to load keyhit.wav');
+        return response.arrayBuffer();
+      })
+      .then((arrayBuffer) => {
+        const ctx = getKeyHitAudioContext();
+        return new Promise((resolve, reject) => {
+          ctx.decodeAudioData(arrayBuffer, resolve, reject);
+        });
+      })
+      .then((decodedBuffer) => {
+        keyHitAudioBuffer = decodedBuffer;
+        return decodedBuffer;
+      })
+      .catch(() => {
+        keyHitAudioBufferPromise = null;
+        return null;
+      });
+
+    return keyHitAudioBufferPromise;
+  }
+
   function initKeyHitAudioPool() {
     if (keyHitAudioPool) return keyHitAudioPool;
+    if (isIOSLikeDevice()) return null;
 
     const poolSize = 12;
-    const poolVolume = 0.3;
+    const poolVolume = unifiedSoundVolume;
     keyHitAudioPool = Array.from({ length: poolSize }, () => {
       const audio = new Audio('keyhit.wav');
       audio.preload = 'auto';
@@ -505,6 +548,34 @@
   }
 
   function playKeyHitWavSound() {
+    if (isIOSLikeDevice()) {
+      try {
+        const ctx = getKeyHitAudioContext();
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+          return false;
+        }
+
+        if (!keyHitAudioBuffer) {
+          loadKeyHitAudioBuffer();
+          return false;
+        }
+
+        const source = ctx.createBufferSource();
+        source.buffer = keyHitAudioBuffer;
+
+        const gain = ctx.createGain();
+        gain.gain.value = speechSynthesis.speaking ? 1 : 0.5;
+
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        source.start(0);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
     try {
       const pool = initKeyHitAudioPool();
       if (!pool || pool.length === 0) return false;
@@ -522,6 +593,17 @@
   }
 
   function unlockKeyClickAudio() {
+    if (isIOSLikeDevice()) {
+      try {
+        const ctx = getKeyHitAudioContext();
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+        loadKeyHitAudioBuffer();
+      } catch (_) {}
+      return;
+    }
+
     try {
       initKeyHitAudioPool();
     } catch (_) {}
@@ -545,7 +627,8 @@
     if (!shouldPlayKeyClick(e)) return;
 
     const now = performance.now();
-    if (now - lastKeyClickAt < keyClickMinIntervalMs) return;
+    const minInterval = isIOSLikeDevice() ? 8 : keyClickMinIntervalMs;
+    if (now - lastKeyClickAt < minInterval) return;
     lastKeyClickAt = now;
 
     playTypewriterClickSoundWithUnlock();
