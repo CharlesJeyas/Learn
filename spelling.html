@@ -535,7 +535,7 @@
     if (isIOSLikeDevice()) return null;
 
     const poolSize = 12;
-    const poolVolume = unifiedSoundVolume;
+    const poolVolume = 0.3;
     keyHitAudioPool = Array.from({ length: poolSize }, () => {
       const audio = new Audio('keyhit.wav');
       audio.preload = 'auto';
@@ -564,11 +564,7 @@
         const source = ctx.createBufferSource();
         source.buffer = keyHitAudioBuffer;
 
-        const gain = ctx.createGain();
-        gain.gain.value = 0.1;
-
-        source.connect(gain);
-        gain.connect(ctx.destination);
+        source.connect(ctx.destination);
         source.start(0);
         return true;
       } catch (_) {
