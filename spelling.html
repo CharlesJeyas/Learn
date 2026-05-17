@@ -906,7 +906,7 @@
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSentence);
     utterance.rate = 0.8;
-    utterance.volume = 0.9;
+    utterance.volume = 1;
     utterance.voice = voiceJP;
     speechSynthesis.speak(utterance);
   }
