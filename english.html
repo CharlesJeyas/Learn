@@ -601,7 +601,6 @@ footer button:disabled {
     utterance.voice = (voiceName === "en" && voiceEN) ? voiceEN :
                       (voiceName === "jp" && voiceJP) ? voiceJP :
                       voices[0];
-    utterance.volume = voiceName === "en" ? 0.7 : 1;
     if (onEnd) utterance.onend = onEnd;
     speechSynthesis.speak(utterance);
   }
