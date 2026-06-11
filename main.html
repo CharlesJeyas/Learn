@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Fun Learning</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Frank+Ruhl+Libre:wght@500&display=swap" rel="stylesheet" />
   <style>
     :root {
       --vh: 1vh;
@@ -61,17 +61,26 @@
       background-color: #C19A6B;
       box-shadow: 0 6px 12px rgba(193,154,107,0.6);
     }
+
+    .hebrew-btn {
+      font-family: 'Frank Ruhl Libre', serif;
+      direction: rtl;
+    }
+
+    .spacer {
+       height: 4rem;
+    }
   </style>
 </head>
 <body>
   <header>Fun Practice! 🎉</header>
   <main>
-    <div class="btn-group">
+  <div class="btn-group">
       <a href="english.html" class="button">Speaking</a>
       <a href="spelling.html" class="button">Spelling</a>
-      <a href="hebrew.html" class="button">עברית</a>
-      
-    </div>
+      <div class="spacer"></div>
+      <a href="hebrew.html" class="button hebrew-btn">עברית</a>
+  </div>
   </main>
   <script>
     function setVh() {
