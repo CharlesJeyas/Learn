@@ -306,7 +306,7 @@ body.dark footer button {
 </head>
 <body>
 <header>
-  <span>Hebrew Practice</span>
+  <a id="appTitle" href="https://charlesjeyas.github.io/Learn/main.html">Hebrew Practice</a>
   <button id="langToggle">EN</button>
   <button id="autoPlayBtn" title="Play/Pause">▶</button>
   <button id="themeToggle" title="Toggle Night Mode">◉</button>
@@ -476,18 +476,20 @@ body.dark footer button {
     reader.readAsText(file);
   });
   
-  upperArea.addEventListener('click', () => {
+  function playUpperSentence() {
     if (sentences.length === 0) return;
     if (lang === 'en') speakSentence(sentences[sentenceIndex].he, 'he');
     else speakSentence(sentences[sentenceIndex].en, 'en');
-  
-  });
-  
-  lowerArea.addEventListener('click', () => {
+  }
+
+  function playLowerSentence() {
     if (sentences.length === 0) return;
     if (lang === 'en') speakSentence(sentences[sentenceIndex].en, 'en');
     else speakSentence(sentences[sentenceIndex].he, 'he');
-  });
+  }
+
+  upperArea.addEventListener('click', playUpperSentence);
+  lowerArea.addEventListener('click', playLowerSentence);
 
   nextBtn.addEventListener('click', () => {
     if (nextClickTimeout !== null) {
@@ -500,6 +502,56 @@ body.dark footer button {
         nextSentence();
       }, 250);
     }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'o') return;
+
+    const target = e.target;
+    if (target instanceof HTMLElement) {
+      const tag = target.tagName;
+      if (target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    }
+
+    e.preventDefault();
+    fileInput.click();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ';', ':', ']'].includes(e.key)) return;
+
+    const target = e.target;
+    if (target instanceof HTMLElement) {
+      const tag = target.tagName;
+      if (target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    }
+
+    let handled = false;
+
+    if (e.key === 'ArrowRight' || e.key === 'Enter') {
+      if (sentences.length > 0 && !nextBtn.disabled) {
+        nextSentence();
+        handled = true;
+      }
+    } else if (e.key === 'ArrowLeft' || e.key === ':') {
+      if (sentences.length > 0) {
+        toggleVisibility();
+        handled = true;
+      }
+    } else if (e.key === 'ArrowUp' || e.key === ']') {
+      if (sentences.length > 0) {
+        playUpperSentence();
+        handled = true;
+      }
+    } else if (e.key === 'ArrowDown' || e.key === ';') {
+      if (sentences.length > 0) {
+        playLowerSentence();
+        handled = true;
+      }
+    }
+
+    if (handled) e.preventDefault();
   });
   
   function nextSentence() {
@@ -542,7 +594,7 @@ body.dark footer button {
   function speakSentence(text, voiceName, onEnd) {
     const utterance = new SpeechSynthesisUtterance(text);
     speechSynthesis.cancel();
-    utterance.rate = 0.7;
+    utterance.rate = 0.8;
     utterance.voice = (voiceName === "en" && voiceEN) ? voiceEN :
                       (voiceName === "he" && voiceHE) ? voiceHE :
                       voices[0];
